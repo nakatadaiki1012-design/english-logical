@@ -312,3 +312,170 @@ window.LX.plus["c2-u12"] = {
     { en: "[Because of this], many shops closed early.", ja: "このため、多くの店が早く閉まった。", alt: ["Because this", "Because of so", "Because for this"], tip: "this は名詞 → Because of this" }
   ]
 };
+
+/* ===== 解説（なぜ？・それでもわからない人へ）=====
+   W(単元, ポイント[[why, easy]×3], 演習[[p, why]×12], 例文[[p, why]×6]) */
+(function (P) {
+  function W(id, pts, dr, sw) {
+    var u = P[id];
+    pts.forEach(function (x, i) { u.points[i].why = x[0]; u.points[i].easy = x[1]; });
+    dr.forEach(function (x, j) { u.drills[j].p = x[0]; u.drills[j].why = x[1]; });
+    u.swhy = sw.map(function (x) { return { p: x[0], why: x[1] }; });
+  }
+
+  W("c2-u07", [
+    ["英語は「言った時点」から見て時制を決める。said で舞台が過去に移るので、中の動詞もその過去に合わせてずらす。", "① 昨日「眠い」と言った。② 今それを人に話す。③ 「眠かった」と言うよね。英語も同じで、is が was になる。"],
+    ["言った時がすでに過去。それよりさらに前のことは、もう一段過去の had＋過去分詞で表して、順番をはっきりさせる。", "階段を思いうかべよう。今→1段下が「言った時」(過去)→2段下が「もっと前」(had＋過去分詞)。2段下りたら had。"],
+    ["質問をそのまま入れずに「〜かどうか」に変えるから if。命令は「〜するように」だから to＋動詞の原形でつなぐ。", "① 「お腹すいた？」→「お腹すいたかどうか」＝ if。② 「片づけなさい」→「片づけるように」＝ to 片づける。③ 中は ふつうの文の順番。"]
+  ], [
+    [0, "said が過去なので is を過去にずらして was。be は原形、were は she に合わない。"],
+    [0, "said に合わせて can を過去の could に。can to／could to のように to は入らない。"],
+    [0, "thought が過去なので will を would に。would to は to が余分、is は時制がずれる。"],
+    [1, "見たのは「話した時」より前なので had seen。has saw は形がこわれ、had see は原形でダメ。"],
+    [0, "said に合わせて過去進行形 was studying に。was study は -ing がなく、is は今の形。"],
+    [2, "「〜しないように」は not を to の前に置いて not to。don't や no to はこの形では使えない。"],
+    [2, "tell 人 to 〜「人に〜するように言う」の形。run や running だと told us とつながらない。"],
+    [2, "「〜かどうか」をたずねたので if。that は質問には使わず、do は文の途中に入らない。"],
+    [2, "疑問詞のあとはふつうの文の順で what I wanted。what did／what do は疑問文の順でダメ。"],
+    [2, "when のあとは she would leave の順。when will／when did は疑問文の語順なので×。"],
+    [2, "水が100度で沸くのは いつも本当のことなので現在形のまま boils。boil は主語 water に合わない。"],
+    [0, "said に合わせて will を would に。would のあとは原形なので visited は×。"]
+  ], [
+    [0, "said が過去なので is を was に。be は原形、were は he に合わず、being は動詞にならない。"],
+    [0, "thought が過去なので will を would に。is／does は「今」の形で、過去の舞台とずれる。"],
+    [1, "なくしたのは話すより前なので had lost。has／have lost は今が基準、had lose は原形で×。"],
+    [2, "命令は tell 人 to 〜 で伝える。clean や cleaning は told me に続かない。"],
+    [2, "疑問詞のあとはふつうの文の順で where I lived。where did／where do は疑問文の順で×。"],
+    [2, "地球が太陽のまわりを回るのは いつも本当のことなので現在形 goes のまま。go は主語に合わない。"]
+  ]);
+
+  W("c2-u08", [
+    ["It is ＿ that 〜 は、目立たせたい語句だけを前の特別席に出し、残りを that 以下に回す形。だから大事な所に光が当たる。", "① 元の文「トムが窓を割った」。② 言いたいのは「トム」。③ It was トム that 窓を割った。＝「窓を割ったのは トムなんだよ」。"],
+    ["do／does／did は、ふつうは隠れている「する」を表に出したもの。わざわざ出すから「本当に」の強めになる。後ろは原形。", "「I called.」を大声で言うかわりに、I DID call. と書く。did に「ちゃんと」の気持ちがこもる。did のあとは call のまま。"],
+    ["否定の語を文頭に出すと聞き手が「えっ？」と身構える。その驚きを表すため、疑問文と同じ語順にひっくり返す決まり。", "① I have never seen 〜。② never を先頭へ。③ 残りを疑問文の形 have I seen に。「一度も見たことない、なんて！」の気持ち。"]
+  ], [
+    [0, "強めたいのは Ken。It was ＿ that 〜 の形なので that。what／where は強調構文に使えない。"],
+    [0, "「この本こそが」を強める It is ＿ that。what は前に名詞があるので不可、who は物に使えない。"],
+    [0, "強めるのは時の言葉 yesterday でも that で受ける。what／which／who は時の語句には合わない。"],
+    [0, "強めるのが人 my sister なので who も使える。which は物用、whom は主語の位置に使えない。"],
+    [1, "主語が I で今の話なので do＋原形 remember。does は三人称、am・doing は強めの形にならない。"],
+    [1, "過去の話を強めるので did＋原形 finish。done・was・doing だと finish とつながらない。"],
+    [1, "主語 she で今の話なので does＋原形 look。do は she と×、is・doing は強めにならない。"],
+    [2, "Never が文頭なので疑問文の順 have I。I have はふつうの順、have me は主語が me で×。"],
+    [2, "Rarely（めったに〜ない）が文頭なので does she eat の順。she does はふつうの順なので×。"],
+    [2, "Not until が先頭なので did he come の順。he did はふつうの順、does は過去と×。"],
+    [2, "Hardly が先頭なので had I arrived の順。I had はふつうの順、had me は主語が×。"],
+    [2, "Only after 〜 が先頭で疑問文の順 did I understand。I did／I はふつうの順でダメ。"]
+  ], [
+    [0, "場所 in Kyoto を強めても受けは that。which／what は不可、where it は it が余分。"],
+    [0, "強めるのが人 you なので who。which は物、whom は主語に使えない、what は前に名詞があり×。"],
+    [1, "主語 she で今の話なので does＋原形 love。do は she に合わず、is・doing は強めにならない。"],
+    [2, "否定の Little が先頭なので did I dream の順。I did／I dreamed はふつうの順で×。"],
+    [2, "Not only が先頭なので did he sing の順。he did・he はふつうの順、does は過去と×。"],
+    [2, "Only then が先頭なので did I realize の順。I did・I はふつうの順、do は過去と×。"]
+  ]);
+
+  W("c2-u09", [
+    ["読み手は最初の1文で「何の話か」を決めて読み進める。だから結論を先に言うと、後ろの理由がすべてそこにつながって伝わる。", "道案内で「駅に行きます」と最初に言えば、あとの「右・左」が全部わかる。英語の文章も、ゴールを最初に言ってから道順を話す。"],
+    ["理由は数があると整理して聞ける。そして「例えば」の具体例は、頭の中に場面が見えるので、ただの理由より信じてもらいやすい。", "① First（1つ目）② Second（2つ目）と指で数えるように言う。③ For example で「たとえば うちでは…」と実際の話をそえる。"],
+    ["最後に主張をくり返すと、読み手の頭に答えが残る。新しい話を出すと、どれが言いたいことかぼやけてしまう。", "サンドイッチを思いうかべよう。上のパン＝主張、中の具＝理由と例、下のパン＝もう一度主張。下のパンがないと くずれる。"]
+  ], [
+    [0, "In my opinion「私の意見では」の決まり文句。on や by ではなく in、of も付けない。"],
+    [0, "think は動詞なので I think that。I am think は動詞が2つ、think to は形がちがう。"],
+    [1, "1つ目は First,。Firstly of all という形はなく、At first は「最初は」の意味。"],
+    [1, "2つ目の理由は Second,。Two は数そのもの、Secondary は「二次的な」で意味がちがう。"],
+    [2, "最後の理由は Finally,。Final は形容詞、at や in は付けない。"],
+    [1, "具体例は For example,。examples と複数にせず、by example は使わない。"],
+    [1, "For instance も「例えば」。instances と複数にせず、in や by では始めない。"],
+    [1, "In addition,「さらに」で文頭に置く。In addition to は後ろに名詞が必要なのでここでは×。"],
+    [1, "Moreover は1語で「その上」。More だけでは意味が通らず、of は付けない。"],
+    [2, "まとめの合図は In conclusion。conclude は動詞なので×、at や to では始めない。"],
+    [2, "these は複数なので reasons。this reasons は数が合わず、Because these は形が×。"],
+    [2, "To sum up「まとめると」の決まり文句。summing や for にはしない。sum だけでは×。"]
+  ], [
+    [0, "believe は動詞なので I believe that。am believe は動詞が2つで×。"],
+    [1, "1つ目の理由は First,。Firstly of all という形はなく、The first は合図にならない。"],
+    [1, "2つ目は Second,。Two は数、Secondary は「二次的な」、The second of は×。"],
+    [1, "具体例は For example,。examples と複数にせず、By example などは英語にない形。"],
+    [1, "In addition,「さらに」。In addition to は後ろに名詞が必要、Addition だけは×。"],
+    [2, "these（これらの）は複数なので reasons。For this reasons は数が合わず、By は使わない。"]
+  ]);
+
+  W("c2-u10", [
+    ["agree は「賛成する」という動きそのもの（動詞）。am と agree を並べると動詞が2つになるので、am はいらない。", "「I am 走る」とは言わないよね。agree も「賛成する」という動きの言葉。だから I agree だけでOK。人や考えには with をつける。"],
+    ["意見だけでは「なんで？」と聞かれる。This is because のあとに主語と動詞の文を続けると、理由が1つの文で言い切れる。", "① I agree.（意見）② This is because（なぜなら）③ it saves energy.（理由の文）。because のあとは ふつうの文を置くだけ。"],
+    ["相手を先に認めると、相手は「聞いてもらえた」と感じて耳をかたむける。だから but のあとの反論が受け入れられやすい。", "けんかにしないコツ。① 「なるほどね」と受け止める。② but「でもね」。③ 自分の意見。キャッチボールで、まず受けてから投げ返す感じ。"]
+  ], [
+    [0, "agree は動詞なので am は不要。人に賛成は agree with。to with は前置詞が2つで×。"],
+    [0, "completely（完全に）が agree を強める。complete は形容詞で×、am を付けると動詞が2つ。"],
+    [0, "disagree with「〜に反対する」。to ではなく with、am disagree は動詞が2つで×。"],
+    [0, "否定は don't agree with。am not agree は動詞が2つ、not agree だけは×。"],
+    [0, "in favor of「〜に賛成で」の決まった形。in favor to／on favor of は前置詞がちがう。"],
+    [0, "against「〜に反対で」は前置詞なので後ろに名詞。against to は前置詞が2つで×。"],
+    [0, "support は動詞「支持する」。am support は動詞が2つ、support to は to が余分。"],
+    [1, "理由を続けるのは This is because ＋文。Because of は後ろが名詞だけのときに使う。"],
+    [1, "The reason is that ＋文「理由は〜だ」。is because of は後ろが文なので合わない。"],
+    [1, "That's why ＋文「だから〜」で結果を言う。That's because why のように2つ重ねない。"],
+    [2, "相手の言い分がわかった＝see your point。look や watch は「目で見る」だけで意味がちがう。"],
+    [2, "That may be true「それは本当かもしれない」。may のあとは動詞の原形 be が必要。"]
+  ], [
+    [0, "agree は動詞なので am は不要。考えに賛成は agree with。to with は前置詞が2つ。"],
+    [0, "disagree with で「〜に反対」。am disagree は動詞が2つで×、not は don't が必要。"],
+    [0, "in favor of「〜に賛成で」の決まり文句。in favor to や on favor of は前置詞がちがう。"],
+    [0, "against は前置詞で後ろに名詞。against to は前置詞が2つ、oppose は am と並ばない。"],
+    [1, "理由の文を続けるので This is because ＋文。Because of は後ろが名詞のときだけ。"],
+    [2, "「言い分はわかる」は I see your point。look・watch は目で見るだけ、pointing は×。"]
+  ]);
+
+  W("c2-u11", [
+    ["while は2つの文を1つにつなぐ言葉。だから A, while B の1文の中で、2つを左右に置いて差を見せられる。", "シーソーを思いうかべよう。左に「私は犬」、右に「妹はねこ」。while はまん中の支え。1本の板で2人を比べられる。"],
+    ["On the other hand は「もう一方の手では」。片手ずつ別のものを持つように、前の文と反対の面を次の文で見せる合図。", "① 右手に「電車は速い」。② 左手に持ちかえて On the other hand,「バスは安い」。③ 文と文の間に置き、後ろにコンマ。"],
+    ["比べるには何が基準かを先に決める必要がある。Compared with A を先に置くと、聞き手はAを物差しにして後ろを読める。", "身長をはかるときは まず物差しを当てる。Compared with 去年（物差し）→ 今年は暖かい。先に「何と比べて」を言えば迷わない。"]
+  ], [
+    [0, "2つの文を1文で対比するので while。during は後ろに名詞だけ、but while は2つ重ねで×。"],
+    [0, "「〜だが一方」で対比する whereas。where は場所、whether は「〜かどうか」で意味がちがう。"],
+    [0, "2つの文を1文で比べる while。since then は「それ以来」で、対比の意味にならない。"],
+    [1, "On the other hand の決まった形。the を落とさず、another や others にはしない。"],
+    [1, "文の頭で「しかし」は However,。Although は後ろに文が続く形で、ここでは×。"],
+    [2, "Compared with A「Aと比べると」。Compare は動詞の原形で×、with を落とすと形がくずれる。"],
+    [2, "Unlike A「Aとちがって」は1語。Unlike of は of が余分、Dislike は「きらう」で別の意味。"],
+    [2, "Like A「Aと同じように」。Likely は「たぶん」、Alike は名詞の前に置けないので×。"],
+    [2, "前の文と同じ様子なので Similarly,「同じように」。Similar は形容詞で文頭の合図にならない。"],
+    [2, "Both A and B「AもBも」。Either は or、Neither は nor とセットなので×。"],
+    [1, "In contrast,「対照的に」の決まり文句。In contrary／On contrast は形がちがう。"],
+    [1, "At the same time「同時に／その一方で」。the を落とさず、times と複数にしない。"]
+  ], [
+    [0, "2つの文を1文で対比する while。during は後ろに名詞だけ、but while は接続詞が2つで×。"],
+    [0, "whereas は「〜なのに対し」。where は場所、whatever は「何でも」、whether は「かどうか」。"],
+    [1, "On the other hand の決まった形。In ではなく On、hand は1つなので hands にしない。"],
+    [2, "Compared with A「Aと比べると」。Compare は原形で×、Compared だけでは with 不足。"],
+    [1, "前と反対の内容なので However,。Although は後ろに文をつなぐ語、Despite は後ろが名詞。"],
+    [2, "同じ様子を加えるので Similarly,。Similar は形容詞、Likely は「たぶん」で意味がちがう。"]
+  ]);
+
+  W("c2-u12", [
+    ["because は文と文をつなぐ接着剤、because of は名詞をつなぐ接着剤。つなぐ相手がちがうので、後ろの形で決まる。", "後ろをチェック！① 「彼が寝坊した」のように 主語と動詞がある → because。② 「雨」のように名詞だけ → because of。"],
+    ["原因の文を先に終えてから、次の文の頭で「その結果」と言うと、出来事の順番どおりに話が進むので わかりやすい。", "ドミノたおし。① 1枚目「たくさん練習した。」② 合図 As a result,「その結果」③ 2枚目「勝った。」。合図は2つ目の文の先頭に。"],
+    ["原因を主語に置くと「原因→結果」が左から右へ一直線に並ぶ。lead to や cause がその矢印の役目をする。", "矢印→を言葉にしたのが lead to と cause。「ねぶそく → 体の不調」を、Lack of sleep leads to 体の不調。と左から読むだけ。"]
+  ], [
+    [0, "後ろが名詞だけなので because of。because は後ろに文が必要、since of はない形。"],
+    [0, "後ろが名詞 heavy fog なので due to。due だけでは to が足りず、because は文が必要。"],
+    [0, "「〜のおかげで」は Thanks to。Thank to は s が必要、Thanks for は「〜をありがとう」。"],
+    [0, "後ろが主語＋動詞の文なので because。because of／due to は後ろが名詞のとき。"],
+    [1, "As a result,「その結果」の決まった形。a を落とさず、in ではなく as を使う。"],
+    [1, "前の文の結果を言うので Therefore,。Because・Although は後ろに文が要る語で、ここでは×。"],
+    [1, "「だから」と結果を文でつなぐ so。because・since は逆に原因をつなぐ語になる。"],
+    [2, "can のあとは原形 lead、さらに to が必要。leads は can のあとに来られない。"],
+    [2, "cause は後ろにすぐ名詞（引き起こすもの）。causes to は to が余分、is caused は受け身。"],
+    [2, "cause A to 〜「Aに〜させる」。caused to は A がない。made なら to は付かないので×。"],
+    [2, "the cause of A「Aの原因」。for of は前置詞が2つ、from／by では「〜の原因」にならない。"],
+    [0, "this は名詞なので Because of this。Because this は of 不足で×。"]
+  ], [
+    [0, "後ろが名詞だけなので because of。because は後ろに文が必要、since of はない形。"],
+    [0, "後ろが名詞 the typhoon なので due to。due だけ・owing だけでは to が足りない。"],
+    [1, "As a result,「その結果」が決まった形。a を落とすのも、in にするのも×。"],
+    [1, "雨だった → だから家にいた、なので Therefore。Because／Although は意味も形も合わない。"],
+    [2, "can のあとは原形で lead to。lead だけでは to がなく、leads は can のあとに来られない。"],
+    [2, "cause は「〜を引き起こす」で後ろにすぐ名詞。causes to は to が余分、because は動詞でない。"]
+  ]);
+})(window.LX.plus);
