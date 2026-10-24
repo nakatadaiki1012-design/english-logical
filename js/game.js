@@ -204,14 +204,14 @@
   }
   function pool(cfg) {
     var us = usOf(cfg);
-    if (us.length) return [].concat.apply([], us.map(function (id) { return A().UNITS[id].sentences; }));
+    if (us.length) return [].concat.apply([], us.map(function (id) { var u = A().UNITS[id]; return u.sentences.concat(u.drills || []); }));
     var out = [];
     A().COURSES.forEach(function (c) {
       if (cfg.c !== 'all' && c.id !== cfg.c) return;
       c.units.forEach(function (u) {
         if (u.no > (cfg.u || 99)) return;
         if (cfg.p && !A().prog(u.id).pass) return;
-        out = out.concat(u.sentences);
+        out = out.concat(u.sentences, u.drills || []);
       });
     });
     return out;
@@ -467,7 +467,7 @@
   }
   function drawPicker() {
     var ids = Object.keys(P.sel), c = A().COURSES.filter(function (x) { return x.id === P.c; })[0] || A().COURSES[0];
-    var n = ids.reduce(function (m, id) { return m + A().UNITS[id].sentences.length; }, 0);
+    var n = ids.reduce(function (m, id) { var u = A().UNITS[id]; return m + u.sentences.length + (u.drills || []).length; }, 0);
     dlgOpen('<div class="dlg-head"><h2>📚 出題する単元</h2><button type="button" class="ibtn x" data-x>✕ とじる</button></div>' +
       '<div class="tabs">' + A().COURSES.map(function (x) {
         var k = ids.filter(function (id) { return A().UNITS[id].course === x; }).length;

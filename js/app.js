@@ -5,17 +5,21 @@
 
   /* ---------- 教材の準備 ---------- */
   var COURSES = (window.LX && window.LX.courses || []).slice().sort(function (a, b) { return a.id < b.id ? -1 : 1; });
-  var UNITS = {}, SENTS = {};
+  var UNITS = {}, SENTS = {}, PLUS = window.LX && window.LX.plus || {};
+  function prep(s, u, id) {
+    s.id = id; s.unit = u;
+    s.plain = s.en.replace(/[\[\]]/g, '');
+    var m = s.en.match(/\[([^\]]+)\]/);
+    s.key = m ? m[1] : '';
+  }
   COURSES.forEach(function (c) {
     c.units.forEach(function (u, i) {
       u.course = c; u.no = i + 1; UNITS[u.id] = u;
-      u.sentences.forEach(function (s, j) {
-        s.id = u.id + '-' + (j + 1); s.unit = u;
-        s.plain = s.en.replace(/[\[\]]/g, '');
-        var m = s.en.match(/\[([^\]]+)\]/);
-        s.key = m ? m[1] : '';
-        SENTS[s.id] = s;
-      });
+      var px = PLUS[u.id]; // 追加教材：ひとことで言うと・わかりやすいポイント・演習 12 文
+      if (px) { if (px.core) u.core = px.core; if (px.points && px.points.length) u.points = px.points; u.drills = px.drills || []; }
+      u.drills = u.drills || [];
+      u.sentences.forEach(function (s, j) { prep(s, u, u.id + '-' + (j + 1)); SENTS[s.id] = s; });
+      u.drills.forEach(function (s, j) { prep(s, u, u.id + '-d' + (j + 1)); });
     });
   });
 
@@ -25,6 +29,7 @@
     { k: 'order', ico: '🧩', name: '並べかえ', what: '組み立てる' },
     { k: 'cloze', ico: '✏️', name: '穴うめ', what: 'えらぶ' },
     { k: 'recall', ico: '⚡', name: '英作文', what: '思い出す' },
+    { k: 'drill', ico: '💪', name: '演習', what: '数をこなす' },
     { k: 'test', ico: '🏁', name: 'テスト', what: 'たしかめる' }
   ];
   var IV = [0, 1, 2, 4, 7, 15, 30]; // 復習の間隔（日）。3回以上「言えた」で定着
@@ -204,7 +209,7 @@
       '<button type="button" class="btn' + (due ? ' warm' : '') + '" data-act="review">🔁 今日の復習' + (due ? '（' + due + '文）' : '') + '</button>' +
       '<button type="button" class="btn gamebtn" data-go="game">🎮 タイムアタック・クラス対戦</button>' +
       '</div>' +
-      '<div class="cycle"><h3>おぼえ方（1 単元＝6 ステップ）</h3><ol>' +
+      '<div class="cycle"><h3>おぼえ方（1 単元＝' + STEPS.length + ' ステップ）</h3><ol>' +
       STEPS.map(function (s) { return '<li><span>' + s.ico + '</span><b>' + s.name + '</b><span>' + s.what + '</span></li>'; }).join('') +
       '<li><span>🔁</span><b>復習</b><span>日をあけて 思い出す（忘れる前に）</span></li>' +
       '</ol></div>' +
@@ -235,15 +240,38 @@
   function openUnit(u, st) {
     V = { view: 'unit', u: u, step: st, page: 0, a: {} };
     if (st === 'test') newTest();
+    if (st === 'drill') newDrill();
     tick(); renderUnit();
+  }
+  /* ポイントのページ：ひとことで言うと → ポイント 3 枚 → まちがえやすいところ → まとめ */
+  function pointPages(u) {
+    var pg = [];
+    if (u.core) pg.push('core');
+    u.points.forEach(function (_, i) { pg.push(i); });
+    if (u.points.some(function (p) { return p.ng; })) pg.push('ng');
+    pg.push('sum');
+    return pg;
   }
   function pagesOf() {
     var u = V.u;
     switch (V.step) {
-      case 'point': return u.points.length + 1;
+      case 'point': return pointPages(u).length;
       case 'test': return TEST_N + 1;
+      case 'drill': return V.dr.length + 1;
       default: return u.sentences.length;
     }
+  }
+  /* 演習：同じ型の例文（12 文）を 並べかえ・穴うめ 交互に */
+  function drillPool(u) { return u.drills.length ? u.drills : u.sentences; }
+  function newDrill() {
+    var flip = Math.random() < 0.5;
+    V.dr = shuffle(drillPool(V.u)).map(function (s, i) { return { s: s, type: (i % 2 === 0) === flip ? 'order' : 'cloze' }; });
+    V.a = {}; V.page = 0;
+  }
+  function curS() {
+    if (V.step === 'test') return V.test[V.page].s;
+    if (V.step === 'drill') return V.dr[V.page].s;
+    return V.u.sentences[V.page];
   }
   function setStep(k) { location.hash = '#' + V.u.id + '/' + k; }
   function markDone(k) { var pr = prog(V.u.id); if (!pr.st[k]) { pr.st[k] = 1; save(); } }
@@ -251,6 +279,7 @@
   function answered() {
     var a = V.a[V.page] || {};
     if (V.step === 'order' || V.step === 'cloze') return a.done;
+    if (V.step === 'drill') return V.page >= V.dr.length || a.done;
     if (V.step === 'recall') return a.g != null;
     if (V.step === 'test') return V.page >= TEST_N || a.done;
     return true;
@@ -259,7 +288,11 @@
     var n = pagesOf();
     if (V.step === 'test' && V.page >= TEST_N) return;
     if (!answered()) { toast('答えてから進もう'); return; }
-    if (V.page < n - 1) { V.page++; renderUnit(); autoSpeak(); return; }
+    if (V.page < n - 1) {
+      V.page++;
+      if (V.step === 'drill' && V.page === V.dr.length) finishDrill();
+      renderUnit(); autoSpeak(); return;
+    }
     markDone(V.step);
     var i = STEPS.map(function (s) { return s.k; }).indexOf(V.step);
     if (i < STEPS.length - 1) setStep(STEPS[i + 1].k);
@@ -277,6 +310,7 @@
       dots += '<i class="' + cls + '"></i>';
     }
     var last = V.page === n - 1, isRes = V.step === 'test' && V.page >= TEST_N;
+    if (V.step === 'drill' && last) { isRes = false; }
     var nextLabel = last ? (V.step === 'test' ? '' : '次のステップ ▶') : '次へ ▶';
     view.innerHTML =
       '<div class="unit">' +
@@ -285,7 +319,7 @@
       '<nav class="steps" aria-label="ステップ">' + STEPS.map(function (s) {
         return '<button type="button" data-step="' + s.k + '" class="' + (pr.st[s.k] ? 'done' : '') + '" aria-current="' + (s.k === V.step) + '">' + s.ico + '<span class="n">' + s.name + '</span></button>';
       }).join('') + '</nav></div>' +
-      '<section class="card" id="card"><div class="cin">' + cardHTML() + '</div></section>' +
+      '<section class="card" id="card"><div class="cin' + (V.step === 'point' ? ' pt' : '') + '">' + cardHTML() + '</div></section>' +
       '<div class="fbar">' +
       '<button type="button" class="btn ghost" data-act="prev"' + (V.page === 0 || isRes ? ' disabled' : '') + '>◀</button>' +
       '<div class="dots">' + dots + '</div>' +
@@ -293,23 +327,34 @@
       (isRes ? '<button type="button" class="btn ghost next" data-act="home">一覧へ</button>' :
         '<button type="button" class="btn main next" data-act="next">' + nextLabel + '</button>') +
       '</div></div>';
+    if (window.LXFIG) LXFIG.after(view);
   }
 
   function cardHTML() {
     var u = V.u, s, a = ans();
     switch (V.step) {
       case 'point': {
-        if (V.page === 0) {
-          // 1枚目の上に めあて
+        var pg = pointPages(u)[V.page], fig = window.LXFIG ? LXFIG.html : function () { return ''; };
+        if (pg === 'core') {
+          var co = u.core;
+          return '<div class="lab"><span class="pill">✨ ひとことで言うと</span><span>' + esc(u.en) + '</span><span class="r">🎯 ' + esc(u.goal) + '</span></div>' +
+            '<div class="mid core"><div class="coreh"><span class="cico">' + esc(co.ico) + '</span><h3 class="h catch">' + esc(co.catch) + '</h3></div>' +
+            '<p class="body">' + esc(co.say) + '</p>' + fig(co.fig) + '</div>';
         }
-        if (V.page < u.points.length) {
-          var p = u.points[V.page];
-          return '<div class="lab"><span class="pill">💡 ポイント ' + (V.page + 1) + '/' + u.points.length + '</span><span>' + esc(u.en) + '</span>' +
-            (V.page === 0 ? '<span class="r">🎯 ' + esc(u.goal) + '</span>' : '') + '</div>' +
+        if (typeof pg === 'number') {
+          var p = u.points[pg];
+          return '<div class="lab"><span class="pill">💡 ポイント ' + (pg + 1) + '/' + u.points.length + '</span><span>' + esc(u.en) + '</span>' +
+            (!u.core && pg === 0 ? '<span class="r">🎯 ' + esc(u.goal) + '</span>' : '') + '</div>' +
             '<div class="mid"><h3 class="h">' + esc(p.h) + '</h3><p class="body">' + esc(p.body) + '</p>' +
-            (p.form ? '<div class="form">' + esc(p.form) + '</div>' : '') +
-            '<div><p class="en sm">' + hl(p.ex) + '</p><p class="ja">' + esc(p.exja) + '</p></div></div>' +
+            (p.form ? '<div class="form">' + esc(p.form) + '</div>' : '') + (p.fig ? fig(p.fig) : '') +
+            '<div class="exb"><p class="en sm">' + hl(p.ex) + '</p><p class="ja">' + esc(p.exja) + '</p></div></div>' +
             '<div class="row"><button type="button" class="say" data-say="' + esc(p.ex) + '">🔊 聞く</button></div>';
+        }
+        if (pg === 'ng') {
+          return '<div class="lab"><span class="pill">⚠ まちがえやすいところ</span><span>テストで ねらわれる！</span></div>' +
+            '<div class="mid"><ul class="nglist">' + u.points.filter(function (p) { return p.ng; }).map(function (p) {
+              return '<li><p class="bad">✕ ' + esc(p.ng.bad) + '</p><p class="good">○ ' + esc(p.ng.good) + '</p><p class="why">' + esc(p.ng.why) + '</p></li>';
+            }).join('') + '</ul></div>';
         }
         return '<div class="lab"><span class="pill">📌 まとめ</span><span>これだけは覚える</span></div>' +
           '<div class="mid"><h3 class="h">' + esc(u.title) + '</h3><ul class="sumlist">' +
@@ -330,8 +375,29 @@
       case 'cloze': return clozeHTML(u.sentences[V.page], a, '✏️ 穴うめ ' + (V.page + 1) + '/6', false);
       case 'recall': return recallHTML(u.sentences[V.page], a, '⚡ 瞬間英作文 ' + (V.page + 1) + '/6');
       case 'test': return testHTML();
+      case 'drill': return drillHTML();
     }
     return '';
+  }
+  function drillHTML() {
+    var n = V.dr.length;
+    if (V.page < n) {
+      var q = V.dr[V.page], lab = '💪 演習 ' + (V.page + 1) + '/' + n;
+      return q.type === 'cloze' ? clozeHTML(q.s, ans(), lab, false) : orderHTML(q.s, ans(), lab, false);
+    }
+    var ok = 0; for (var i = 0; i < n; i++) if ((V.a[i] || {}).ok) ok++;
+    var pr = prog(V.u.id), great = ok >= n - 1;
+    return '<div class="result">' +
+      (great ? '<div class="bigstamp">よくできた</div>' : '<p class="h">' + (ok >= n / 2 ? 'いい調子！' : 'くり返すほど 体に入る！') + '</p>') +
+      '<div class="score">' + ok + '<small> / ' + n + ' 問 正解</small></div>' +
+      '<p class="body">同じ型の文を たくさん解くと、型が 体に入ります。この単元で これまでに <b>' + (pr.dr || 0) + '</b> 問 正解。</p>' +
+      '<div class="row" style="justify-content:center"><button type="button" class="btn' + (great ? '' : ' main') + '" data-act="drillagain">💪 もう 1 セット（順番を変えて）</button>' +
+      '<button type="button" class="btn' + (great ? ' main' : '') + '" data-step="test">🏁 テストへ ▶</button></div></div>';
+  }
+  function finishDrill() {
+    var pr = prog(V.u.id), ok = 0;
+    for (var i = 0; i < V.dr.length; i++) if ((V.a[i] || {}).ok) ok++;
+    pr.dr = (pr.dr || 0) + ok; pr.st.drill = 1; save();
   }
 
   function orderHTML(s, a, lab, strict) {
@@ -386,7 +452,7 @@
 
   /* 確認テスト：穴うめ 3 ＋ 並べかえ 2（ヒントなし・1回勝負） */
   function newTest() {
-    var ss = shuffle(V.u.sentences).slice(0, TEST_N);
+    var ss = shuffle(V.u.sentences.concat(V.u.drills)).slice(0, TEST_N);
     var types = shuffle(['cloze', 'cloze', 'cloze', 'order', 'order']);
     V.test = ss.map(function (s, i) { return { s: s, type: types[i] }; });
     V.a = {}; V.page = 0;
@@ -415,7 +481,7 @@
     var sc = 0, pr = prog(V.u.id), t = dayNo();
     for (var i = 0; i < TEST_N; i++) {
       var a = V.a[i] || {}, s = V.test[i].s;
-      if (a.ok) sc++; else { enroll(s.id, t); S.srs[s.id].due = t; S.srs[s.id].b = 0; }
+      if (a.ok) sc++; else if (SENTS[s.id]) { enroll(s.id, t); S.srs[s.id].due = t; S.srs[s.id].b = 0; }
     }
     pr.tries++; pr.best = Math.max(pr.best, sc);
     if (sc >= PASS) {
@@ -502,13 +568,14 @@
       }
       case 'clear': ans().b = []; renderUnit(); break;
       case 'ohint': {
-        var a3 = ans(); a3.b = [];
+        var a3 = ans(); a3.b = []; if (!a3.t) break;
         var first = a3.t.tiles[0], idx = a3.ord.filter(function (i) { return a3.t.tiles[i] === first; })[0];
         a3.b.push(idx); a3.hinted = 1; renderUnit(); break;
       }
       case 'show': revealRecall(); break;
       case 'hint': (V.view === 'review' ? (V.a[V.i] || {}) : ans()).hint = 1; rerender(); break;
       case 'retest': newTest(); renderUnit(); break;
+      case 'drillagain': newDrill(); renderUnit(); break;
     }
   });
   function rerender() { if (V.view === 'review') renderReview(); else if (V.view === 'unit') renderUnit(); }
@@ -522,13 +589,13 @@
     var a = ans(); if (a.b.length < a.t.tiles.length) return;
     a.done = 1; a.ok = a.b.every(function (i, pos) { return a.t.tiles[i] === a.t.tiles[pos]; });
     if (a.ok) earn(10);
-    var s = V.step === 'test' ? V.test[V.page].s : V.u.sentences[V.page];
+    var s = curS();
     if (V.step !== 'test') speak(s.en);
     if (V.step === 'test' && V.page === TEST_N - 1) finishTest();
   }
   function pick(i) {
     var a = ans(); if (a.done) return;
-    var s = V.step === 'test' ? V.test[V.page].s : V.u.sentences[V.page];
+    var s = curS();
     a.pick = a.ch[i]; a.done = 1; a.ok = a.pick === s.key;
     if (a.ok) earn(10);
     if (V.step !== 'test') speak(s.en);
@@ -542,7 +609,7 @@
       if (e.key === 'ArrowRight') { e.preventDefault(); nextPage(); }
       else if (e.key === 'ArrowLeft') { e.preventDefault(); prevPage(); }
       else if (e.key === ' ' && V.step === 'recall') { e.preventDefault(); if (!ans().shown) revealRecall(); }
-      else if (/^[1-4]$/.test(e.key) && (V.step === 'cloze' || (V.step === 'test' && V.test[V.page] && V.test[V.page].type === 'cloze'))) { pick(+e.key - 1); }
+      else if (/^[1-4]$/.test(e.key) && (V.step === 'cloze' || (V.step === 'test' && V.test[V.page] && V.test[V.page].type === 'cloze') || (V.step === 'drill' && V.dr[V.page] && V.dr[V.page].type === 'cloze'))) { pick(+e.key - 1); }
       else if (/^[1-3]$/.test(e.key) && V.step === 'recall' && ans().shown) { var b = view.querySelector('[data-g="' + ({ 1: 0, 2: 1, 3: 2 })[e.key] + '"]'); if (b) b.click(); }
     } else if (V.view === 'review' && V.i < V.q.length) {
       var a = V.a[V.i] || {};
@@ -578,7 +645,7 @@
         body = (t.m ? '<p>💬 ' + esc(t.m) + '</p>' : '') + '<ul class="tlist">' + t.u.map(function (id) {
           var u = UNITS[id], pr = prog(id); if (pr.pass) pc++;
           var stc = STEPS.filter(function (s) { return pr.st[s.k]; }).length;
-          return '<li>' + esc(u.course.short + '-' + two(u.no)) + ' ' + esc(u.title) + '<span class="' + (pr.pass ? 'p' : '') + '">' + (pr.pass ? '合格 ' + pr.best + '/' + TEST_N : stc ? '途中 ' + stc + '/6' : 'まだ') + '</span></li>';
+          return '<li>' + esc(u.course.short + '-' + two(u.no)) + ' ' + esc(u.title) + '<span class="' + (pr.pass ? 'p' : '') + '">' + (pr.pass ? '合格 ' + pr.best + '/' + TEST_N : stc ? '途中 ' + stc + '/' + STEPS.length : 'まだ') + '</span></li>';
         }).join('') + '</ul>' +
           '<p class="note">' + pc + '/' + t.u.length + ' 単元 合格' + (t.d ? '・しめきり ' + esc(t.d) : '') + '</p>' +
           '<div class="fld"><input type="text" id="tName" placeholder="名前（例：2年3組 12番 山田）" value="' + esc(S.name) + '"><button type="button" class="btn main" data-res>📤 結果を送る</button></div>' +
@@ -620,7 +687,7 @@
       var lines = t2.u.map(function (id) {
         var u = UNITS[id], pr = prog(id); if (pr.pass) pc++;
         var stc = STEPS.filter(function (s) { return pr.st[s.k]; }).length;
-        return '・' + u.course.short + '-' + two(u.no) + ' ' + u.title + '：' + (pr.pass ? '合格（テスト ' + pr.best + '/' + TEST_N + '・' + pr.at + '）' : stc || pr.sec ? '途中（' + stc + '/6 ステップ）' : 'まだ') + '・' + minutes(pr.sec);
+        return '・' + u.course.short + '-' + two(u.no) + ' ' + u.title + '：' + (pr.pass ? '合格（テスト ' + pr.best + '/' + TEST_N + '・' + pr.at + '）' : stc || pr.sec ? '途中（' + stc + '/' + STEPS.length + ' ステップ）' : 'まだ') + '・' + minutes(pr.sec);
       });
       var text = '【論理表現ラボ 課題の結果】\n名前：' + S.name + '\n課題コード：' + (t2.id || '-') + '\n合格：' + pc + '/' + t2.u.length + ' 単元\n' + lines.join('\n') +
         '\n定着した例文：' + learned() + ' 文\n送った日：' + today();
