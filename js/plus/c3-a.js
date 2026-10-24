@@ -515,3 +515,124 @@ window.LX.plus["c3-u06"] = {
     u.swhy = w.s.map(function (x) { return { why: x[0], p: x[1] }; });
   });
 })(window.LX.plus);
+
+/* ===== 追加：演習文 12 文ずつ（24 文に）と 絵の図（pic・bars） ===== */
+(function (P) {
+  function d(en, ja, alt, tip, why, p) { return { en: en, ja: ja, alt: alt, tip: tip, why: why, p: p }; }
+  var ADD = {
+    "c3-u01": [
+      d("This elevator [takes] you to the top floor.", "このエレベーターに乗ると最上階に行ける。", ["goes", "brings to", "arrives"], "take 人 to 場所", "take 人 to＝人を〜へ連れていく。go・arrive は人を目的語にとれない。", 0),
+      d("The song [reminded] me of my grandmother.", "その歌を聞いて祖母を思い出した。", ["remembered", "recalled to", "reminded to"], "remind 人 of 〜＝人に〜を思い出させる", "remind 人 of＝物が人に思い出させる。remember は人が主語で of 不要。", 0),
+      d("A five-minute walk [took] us to the station.", "5分歩くと駅に着いた。", ["went", "arrived", "reached to"], "時間・道のりが主語", "take 人 to＝連れていく。went・arrived は人を目的語にとれない。", 0),
+      d("What [brought] you to Japan?", "なぜ日本に来たのですか。", ["came", "took to", "arrived"], "What brought you to 〜?", "直訳「何があなたを日本へ連れてきた？」。came・arrived は目的語をとれない。", 0),
+      d("Her letter [made] me cry.", "彼女の手紙を読んで泣いてしまった。", ["made to", "caused", "let to"], "make 人 ＋ 動詞の原形", "make 人＋原形＝人に〜させる。to は不要。cause なら to cry が必要。", 1),
+      d("The cold weather [kept] us inside all day.", "寒さのせいで一日中家の中にいた。", ["made to", "stayed", "caused"], "keep 人 ＋ 状態", "keep 人 inside＝人を中にいる状態にしておく。stay は人を目的語にとれない。", 1),
+      d("Heavy traffic [caused] us to be late.", "渋滞のせいで私たちは遅刻した。", ["made", "let", "kept"], "cause 人 to 〜", "cause 人 to＋原形＝原因が人に〜させる。make・let なら to は付けない。", 1),
+      d("A lack of exercise [makes] people gain weight.", "運動不足だと人は太る。", ["makes to", "causes", "lets to"], "make 人 ＋ 原形", "make 人＋原形。causes なら people to gain が必要。to を入れる形は×。", 1),
+      d("The storm [prevented] us from playing soccer.", "嵐のせいでサッカーができなかった。", ["stopped to", "made", "let"], "prevent 人 from -ing", "prevent 人 from -ing＝人が〜するのをさまたげる。make・let は from と合わない。", 2),
+      d("This card [allows] you to enter the gym.", "このカードで体育館に入れる。", ["lets", "makes", "has"], "allow 人 to 〜", "allow 人 to＋原形＝人が〜できるようにする。let・make・have は to を付けない。", 2),
+      d("The scholarship [enabled] her to study abroad.", "奨学金のおかげで彼女は留学できた。", ["made", "let", "had"], "enable 人 to 〜", "enable 人 to＝人が〜できるようにする。made・let・had なら to は不要。", 2),
+      d("This app [helps] you learn new words.", "このアプリで新しい単語を覚えられる。", ["helps to you", "makes to", "lets to"], "help 人 ＋ 原形", "help 人＋原形（to もOK）。helps to you や makes to・lets to の語順・形は×。", 2)
+    ],
+    "c3-u02": [
+      d("My mother is [a good driver].", "母は運転が上手だ。", ["a well driver", "good driving", "a driver good"], "a good ＋ 〜er ＝ 〜が上手", "drives well を a good driver と名詞で言う。well は名詞の前に置けない。", 2),
+      d("Ken is [a fast runner].", "ケンは走るのが速い。", ["a fast run", "a runner fast", "a fastly runner"], "a fast runner ＝ 走るのが速い", "runs fast → a fast runner。run は動詞、fastly という語はない。", 2),
+      d("She is [a careful listener].", "彼女は人の話を注意深く聞く。", ["a carefully listener", "careful listening", "a listener careful"], "a careful listener", "listens carefully → a careful listener。名詞の前は形容詞 careful。", 2),
+      d("I was surprised at [his honesty].", "彼の正直さに驚いた。", ["his honest", "he is honest", "his honestly"], "形容詞 honest → 名詞 honesty", "at のあとは名詞。honest は形容詞、honestly は副詞なので×。", 1),
+      d("We all know [the value] of friendship.", "私たちはみな友情の大切さを知っている。", ["the valuable", "valuably", "the valuably"], "the value of 〜 ＝ 〜の価値", "know のあとは名詞 the value。valuable は形容詞、valuably は副詞。", 1),
+      d("The [beauty of] the sunset amazed us.", "夕日の美しさに私たちは感動した。", ["beautiful of", "beautifully of", "beauties to"], "the beauty of 〜", "主語は名詞 beauty。beautiful は形容詞、beautifully は副詞で主語になれない。", 1),
+      d("We enjoyed [their friendliness] during our stay.", "滞在中、彼らの親しみやすさを楽しんだ。", ["their friendly", "they are friendly", "their friendlily"], "friendly → friendliness", "enjoy のあとは名詞。friendly は形容詞、文の形のままも入らない。", 1),
+      d("[Her rapid recovery] made the doctor happy.", "彼女が急速に回復したので医者は喜んだ。", ["Her rapidly recover", "She recovered rapid", "Her recover rapid"], "rapid recovery＝急な回復", "名詞 recovery を形容詞 rapid で説明。動詞のままや副詞 rapidly は×。", 0),
+      d("[The development] of AI is changing jobs.", "AIの発達が仕事を変えている。", ["The develop", "Developed", "The developing to"], "develop → development", "主語は名詞 the development。develop は動詞なので the を付けられない。", 0),
+      d("[A long walk] after dinner helps me sleep.", "夕食後に長く歩くとよく眠れる。", ["Walk longly", "A longly walk", "Long walking of"], "a long walk＝長い散歩", "名詞 walk を形容詞 long で説明。longly という語はない。", 0),
+      d("[His failure] in the exam disappointed his parents.", "彼が試験に落ちて両親はがっかりした。", ["He failed", "His fail", "His failed"], "fail → failure", "主語は名詞 failure。He failed は文なので主語の位置に入らない。", 0),
+      d("[A quick reply] would be helpful.", "早めに返事をもらえると助かります。", ["Reply quickly", "A quickly reply", "Quick replying of"], "reply quickly → a quick reply", "名詞 reply の前は形容詞 quick。quickly は副詞で名詞を説明できない。", 0)
+    ],
+    "c3-u03": [
+      d("[Although] the test was hard, I passed it.", "テストは難しかったが、合格した。", ["Despite", "In spite of", "Because of"], "although ＋ 主語 ＋ 動詞", "後ろが the test was（文）なので although。despite は名詞しかとれない。", 0),
+      d("We had fun [despite] the bad weather.", "悪天候にもかかわらず楽しんだ。", ["although", "though", "despite of"], "despite ＋ 名詞", "後ろが名詞 the bad weather なので despite。despite of とは言わない。", 0),
+      d("[In spite of] the noise, the baby slept well.", "騒音にもかかわらず赤ちゃんはよく眠った。", ["Although", "Even though", "In spite"], "in spite of ＋ 名詞", "後ろが名詞なので in spite of。of を落とした In spite は×。", 0),
+      d("[Despite] his efforts, he lost the game.", "努力したのに彼は試合に負けた。", ["Although", "Even though", "Despite of"], "despite ＋ 名詞", "his efforts は名詞。although・even though は後ろに文が必要。", 0),
+      d("[Even if] it rains, the event will be held.", "たとえ雨が降っても行事は行われる。", ["Even", "Despite", "In spite of"], "even if ＝ たとえ〜でも（仮の話）", "雨はまだ降っていない仮の話なので even if。Even だけでは文をつなげない。", 1),
+      d("He kept running [even though] he was tired.", "疲れていたのに彼は走り続けた。", ["despite", "in spite of", "even"], "even though ＝ 実際に〜なのに", "本当に疲れていたので even though。後ろが文なので despite は×。", 1),
+      d("[Though] she was busy, she helped me.", "彼女は忙しかったのに手伝ってくれた。", ["Despite", "In spite", "Because of"], "though ＋ 主語 ＋ 動詞", "後ろが she was（文）なので though。Despite・Because of は名詞をとる。", 1),
+      d("[Even though] I was full, I ate dessert.", "おなかいっぱいだったのにデザートを食べた。", ["Even", "Despite", "In spite of"], "even though ＋ 事実", "満腹は事実なので even though。Even 一語では接続詞にならない。", 1),
+      d("You can't drive [unless] you have a license.", "免許がない限り運転できない。", ["despite", "in spite of", "unless not"], "unless ＝ 〜しない限り", "unless に否定が入っているので not は不要。despite は文をとれない。", 2),
+      d("[Unless] you hurry, you'll miss the train.", "急がない限り電車に乗り遅れる。", ["Despite", "In spite of", "Even"], "Unless ＋ 主語 ＋ 動詞", "急がないなら → unless。Despite・In spite of は後ろに文をとれない。", 2),
+      d("You can watch TV [as long as] you finish your homework.", "宿題を終えさえすればテレビを見てよい。", ["despite", "in spite of", "as long"], "as long as ＝ 〜しさえすれば", "条件「〜するなら」は as long as。as を落とした as long は×。", 2),
+      d("I'll go with you [as long as] it isn't too far.", "遠すぎなければ一緒に行くよ。", ["despite", "unless not", "in spite of"], "as long as ＝ 条件つきの OK", "遠くないなら行く、という条件なので as long as。unless not は二重否定で×。", 2)
+    ],
+    "c3-u04": [
+      d("[I think that] schools should start later.", "学校はもっと遅く始まるべきだと思う。", ["I thinking that", "I am think that", "I think to"], "I think that ＋ 文", "主張は I think that＋文。am think や think to の形はない。", 0),
+      d("[In my opinion], students need more sleep.", "私の意見では、生徒にはもっと睡眠が必要だ。", ["In my opinions of", "On my opinion", "By my opinion"], "In my opinion, ＝ 私の意見では", "決まった形は In my opinion。On・By は使わない。", 0),
+      d("I [disagree with] the idea of school uniforms.", "制服という考えには反対だ。", ["am disagree with", "disagree to with", "disagreeing with"], "disagree with 〜", "disagree は動詞なので am は不要。with は1つだけ。", 0),
+      d("I [strongly believe] that sports are important.", "スポーツは大切だと強く信じている。", ["strong believe", "strongly believing", "am strongly believe"], "strongly で意見を強める", "動詞 believe を強めるのは副詞 strongly。strong は形容詞で×。", 0),
+      d("[Second], reading helps us relax.", "第二に、読書はリラックスに役立つ。", ["Secondary", "The second of", "Two"], "First, Second, で理由を並べる", "理由の順番は Second,。Secondary は「二次的な」で意味がちがう。", 1),
+      d("[For instance], many students study online.", "たとえば、多くの生徒はオンラインで勉強している。", ["For instances", "In instance", "By instance"], "For instance, ＝ たとえば", "具体例は For instance,。instances と複数にしない。", 1),
+      d("[In addition], it is good for our health.", "さらに、それは健康によい。", ["In addition to", "Addition", "In additional"], "In addition, ＝ さらに", "文の頭で理由を足す。In addition to は後ろに名詞が必要。", 1),
+      d("[This is because] they save a lot of time.", "これは、それらが多くの時間を節約するからだ。", ["This is why because", "Because of", "That because"], "This is because ＋ 文", "理由の説明は This is because＋文。Because of は名詞をとる。", 1),
+      d("[In conclusion], we should protect forests.", "結論として、私たちは森を守るべきだ。", ["In conclude", "At conclusion", "To conclusion"], "In conclusion, で締める", "結論の合図は In conclusion。conclude は動詞なので In の後に置けない。", 2),
+      d("[To sum up], exercise has many benefits.", "まとめると、運動には多くの利点がある。", ["To summing up", "To sum", "For sum up"], "To sum up, ＝ まとめると", "決まった形は To sum up。up を落とすと意味が通らない。", 2),
+      d("[Therefore], I support this idea.", "したがって、私はこの考えを支持する。", ["Because", "Although", "So that"], "Therefore, ＝ だから", "理由のあとの結論は Therefore,。Because・Although は文をつなぐ語。", 2),
+      d("That is [why I think] we need more parks.", "だから私はもっと公園が必要だと思う。", ["why I thinking", "why do I think", "the why I think"], "That is why ＋ 主語 ＋ 動詞", "That is why の後はふつうの語順 I think。do を入れたり the を付けたりしない。", 2)
+    ],
+    "c3-u05": [
+      d("Some people [think that] cars should be banned in cities.", "都市で車を禁止すべきだと考える人もいる。", ["thinks that", "thinking that", "think to"], "Some people think that 〜", "主語 people は複数なので think。thinks や think to は×。", 0),
+      d("Many people [believe that] money brings happiness.", "お金が幸せをもたらすと信じる人は多い。", ["believes that", "believing that", "believe to"], "Many people believe that 〜", "people は複数なので believe。believe to＋文の形はない。", 0),
+      d("[Some may say] that uniforms are unnecessary.", "制服は不要だと言う人もいるだろう。", ["Some may says", "Some may saying", "Some may to say"], "may ＋ 動詞の原形", "may の後は原形 say。says・saying・to say は×。", 0),
+      d("[It is true] that smartphones are convenient.", "たしかにスマホは便利だ。", ["It is truth", "It true is", "It is truly"], "It is true that 〜 ＝ たしかに〜", "たしかに＝It is true that。truth は名詞、truly は副詞で×。", 1),
+      d("[Certainly], online shopping is easy.", "たしかに、ネットでの買い物は簡単だ。", ["Certain", "Certainty", "Certainly of"], "Certainly, ＝ たしかに", "文の頭で「たしかに」は副詞 Certainly。Certain は形容詞。", 1),
+      d("I [understand] your opinion, but I disagree.", "あなたの意見はわかるが、私は反対だ。", ["understanding", "am understand", "understood to"], "I understand 〜, but …", "相手を受けとめる I understand。am understand や understanding は×。", 1),
+      d("Their opinion [is partly true].", "彼らの意見は一部正しい。", ["is partly truth", "are partly true", "is partial true"], "partly ＝ 一部は", "主語 opinion は単数で is。true を説明するのは副詞 partly。", 1),
+      d("[However], it can also cause problems.", "しかし、それは問題を起こすこともある。", ["But also", "Although", "Despite"], "However, で反論に切りかえる", "文の頭で反論は However,。Although・Despite は後ろに続きが必要。", 2),
+      d("[Even so], we need to change the system.", "それでも、制度を変える必要がある。", ["Even if so", "Even though so", "Even"], "Even so, ＝ それでも", "決まった形は Even so。if・though を入れると形がくずれる。", 2),
+      d("On [the other hand], it is very expensive.", "一方で、それはとても高い。", ["other hand", "the another hand", "the others hand"], "On the other hand, ＝ 一方で", "決まった形は On the other hand。the を落としたり another にしない。", 2),
+      d("[Nevertheless], I still support the plan.", "それにもかかわらず、私はその計画を支持する。", ["Never", "Neverless", "Nevertheless of"], "Nevertheless, ＝ それにもかかわらず", "一語で Nevertheless,。Neverless という語はなく、of も付けない。", 2),
+      d("[In fact], many students enjoy homework.", "実際には、宿題を楽しむ生徒も多い。", ["In facts", "On fact", "At fact"], "In fact, ＝ 実際は", "事実で返す決まった形は In fact。facts と複数にしない。", 2)
+    ],
+    "c3-u06": [
+      d("The number of cars [increased gradually].", "車の数は少しずつ増えた。", ["increased gradual", "was increased gradually", "gradual increased"], "動詞 ＋ 副詞 gradually", "increase は自分で増える動詞なので受け身にしない。説明は副詞 gradually。", 0),
+      d("Ticket sales [dropped sharply] in March.", "チケットの売上は3月に急に落ちた。", ["dropped sharp", "were dropped sharply", "sharp dropped"], "dropped sharply ＝ 急に落ちた", "drop は自分で下がる動詞。様子は副詞 sharply。受け身や sharp は×。", 0),
+      d("The price of rice [rose slightly] last month.", "先月、米の値段が少し上がった。", ["rose slight", "was risen slightly", "slight rose"], "rose slightly ＝ 少し上がった", "rise は受け身にできない動詞。少しは副詞 slightly。", 0),
+      d("The population [has decreased] since 2010.", "人口は2010年から減っている。", ["has decreasing", "is decreased", "have decreased"], "since があれば 現在完了", "since 2010 から今まで → has decreased。主語は単数なので have は×。", 0),
+      d("The temperature [reached] 38 degrees yesterday.", "昨日、気温は38度に達した。", ["reached to", "was reached", "reach at"], "reach ＋ 数値", "reach は前置詞なしで数値をとる。reached to は×、受け身にもしない。", 0),
+      d("Women [account for] 60 percent of the members.", "会員の60％を女性が占めている。", ["account", "account of", "are accounted"], "account for ＝ 〜を占める", "割合を占める＝account for。for がないと意味にならない。", 1),
+      d("About 30 [percent of] people in Japan are over 65.", "日本人の約30％が65歳以上だ。", ["percents of", "percentage", "percent"], "数字 ＋ percent of", "percent は複数でも s を付けない。後ろに名詞が来るので of が必要。", 1),
+      d("[Less than half] of the students walk to school.", "歩いて通学する生徒は半分より少ない。", ["Less half", "Less than a half of", "Fewer half"], "less than half of ＝ 半分より少ない", "決まった形は less than half of。than を落としたり a を付けたりしない。", 1),
+      d("[The chart shows] the results of the survey.", "その図は調査の結果を示している。", ["The chart show", "The chart is showing of", "The chart says to"], "The chart shows 〜", "chart は単数なので shows。グラフ紹介の決まった形。", 2),
+      d("The number rose [from 20 to] 50.", "その数は20から50に増えた。", ["since 20 to", "from 20 until", "between 20 to"], "from A to B", "始まりと終わりは from A to B。since・until・between to の組み合わせは×。", 2),
+      d("The number doubled [between 2000 and] 2020.", "その数は2000年から2020年の間に倍になった。", ["from 2000 and", "between 2000 to", "since 2000 and"], "between A and B ＝ AとBの間", "between は and とセット。between 〜 to や from 〜 and は×。", 2),
+      d("[As shown] in the graph, sales are growing.", "グラフに示されているように、売上は伸びている。", ["As showing", "As show", "As shows"], "As shown in the graph, 〜", "グラフに「示されて」いる → 過去分詞 shown。showing・show は×。", 2)
+    ]
+  };
+  Object.keys(ADD).forEach(function (id) { if (P[id] && P[id].drills.length === 12) P[id].drills = P[id].drills.concat(ADD[id]); });
+
+  /* 絵の図：イメージで覚えると効く所だけ */
+  var u;
+  if ((u = P["c3-u01"])) {
+    u.core.fig = { t: "pic", items: [{ e: "🌧️", x: 20, y: 50, l: "The rain", s: 1.2 }, { e: "🧑", x: 58, y: 62, l: "us" }, { e: "🏠", x: 86, y: 58, l: "at home", s: 0.9 }],
+      arrows: [[0, 1, "kept"], [1, 2, "", "dash"]], cap: "物（雨）が 人を 動かして 家にとどめる" };
+    u.points[0].fig = { t: "pic", items: [{ e: "🚃", x: 16, y: 55, l: "This train", s: 1.1 }, { e: "🧑", x: 52, y: 62, l: "you" }, { e: "🏯", x: 86, y: 55, l: "to Kyoto" }],
+      arrows: [[0, 1, "takes"], [1, 2, "", "dash"]], cap: "電車が あなたを 京都へ 連れていく" };
+  }
+  if ((u = P["c3-u02"])) {
+    u.points[2].fig = { t: "pic", items: [{ e: "👩", x: 16, y: 62, l: "She", b: "料理が得意！" }, { e: "🍳", x: 50, y: 60, l: "cooks well" }, { e: "🏅", x: 84, y: 58, l: "a good cook" }],
+      arrows: [[0, 1, ""], [1, 2, "名詞で言う", "dash"]], cap: "cooks well＝a good cook" };
+  }
+  if ((u = P["c3-u03"])) {
+    u.points[2].fig = { t: "pic", items: [{ e: "🧑", x: 16, y: 62, l: "you" }, { e: "🎫", x: 50, y: 60, l: "ticket", s: 0.9 }, { e: "🚪", x: 84, y: 58, l: "enter" }],
+      arrows: [[0, 1, "ある？", "dash"], [1, 2, "あれば入れる"]], cap: "unless ＝ チケットが ない限り 入れない" };
+  }
+  if ((u = P["c3-u04"])) {
+    u.points[2].fig = { t: "pic", items: [{ e: "💬", x: 14, y: 55, l: "主張" }, { e: "📝", x: 50, y: 55, l: "理由＋例" }, { e: "🎯", x: 86, y: 55, l: "結論" }],
+      arrows: [[0, 1, ""], [1, 2, ""], [2, 0, "主張を言いかえ", "dash"]], cap: "結論は 最初の主張を 言いかえて 締める" };
+  }
+  if ((u = P["c3-u05"])) {
+    u.points[0].fig = { t: "pic", items: [{ e: "🧑", x: 22, y: 62, l: "Some people", b: "学校は遅く！" }, { e: "🙋", x: 78, y: 62, l: "I" }],
+      arrows: [[1, 0, "argue that…", "dash"]], cap: "まず 相手の意見を 正しく 紹介する" };
+  }
+  if ((u = P["c3-u06"])) {
+    u.points[0].fig = { t: "bars", items: [["2021", 30], ["2022", 36], ["2023", 85]], cap: "2023年に sharply（急に）増えた" };
+    u.points[1].fig = { t: "bars", items: [["young people", 50], ["adults", 35], ["seniors", 15]], cap: "account for half ＝ 半分を占める" };
+  }
+})(window.LX.plus);
