@@ -27,6 +27,28 @@ function fig(id, f) {
     (f.steps || []).forEach(x => L(id, 'flow', x, 8));
   } else if (f.t === 'vs') {
     ['a', 'b'].forEach(k => { const v = f[k]; if (!Array.isArray(v) || v.length !== 2) bad.push(id + ' vs ' + k); else { L(id, 'vs英文', v[0], 30); L(id, 'vs説明', v[1], 14); } });
+  } else if (f.t === 'pic') {
+    const it = f.items || [];
+    if (it.length < 2 || it.length > 5) bad.push(id + ' pic items 数');
+    let nb = 0;
+    it.forEach((x, i) => {
+      if (!x.e || Array.from(x.e).length > 3) bad.push(id + ' pic e は絵文字1つ');
+      if (!(x.x >= 8 && x.x <= 92 && x.y >= 20 && x.y <= 85)) bad.push(id + ' pic 位置 ' + x.x + ',' + x.y);
+      if (x.s != null && !(x.s >= 0.6 && x.s <= 1.6)) bad.push(id + ' pic s');
+      L(id, 'pic l', x.l, 12);
+      if (x.b) { nb++; L(id, 'pic b', x.b, 12); if (x.y < 45) bad.push(id + ' pic 吹き出しの物は y 45 以上'); }
+      it.forEach((y, j) => { if (j > i && Math.abs(x.x - y.x) < 25 && Math.abs(x.y - y.y) < 30) bad.push(id + ' pic 重なり ' + i + '-' + j); });
+    });
+    if (nb > 1) bad.push(id + ' pic 吹き出しは1個まで');
+    const ar = f.arrows || [];
+    if (ar.length > 3) bad.push(id + ' pic arrows 数');
+    ar.forEach(a => { if (!Array.isArray(a) || !(a[0] < it.length) || !(a[1] < it.length) || a[0] === a[1]) bad.push(id + ' pic arrow'); else L(id, 'pic arrow', a[2], 12); });
+    L(id, 'pic cap', f.cap, 26);
+  } else if (f.t === 'bars') {
+    const it = f.items || [];
+    if (it.length < 2 || it.length > 4) bad.push(id + ' bars items 数');
+    it.forEach(x => { L(id, 'bars label', x[0], 12); if (!(x[1] >= 0 && x[1] <= 100)) bad.push(id + ' bars 値'); });
+    L(id, 'bars cap', f.cap, 26);
   } else bad.push(id + ' fig の種類 ' + f.t);
 }
 function sent(id, s, seen) {
@@ -63,7 +85,8 @@ ids.forEach(id => {
     if (pt.why) L(pid, 'why', pt.why, 90); if (pt.easy) L(pid, 'easy', pt.easy, 120);
   });
   const seen = new Set(u.sentences.map(s => s.en.replace(/[\[\]]/g, '').toLowerCase()));
-  if (!Array.isArray(p.drills) || p.drills.length !== 12) bad.push(id + ' drills は12文（いま ' + (p.drills || []).length + '）');
+  const ND = process.env.DRILL24 ? 24 : 12;
+  if (!Array.isArray(p.drills) || (process.env.DRILL24 ? p.drills.length !== 24 : p.drills.length < 12)) bad.push(id + ' drills は' + ND + '文（いま ' + (p.drills || []).length + '）');
   (p.drills || []).forEach(s => sent(id, s, seen));
   if (process.env.NEED_WHY) {
     (p.drills || []).forEach((s, j) => { if (!s.why) bad.push(id + ' drill' + (j + 1) + ' why なし'); if (![0, 1, 2].includes(s.p)) bad.push(id + ' drill' + (j + 1) + ' p'); });

@@ -616,6 +616,7 @@ dialog::backdrop { background: rgba(0, 0, 0, .35); }
 }
 @container (max-height: 470px) {
   .cin.pt .hasfig .form { display: none; }
+  .fpic .pbox { width: min(100%, 64cqh); }
   .cin.pt .mid { gap: 5px; }
   .cin.pt .h { font-size: calc(clamp(18px, min(5cqw, 6.4cqh), 32px) * var(--k)); }
 }
@@ -687,6 +688,24 @@ dialog::backdrop { background: rgba(0, 0, 0, .35); }
 .va { --vc: var(--accent); --vbg: var(--accent-soft); }
 .vbb { --vc: var(--blue); --vbg: var(--blue-soft); }
 .vsx { align-self: center; font-family: var(--font-en); font-weight: 600; color: var(--warm); font-size: .9em; }
+
+/* 絵（pic）・くらべる棒（bars） */
+.fpic .pbox { position: relative; width: min(100%, 76cqh); aspect-ratio: 2 / 1; margin: 0 auto; container-type: inline-size; border-radius: 10px; background: linear-gradient(180deg, var(--bg), var(--panel)); border: 1px dashed var(--line); }
+.parr { position: absolute; inset: 0; width: 100%; height: 100%; color: var(--warm); overflow: visible; }
+.parr .pal { font-size: 9.5px; font-weight: 700; fill: var(--warm); paint-order: stroke; stroke: var(--panel); stroke-width: 5px; stroke-linejoin: round; font-family: var(--font-body); }
+.pit { position: absolute; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; line-height: 1; }
+.pe { font-size: calc(15cqw * var(--s)); line-height: 1.05; }
+.pl { margin-top: 1px; font-size: max(11px, 4.4cqw); font-weight: 700; white-space: nowrap; color: var(--ink); background: var(--panel); border-radius: 3px; padding: 0 3px; font-family: var(--font-en); }
+.pbub { position: absolute; bottom: calc(100% + 5px); left: 50%; transform: translateX(-50%); white-space: nowrap; font-size: max(11px, 4.2cqw); font-weight: 700; background: var(--panel); border: 1.5px solid var(--ink); border-radius: 12px; padding: 2px 8px; line-height: 1.3; }
+.pbub::after { content: ""; position: absolute; left: 50%; top: 100%; transform: translateX(-50%); border: 5px solid transparent; border-top-color: var(--ink); }
+.pcap { margin: 4px 0 0; text-align: center; font-weight: 700; font-size: max(13px, 1em); color: var(--accent); }
+.fbars { display: flex; flex-direction: column; gap: 5px; }
+.bri { display: grid; grid-template-columns: minmax(4em, 9em) 1fr; gap: 8px; align-items: center; }
+.brl { font-family: var(--font-en); font-weight: 600; text-align: right; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.brb { height: 1.1em; background: var(--chip); border-radius: 4px; overflow: hidden; }
+.brb i { display: block; height: 100%; border-radius: 4px; animation: growx .7s ease-out; transform-origin: left; }
+.bc0 { background: var(--accent); } .bc1 { background: var(--blue); } .bc2 { background: var(--warm); } .bc3 { background: var(--gold); }
+@keyframes growx { from { transform: scaleX(0); } }
 /* まちがえやすいところ */
 .nglist { list-style: none; margin: 0; padding: 0; display: grid; gap: clamp(6px, 2.2cqh, 16px); }
 .nglist li { border-left: 4px solid var(--warm); padding: 2px 0 2px 12px; }

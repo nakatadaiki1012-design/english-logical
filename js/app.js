@@ -270,7 +270,8 @@
   function drillPool(u) { return u.drills.length ? u.drills : u.sentences; }
   function newDrill() {
     var flip = Math.random() < 0.5;
-    V.dr = shuffle(drillPool(V.u)).map(function (s, i) { return { s: s, type: (i % 2 === 0) === flip ? 'order' : 'cloze' }; });
+    // 演習文（24 文）から 毎回 ちがう 12 問
+    V.dr = shuffle(drillPool(V.u)).slice(0, 12).map(function (s, i) { return { s: s, type: (i % 2 === 0) === flip ? 'order' : 'cloze' }; });
     V.a = {}; V.page = 0;
   }
   function curS() {

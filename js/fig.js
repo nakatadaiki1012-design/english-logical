@@ -44,9 +44,41 @@
       '<span class="vsx">VS</span>' +
       '<div class="vb vbb"><b>' + esc(f.b[0]) + '</b><small>' + esc(f.b[1]) + '</small></div></div>';
   }
+  /* pic … 絵（絵文字の人・物を置いて、矢印と吹き出しで 文法のイメージを 場面にする）
+     座標は 横 0〜100・縦 0〜100（％）。箱は 横：縦 ＝ 2：1 */
+  function pic(f) {
+    var items = f.items || [], P = function (it) { return [(+it.x) * 2, +it.y]; };
+    var svg = (f.arrows || []).map(function (ar) {
+      var a = items[ar[0]], b = items[ar[1]]; if (!a || !b) return '';
+      var A0 = P(a), B0 = P(b), dx = B0[0] - A0[0], dy = B0[1] - A0[1], L = Math.sqrt(dx * dx + dy * dy) || 1;
+      var ux = dx / L, uy = dy / L, ra = 13 * (+a.s || 1), rb = 13 * (+b.s || 1);
+      var x1 = A0[0] + ux * ra, y1 = A0[1] + uy * ra, x2 = B0[0] - ux * rb, y2 = B0[1] - uy * rb;
+      var cx = (x1 + x2) / 2 + (dx >= 0 ? uy : -uy) * 9, cy = (y1 + y2) / 2 - Math.abs(ux) * 9; // 少しだけ 上に ふくらませる
+      var tx = x2 - cx, ty = y2 - cy, tl = Math.sqrt(tx * tx + ty * ty) || 1; tx /= tl; ty /= tl;
+      var h1 = (x2 - tx * 7 - ty * 4) + ',' + (y2 - ty * 7 + tx * 4), h2 = (x2 - tx * 7 + ty * 4) + ',' + (y2 - ty * 7 - tx * 4);
+      var lx = (x1 + 2 * cx + x2) / 4, ly = (y1 + 2 * cy + y2) / 4 - 5;
+      return '<path d="M' + x1.toFixed(1) + ',' + y1.toFixed(1) + ' Q' + cx.toFixed(1) + ',' + cy.toFixed(1) + ' ' + x2.toFixed(1) + ',' + y2.toFixed(1) + '" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"' + (ar[3] === 'dash' ? ' stroke-dasharray="5 4"' : '') + '/>' +
+        '<polygon points="' + x2.toFixed(1) + ',' + y2.toFixed(1) + ' ' + h1 + ' ' + h2 + '" fill="currentColor"/>' +
+        (ar[2] ? '<text x="' + lx.toFixed(1) + '" y="' + ly.toFixed(1) + '" text-anchor="middle" class="pal">' + esc(ar[2]) + '</text>' : '');
+    }).join('');
+    return '<div class="fig fpic"><div class="pbox">' +
+      '<svg viewBox="0 0 200 100" class="parr" aria-hidden="true">' + svg + '</svg>' +
+      items.map(function (it) {
+        var sc = Math.max(0.6, Math.min(1.6, +it.s || 1));
+        return '<div class="pit" style="left:' + (+it.x) + '%;top:' + (+it.y) + '%;--s:' + sc + '">' +
+          (it.b ? '<span class="pbub">' + esc(it.b) + '</span>' : '') +
+          '<span class="pe">' + esc(it.e) + '</span>' + (it.l ? '<span class="pl">' + esc(it.l) + '</span>' : '') + '</div>';
+      }).join('') + '</div>' + (f.cap ? '<p class="pcap">' + esc(f.cap) + '</p>' : '') + '</div>';
+  }
+  /* bars … くらべる棒（比較の「同じ」「〜より上」） */
+  function bars(f) {
+    return '<div class="fig fbars">' + (f.items || []).map(function (it, i) {
+      return '<div class="bri"><span class="brl">' + esc(it[0]) + '</span><span class="brb"><i class="bc' + (i % 4) + '" style="width:' + Math.max(2, Math.min(100, +it[1])) + '%"></i></span></div>';
+    }).join('') + (f.cap ? '<p class="pcap">' + esc(f.cap) + '</p>' : '') + '</div>';
+  }
   function html(f) {
     if (!f || !f.t) return '';
-    try { return { slots: slots, time: time, scale: scale, flow: flow, vs: vs }[f.t](f); } catch (e) { return ''; }
+    try { return { slots: slots, time: time, scale: scale, flow: flow, vs: vs, pic: pic, bars: bars }[f.t](f); } catch (e) { return ''; }
   }
 
   /* slots の矢印は 描いたあとで 箱の位置を測って ひく */
