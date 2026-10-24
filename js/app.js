@@ -345,10 +345,9 @@
           var p = u.points[pg];
           return '<div class="lab"><span class="pill">💡 ポイント ' + (pg + 1) + '/' + u.points.length + '</span><span>' + esc(u.en) + '</span>' +
             (!u.core && pg === 0 ? '<span class="r">🎯 ' + esc(u.goal) + '</span>' : '') + '</div>' +
-            '<div class="mid"><h3 class="h">' + esc(p.h) + '</h3><p class="body">' + esc(p.body) + '</p>' +
+            '<div class="mid' + (p.fig ? ' hasfig' : '') + '"><h3 class="h">' + esc(p.h) + '</h3><p class="body">' + esc(p.body) + '</p>' +
             (p.form ? '<div class="form">' + esc(p.form) + '</div>' : '') + (p.fig ? fig(p.fig) : '') +
-            '<div class="exb"><p class="en sm">' + hl(p.ex) + '</p><p class="ja">' + esc(p.exja) + '</p></div></div>' +
-            '<div class="row"><button type="button" class="say" data-say="' + esc(p.ex) + '">🔊 聞く</button></div>';
+            '<div class="exb"><button type="button" class="say mini" data-say="' + esc(p.ex) + '" title="聞く">🔊</button><div><p class="en sm">' + hl(p.ex) + '</p><p class="ja">' + esc(p.exja) + '</p></div></div></div>';
         }
         if (pg === 'ng') {
           return '<div class="lab"><span class="pill">⚠ まちがえやすいところ</span><span>テストで ねらわれる！</span></div>' +

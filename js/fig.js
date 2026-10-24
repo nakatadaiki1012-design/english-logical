@@ -30,7 +30,8 @@
   }
   function scale(f) {
     return '<div class="fig fscale"><div class="sbar">' + f.items.map(function (it, i) {
-      return '<span class="pin ' + (i % 2 ? 'dn' : 'up') + '" style="left:' + Math.max(0, Math.min(100, +it[1])) + '%"><b>' + esc(it[0]) + '</b></span>';
+      var x = Math.max(0, Math.min(100, +it[1])), edge = x >= 82 ? ' er' : x <= 18 ? ' el' : '';
+      return '<span class="pin ' + (i % 2 ? 'dn' : 'up') + edge + '" style="left:' + x + '%"><b>' + esc(it[0]) + '</b></span>';
     }).join('') + '</div><div class="sends"><span>' + esc(f.left) + '</span><span>' + esc(f.right) + '</span></div></div>';
   }
   function flow(f) {
