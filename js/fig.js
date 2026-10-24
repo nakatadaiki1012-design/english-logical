@@ -48,6 +48,7 @@
      座標は 横 0〜100・縦 0〜100（％）。箱は 横：縦 ＝ 2：1 */
   function pic(f) {
     var items = f.items || [], P = function (it) { return [(+it.x) * 2, +it.y]; };
+    var labs = '';
     var svg = (f.arrows || []).map(function (ar) {
       var a = items[ar[0]], b = items[ar[1]]; if (!a || !b) return '';
       var A0 = P(a), B0 = P(b), dx = B0[0] - A0[0], dy = B0[1] - A0[1], L = Math.sqrt(dx * dx + dy * dy) || 1;
@@ -56,10 +57,11 @@
       var cx = (x1 + x2) / 2 + (dx >= 0 ? uy : -uy) * 9, cy = (y1 + y2) / 2 - Math.abs(ux) * 9; // 少しだけ 上に ふくらませる
       var tx = x2 - cx, ty = y2 - cy, tl = Math.sqrt(tx * tx + ty * ty) || 1; tx /= tl; ty /= tl;
       var h1 = (x2 - tx * 7 - ty * 4) + ',' + (y2 - ty * 7 + tx * 4), h2 = (x2 - tx * 7 + ty * 4) + ',' + (y2 - ty * 7 - tx * 4);
-      var lx = (x1 + 2 * cx + x2) / 4, ly = (y1 + 2 * cy + y2) / 4 - 5;
+      var lx = (x1 + 2 * cx + x2) / 4, ly = (y1 + 2 * cy + y2) / 4 - 2;
+      // 矢印の ことばは 絵より 手前の 札にする（重なっても 読める）
+      if (ar[2]) labs += '<span class="pal2" style="left:' + (lx / 2).toFixed(1) + '%;top:' + ly.toFixed(1) + '%">' + esc(ar[2]) + '</span>';
       return '<path d="M' + x1.toFixed(1) + ',' + y1.toFixed(1) + ' Q' + cx.toFixed(1) + ',' + cy.toFixed(1) + ' ' + x2.toFixed(1) + ',' + y2.toFixed(1) + '" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"' + (ar[3] === 'dash' ? ' stroke-dasharray="5 4"' : '') + '/>' +
-        '<polygon points="' + x2.toFixed(1) + ',' + y2.toFixed(1) + ' ' + h1 + ' ' + h2 + '" fill="currentColor"/>' +
-        (ar[2] ? '<text x="' + lx.toFixed(1) + '" y="' + ly.toFixed(1) + '" text-anchor="middle" class="pal">' + esc(ar[2]) + '</text>' : '');
+        '<polygon points="' + x2.toFixed(1) + ',' + y2.toFixed(1) + ' ' + h1 + ' ' + h2 + '" fill="currentColor"/>';
     }).join('');
     return '<div class="fig fpic"><div class="pbox">' +
       '<svg viewBox="0 0 200 100" class="parr" aria-hidden="true">' + svg + '</svg>' +
@@ -68,7 +70,7 @@
         return '<div class="pit" style="left:' + (+it.x) + '%;top:' + (+it.y) + '%;--s:' + sc + '">' +
           (it.b ? '<span class="pbub">' + esc(it.b) + '</span>' : '') +
           '<span class="pe">' + esc(it.e) + '</span>' + (it.l ? '<span class="pl">' + esc(it.l) + '</span>' : '') + '</div>';
-      }).join('') + '</div>' + (f.cap ? '<p class="pcap">' + esc(f.cap) + '</p>' : '') + '</div>';
+      }).join('') + labs + '</div>' + (f.cap ? '<p class="pcap">' + esc(f.cap) + '</p>' : '') + '</div>';
   }
   /* bars … くらべる棒（比較の「同じ」「〜より上」） */
   function bars(f) {

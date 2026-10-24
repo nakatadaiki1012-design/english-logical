@@ -102,6 +102,8 @@
     var toks = [];
     function add(str, k) { str.trim().split(/\s+/).forEach(function (w) { if (w) toks.push({ t: w, k: k }); }); }
     add(m[1], 0); toks.push({ t: m[2].trim(), k: 1 }); add(m[3], 0);
+    // 「,」だけのカードは 前のカードに くっつける（In my opinion, など）
+    for (var q = toks.length - 1; q > 0; q--) if (/^[,;:]+$/.test(toks[q].t)) { toks[q - 1].t += toks[q].t; toks.splice(q, 1); }
     var end = '', last = toks[toks.length - 1], pm = last.t.match(/^(.*?)([.?!]+)$/);
     if (pm) { end = pm[2]; last.t = pm[1]; if (!last.t) toks.pop(); }
     var f = toks[0], fw = f.t.split(' ')[0];
