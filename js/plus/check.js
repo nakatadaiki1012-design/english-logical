@@ -59,10 +59,18 @@ ids.forEach(id => {
     if (!pt.exja) bad.push(pid + ' exja');
     if (pt.fig) fig(pid, pt.fig);
     if (!pt.ng || !pt.ng.bad || !pt.ng.good || !pt.ng.why) bad.push(pid + ' ng'); else { L(pid, 'ng.why', pt.ng.why, 40); if (pt.ng.bad === pt.ng.good) bad.push(pid + ' ng 同じ'); }
+    if (process.env.NEED_WHY) { if (!pt.why) bad.push(pid + ' why なし'); if (!pt.easy) bad.push(pid + ' easy なし'); }
+    if (pt.why) L(pid, 'why', pt.why, 90); if (pt.easy) L(pid, 'easy', pt.easy, 120);
   });
   const seen = new Set(u.sentences.map(s => s.en.replace(/[\[\]]/g, '').toLowerCase()));
   if (!Array.isArray(p.drills) || p.drills.length !== 12) bad.push(id + ' drills は12文（いま ' + (p.drills || []).length + '）');
   (p.drills || []).forEach(s => sent(id, s, seen));
+  if (process.env.NEED_WHY) {
+    (p.drills || []).forEach((s, j) => { if (!s.why) bad.push(id + ' drill' + (j + 1) + ' why なし'); if (![0, 1, 2].includes(s.p)) bad.push(id + ' drill' + (j + 1) + ' p'); });
+    if (!Array.isArray(p.swhy) || p.swhy.length !== 6) bad.push(id + ' swhy は6個');
+    (p.swhy || []).forEach((w, j) => { if (!w || !w.why) bad.push(id + ' swhy' + (j + 1) + ' why なし'); else L(id, 'swhy', w.why, 60); if (!w || ![0, 1, 2].includes(w.p)) bad.push(id + ' swhy' + (j + 1) + ' p'); });
+  }
+  (p.drills || []).forEach(s => { if (s.why) L(id, 'drill why', s.why, 60); });
 });
 console.log(ids.length + ' 単元', bad.length ? '\n問題 ' + bad.length + ' 件\n' + bad.join('\n') : '問題なし');
 process.exit(bad.length ? 1 : 0);

@@ -18,7 +18,10 @@
       var px = PLUS[u.id]; // 追加教材：ひとことで言うと・わかりやすいポイント・演習 12 文
       if (px) { if (px.core) u.core = px.core; if (px.points && px.points.length) u.points = px.points; u.drills = px.drills || []; }
       u.drills = u.drills || [];
-      u.sentences.forEach(function (s, j) { prep(s, u, u.id + '-' + (j + 1)); SENTS[s.id] = s; });
+      u.sentences.forEach(function (s, j) {
+        prep(s, u, u.id + '-' + (j + 1)); SENTS[s.id] = s;
+        var w = px && px.swhy && px.swhy[j]; if (w) { s.why = w.why; s.p = w.p; }
+      });
       u.drills.forEach(function (s, j) { prep(s, u, u.id + '-d' + (j + 1)); });
     });
   });
@@ -69,6 +72,8 @@
     var t = document.createElement('div'); t.className = 'toast'; t.textContent = msg; document.body.appendChild(t);
     setTimeout(function () { t.remove(); }, 1600);
   }
+  function whyB(has) { return has ? ' <button type="button" class="whyb" data-act="why">🤔 なぜ？</button>' : ''; }
+  function hasWhy(s) { var u = s && s.unit, pt = u && u.points[s.p || 0]; return !!(s && (s.why || (pt && (pt.why || pt.easy)))); }
   function hl(en) { return esc(en).replace(/\[([^\]]+)\]/, '<mark>$1</mark>'); }
   function blankEn(s, fill, ok) {
     var b = '<span class="blank' + (ok ? ' ok' : '') + '">' + (fill ? esc(fill) : '&nbsp;') + '</span>';
@@ -344,7 +349,7 @@
         if (typeof pg === 'number') {
           var p = u.points[pg];
           return '<div class="lab"><span class="pill">💡 ポイント ' + (pg + 1) + '/' + u.points.length + '</span><span>' + esc(u.en) + '</span>' +
-            (!u.core && pg === 0 ? '<span class="r">🎯 ' + esc(u.goal) + '</span>' : '') + '</div>' +
+            (p.why || p.easy ? '<span class="r">' + whyB(true) + '</span>' : (!u.core && pg === 0 ? '<span class="r">🎯 ' + esc(u.goal) + '</span>' : '')) + '</div>' +
             '<div class="mid' + (p.fig ? ' hasfig' : '') + '"><h3 class="h">' + esc(p.h) + '</h3><p class="body">' + esc(p.body) + '</p>' +
             (p.form ? '<div class="form">' + esc(p.form) + '</div>' : '') + (p.fig ? fig(p.fig) : '') +
             '<div class="exb"><button type="button" class="say mini" data-say="' + esc(p.ex) + '" title="聞く">🔊</button><div><p class="en sm">' + hl(p.ex) + '</p><p class="ja">' + esc(p.exja) + '</p></div></div></div>';
@@ -363,7 +368,7 @@
       case 'learn': {
         s = u.sentences[V.page]; var r = a.r || 0;
         return '<div class="lab"><span class="pill">🗣 音読 ' + (V.page + 1) + '/6</span><span>声に出して読んだら ✓。読むたびに 英文がかくれていく</span></div>' +
-          '<div class="mid"><p class="en">' + hideEn(s, r) + '</p><p class="ja">' + esc(s.ja) + '</p><p class="tip">' + esc(s.tip) + '</p></div>' +
+          '<div class="mid"><p class="en">' + hideEn(s, r) + '</p><p class="ja">' + esc(s.ja) + '</p><p class="tip">' + esc(s.tip) + whyB(hasWhy(s)) + '</p></div>' +
           '<div class="row"><button type="button" class="say" data-say="' + esc(s.en) + '">🔊 聞く</button>' +
           '<button type="button" class="say' + (S.rate < 0.8 ? ' on' : '') + '" data-act="rate" title="ゆっくり">🐢 ゆっくり</button>' +
           '<span class="reads">' + [1, 2, 3].map(function (k) { return '<i class="' + (r >= k ? 'on' : '') + '">' + k + '</i>'; }).join('') + '</span>' +
@@ -412,8 +417,9 @@
     }).join('');
     var fb = '';
     if (a.done) {
-      fb = a.ok ? '<p class="tip">⭕ 正解！ ' + esc(s.tip) + '</p>'
-        : '<p class="en sm">' + hl(s.en) + '</p><p class="tip ng">✕ 正しい順は上のとおり。' + esc(s.tip) + '</p>';
+      var wb = strict ? '' : whyB(hasWhy(s));
+      fb = a.ok ? '<p class="tip">⭕ 正解！ ' + esc(s.tip) + wb + '</p>'
+        : '<p class="en sm">' + hl(s.en) + '</p><p class="tip ng">✕ 正しい順は上のとおり。' + esc(s.tip) + wb + '</p>';
     }
     return '<div class="lab"><span class="pill">' + lab + '</span><span>日本語に合うように カードをタップして ならべる</span></div>' +
       '<div class="mid"><p class="ja big">' + esc(s.ja) + '</p>' +
@@ -431,7 +437,7 @@
     }).join('');
     return '<div class="lab"><span class="pill">' + lab + '</span><span>（　）に入るものを えらぶ</span></div>' +
       '<div class="mid"><p class="en">' + blankEn(s, a.done ? s.key : '', a.done) + '</p><p class="ja">' + esc(s.ja) + '</p>' +
-      (a.done ? '<p class="tip' + (a.ok ? '' : ' ng') + '">' + (a.ok ? '⭕ 正解！ ' : '✕ 正解は「' + esc(s.key) + '」。') + esc(s.tip) + '</p>' : '') + '</div>' +
+      (a.done ? '<p class="tip' + (a.ok ? '' : ' ng') + '">' + (a.ok ? '⭕ 正解！ ' : '✕ 正解は「' + esc(s.key) + '」。') + esc(s.tip) + (strict ? '' : whyB(hasWhy(s))) + '</p>' : '') + '</div>' +
       '<div class="choices">' + btns + '</div>' +
       (a.done && !strict ? '<div class="row"><button type="button" class="say" data-say="' + esc(s.en) + '">🔊 聞く</button></div>' : '');
   }
@@ -440,7 +446,7 @@
     return '<div class="lab"><span class="pill">' + lab + '</span><span>日本語を見て すぐ英語で言う → 答えを見て 自分で ○△✕</span></div>' +
       '<div class="mid"><p class="ja big">' + esc(s.ja) + '</p>' +
       (a.hint && !a.shown ? '<p class="en sm" style="color:var(--muted)">' + esc(first) + '</p>' : '') +
-      (a.shown ? '<p class="en">' + hl(s.en) + '</p><p class="tip">' + esc(s.tip) + '</p>'
+      (a.shown ? '<p class="en">' + hl(s.en) + '</p><p class="tip">' + esc(s.tip) + whyB(hasWhy(s)) + '</p>'
         : '<button type="button" class="veil" data-act="show">口に出して言ってから タップ（スペースキー）で 答えを見る</button>') + '</div>' +
       (a.shown ? '<div class="grades">' +
         '<button type="button" class="grade g0" data-g="0">✕ まだ<small>もう一度 出る</small></button>' +
@@ -574,9 +580,39 @@
       case 'show': revealRecall(); break;
       case 'hint': (V.view === 'review' ? (V.a[V.i] || {}) : ans()).hint = 1; rerender(); break;
       case 'retest': newTest(); renderUnit(); break;
+      case 'why': case 'why1': openWhy(1); break;
+      case 'why2': openWhy(2); break;
+      case 'whyx': closeWhy(); break;
       case 'drillagain': newDrill(); renderUnit(); break;
     }
   });
+  /* ---------- 🤔 なぜ？（カードの上に 1 枚かぶせる。2 段目は「それでもわからない人へ」） ---------- */
+  function whyCtx() {
+    if (V.view === 'review') { var rs = SENTS[V.q[V.i]]; return { s: rs, pt: rs.unit.points[rs.p || 0] }; }
+    if (V.view !== 'unit') return null;
+    if (V.step === 'point') { var pg = pointPages(V.u)[V.page]; return typeof pg === 'number' ? { s: null, pt: V.u.points[pg] } : null; }
+    var s = curS(); return { s: s, pt: s.unit.points[s.p || 0] };
+  }
+  function openWhy(level) {
+    var c = whyCtx(), card = $('#card'); if (!c || !card) return;
+    var old = card.querySelector('.sheet'); if (old) old.remove();
+    var s = c.s, pt = c.pt || {}, easy = level === 2 && pt.easy, h;
+    if (easy) {
+      h = '<p class="sh-lab easy">🐣 それでもわからないときは</p>' +
+        '<p class="sh-easy">' + esc(pt.easy) + '</p>' +
+        (pt.ex ? '<p class="en sm">' + hl(pt.ex) + '</p>' : '');
+    } else {
+      h = '<p class="sh-lab">🤔 なぜそうなる？</p>' +
+        (s ? '<p class="en sm">' + hl(s.en) + '</p>' + (s.why ? '<p class="sh-why">' + esc(s.why) + '</p>' : '') : '') +
+        (pt.why ? '<div class="sh-rule"><b>きまり：' + esc(pt.h || '') + '</b><p>' + esc(pt.why) + '</p></div>' : '');
+    }
+    var d = document.createElement('div'); d.className = 'sheet'; d.setAttribute('role', 'dialog');
+    d.innerHTML = '<div class="shin">' + h + '</div><div class="row shbtn">' +
+      (easy ? '<button type="button" class="btn ghost" data-act="why1">◀ もどる</button>' : (pt.easy ? '<button type="button" class="btn" data-act="why2">🐣 それでもわからない…</button>' : '')) +
+      '<button type="button" class="btn main" data-act="whyx">✕ とじる</button></div>';
+    card.appendChild(d);
+  }
+  function closeWhy() { var d = $('#card .sheet'); if (d) d.remove(); }
   function rerender() { if (V.view === 'review') renderReview(); else if (V.view === 'unit') renderUnit(); }
   function revealRecall() {
     var a, s;
@@ -604,6 +640,7 @@
 
   document.addEventListener('keydown', function (e) {
     if ($('#dlg').open || /INPUT|TEXTAREA|SELECT/.test((e.target.tagName || ''))) return;
+    if ($('#card .sheet')) { if (e.key === 'Escape') closeWhy(); return; }
     if (V.view === 'unit') {
       if (e.key === 'ArrowRight') { e.preventDefault(); nextPage(); }
       else if (e.key === 'ArrowLeft') { e.preventDefault(); prevPage(); }
