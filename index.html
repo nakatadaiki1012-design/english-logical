@@ -597,7 +597,7 @@ dialog::backdrop { background: rgba(0, 0, 0, .35); }
 .fig { --fs: calc(clamp(12px, min(2.9cqw, 3.9cqh), 19px) * var(--k)); font-size: var(--fs); flex: none; position: relative; }
 /* slots */
 .fslots .slrow { display: flex; flex-wrap: wrap; gap: 6px; }
-.fslots.has-arc { padding-bottom: calc(var(--fs) * 2.9); }
+.fslots.has-arc { padding-bottom: calc(var(--fs) * 1.5 + 22px); }
 /* 高さの低いカード：図があるときは「型」の枠を省く（図が同じ役目）・すき間を詰める */
 @container (max-height: 620px) {
   :root[data-size="2"] .cin.pt .hasfig .form { display: none; }
@@ -637,7 +637,7 @@ dialog::backdrop { background: rgba(0, 0, 0, .35); }
 .r-X { --rc: var(--muted); --rb: var(--chip); }
 :root[data-theme="dark"] .r-M { --rc: #c3a3e6; }
 .fslots svg.arcs { position: absolute; left: 0; top: 0; pointer-events: none; color: var(--warm); overflow: visible; }
-.arcl { position: absolute; transform: translateX(-50%); font-size: .8em; font-weight: 700; color: var(--warm); background: var(--panel); padding: 0 6px; border-radius: 3px; white-space: nowrap; line-height: 1.4; }
+.arcl { position: absolute; transform: translateX(-50%); font-size: .8em; font-weight: 700; color: var(--warm); padding: 0 4px; white-space: nowrap; line-height: 1.4; }
 /* time */
 .ftime { padding: 0 1.5em; }
 .tmarks { display: flex; flex-direction: column; gap: 2px; }

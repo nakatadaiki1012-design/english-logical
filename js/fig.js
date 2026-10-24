@@ -55,12 +55,22 @@
       var ab = fg.getAttribute('data-arc').split(','), a = fg.querySelector('[data-i="' + ab[0] + '"]'), b = fg.querySelector('[data-i="' + ab[1] + '"]');
       var svg = fg.querySelector('svg.arcs'), lab = fg.querySelector('.arcl'); if (!a || !b || !svg) return;
       var R = fg.getBoundingClientRect(), ra = a.getBoundingClientRect(), rb = b.getBoundingClientRect();
-      var x1 = ra.left + ra.width / 2 - R.left, x2 = rb.left + rb.width / 2 - R.left, y = Math.max(ra.bottom, rb.bottom) - R.top + 2;
-      var dip = Math.min(26, 10 + Math.abs(x2 - x1) * 0.12);
+      // 出発点（説明する側）と 到着点（説明される側）の 箱の下のまんなか
+      var x1 = Math.round(ra.left + ra.width / 2 - R.left), x2 = Math.round(rb.left + rb.width / 2 - R.left);
+      var y0 = Math.round(Math.max(ra.bottom, rb.bottom) - R.top), d = 14, dir = x2 > x1 ? 1 : -1;
+      var r = Math.min(6, Math.abs(x2 - x1) / 2), yb = y0 + d;
       svg.setAttribute('width', R.width); svg.setAttribute('height', R.height);
-      svg.innerHTML = '<defs><marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>' +
-        '<path d="M' + x1 + ',' + y + ' C' + x1 + ',' + (y + dip) + ' ' + x2 + ',' + (y + dip) + ' ' + x2 + ',' + (y + 3) + '" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="5 3" marker-end="url(#ah)"/>';
-      if (lab) { lab.style.left = ((x1 + x2) / 2) + 'px'; lab.style.top = (y + dip * 0.75) + 'px'; }
+      // 下に出て → 横へ → 上に入る（角は丸く）。先に小さな矢じり、出発点に丸
+      svg.innerHTML =
+        '<path d="M' + x1 + ',' + (y0 + 4) + ' V' + (yb - r) + ' Q' + x1 + ',' + yb + ' ' + (x1 + dir * r) + ',' + yb +
+        ' H' + (x2 - dir * r) + ' Q' + x2 + ',' + yb + ' ' + x2 + ',' + (yb - r) + ' V' + (y0 + 8) + '" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>' +
+        '<polygon points="' + x2 + ',' + (y0 + 2) + ' ' + (x2 - 5) + ',' + (y0 + 9) + ' ' + (x2 + 5) + ',' + (y0 + 9) + '" fill="currentColor"/>' +
+        '<circle cx="' + x1 + '" cy="' + (y0 + 4) + '" r="3" fill="currentColor"/>';
+      if (lab) {
+        var w = lab.offsetWidth, mid = (x1 + x2) / 2;
+        mid = Math.max(w / 2, Math.min(R.width - w / 2, mid));
+        lab.style.left = mid + 'px'; lab.style.top = (yb + 3) + 'px';
+      }
     });
   }
   var rt = 0;
