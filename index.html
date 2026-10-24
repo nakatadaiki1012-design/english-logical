@@ -611,7 +611,7 @@ dialog::backdrop { background: rgba(0, 0, 0, .35); }
   .cin.pt .mid { gap: 5px; }
   .cin.pt .h { font-size: calc(clamp(18px, min(5cqw, 6.4cqh), 32px) * var(--k)); }
 }
-@container (max-height: 360px) {
+@container (max-height: 400px) {
   .cin.pt .hasfig .exb .ja { display: none; }
   .cin.pt .body { line-height: 1.55; }
   .fig { --fs: calc(clamp(11px, min(2.7cqw, 3.6cqh), 16px) * var(--k)); }
@@ -623,6 +623,9 @@ dialog::backdrop { background: rgba(0, 0, 0, .35); }
   .cin .choices + .row { display: none; }
   .ja.big { font-size: calc(clamp(16px, min(4.4cqw, 5.6cqh), 28px) * var(--k)); }
   .mid:has(.slots.ng) .ja.big { display: none; }
+  .slots.ng .tl { height: auto; padding: 1px 7px; font-size: calc(clamp(13px, min(3.4cqw, 4.2cqh), 20px) * var(--k)); }
+  .slots.ng { min-height: 0; padding: 4px; gap: 4px; }
+  .mid:has(.blank.ok) > .ja { display: none; }
 }
 .steps { padding-right: 3px; }
 .sl { border: 2px solid var(--rc); border-radius: 6px; background: var(--rb); display: flex; flex-direction: column; align-items: center; min-width: 3.2em; overflow: hidden; }
