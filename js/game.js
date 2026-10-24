@@ -153,9 +153,10 @@
       '<div class="fld"><span class="fl">文字の大きさ</span>' + seg('size', [[0, '小'], [1, '中'], [2, '大']], s.size) + '</div>' +
       '<div class="fld"><span class="fl">画面</span>' + seg('theme', [['', '自動'], ['light', '明るい'], ['dark', '暗い']], s.theme || '') + '</div>' +
       '<div class="fld"><span class="fl">読み上げ</span>' + seg('rate', [[0.9, 'ふつう'], [0.65, 'ゆっくり']], s.rate < 0.8 ? 0.65 : 0.9) + '</div>' +
+      '<div class="fld"><span class="fl">効果音</span>' + seg('sfx', [[1, '🔊 オン'], [0, '🔇 オフ']], s.sfx === false ? 0 : 1) + '</div>' +
       '<hr class="sep"><b>🏆 クラス対戦のデータベース（先生が 1 回だけ）</b>' +
       '<div class="fld"><input type="text" id="dbUrl" placeholder="https://〇〇-default-rtdb.〇〇.firebasedatabase.app" value="' + esc(s.db || '') + '"><button type="button" class="btn" data-set="dbtest">保存して接続テスト</button></div>' +
-      '<p class="note">' + (window.LX_CONFIG && LX_CONFIG.db ? 'js/config.js に設定ずみ（ここが空なら そちらを使います）。' : '作り方は README の「クラス対戦の準備」にあります。') +
+      '<p class="note dbnote">' + (window.LX_CONFIG && LX_CONFIG.db ? 'js/config.js に設定ずみ（ここが空なら そちらを使います）。' : '作り方は README の「クラス対戦の準備」にあります。') +
       '生徒は 先生の部屋のリンク・QR から入れば 設定はいりません。</p>' +
       '</div>');
   }
@@ -174,6 +175,7 @@
     if (key === 'size') s.size = +val;
     if (key === 'theme') s.theme = val;
     if (key === 'rate') s.rate = +val;
+    if (key === 'sfx') { s.sfx = val === '1'; if (s.sfx) { save(); FX('ok'); } }
     save(); A().applyLook(); openSettings();
   }
   function toast(m) { A().toast(m); }
@@ -189,7 +191,20 @@
     };
   }
   function rshuffle(a, R) { a = a.slice(); for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(R() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+  function FX(name, a) { if (window.LXFX) LXFX.play(name, a); }
+  /* 出題する単元（cfg.us = "c2-u03,c2-u04" のように えらんだ単元。空ならコース全体） */
+  function usOf(cfg) { return String(cfg.us || '').split(',').filter(function (id) { return A().UNITS[id]; }); }
+  function unitLabel(id) { var u = A().UNITS[id]; return u.course.short + '-' + (u.no < 10 ? '0' : '') + u.no; }
+  function rangeName(cfg) {
+    var us = usOf(cfg);
+    if (us.length === 1) return unitLabel(us[0]) + ' ' + A().UNITS[us[0]].title;
+    if (us.length) return us.slice(0, 3).map(unitLabel).join('・') + (us.length > 3 ? ' ほか' + (us.length - 3) : '');
+    var c = cfg.c === 'all' ? '全コース' : (A().COURSES.filter(function (x) { return x.id === cfg.c; })[0] || {}).name;
+    return c + (cfg.u && cfg.u < 12 ? '（〜' + cfg.u + '）' : '') + (cfg.p ? '（合格した単元）' : '');
+  }
   function pool(cfg) {
+    var us = usOf(cfg);
+    if (us.length) return [].concat.apply([], us.map(function (id) { return A().UNITS[id].sentences; }));
     var out = [];
     A().COURSES.forEach(function (c) {
       if (cfg.c !== 'all' && c.id !== cfg.c) return;
@@ -202,8 +217,7 @@
     return out;
   }
   function cfgName(cfg) {
-    var c = cfg.c === 'all' ? '全コース' : (A().COURSES.filter(function (x) { return x.id === cfg.c; })[0] || {}).name;
-    return c + (cfg.u && cfg.u < 12 ? '（〜' + cfg.u + '）' : '') + '・' + { order: '並べかえ', cloze: '穴うめ', mix: 'ミックス' }[cfg.m] + '・' + cfg.t + '秒';
+    return rangeName(cfg) + '・' + { order: '並べかえ', cloze: '穴うめ', mix: 'ミックス' }[cfg.m] + '・' + cfg.t + '秒';
   }
   function words(s) { return s.plain.split(' ').length; }
 
@@ -221,6 +235,11 @@
     return G;
   }
   function nextQ() {
+    if (G.qi > 0 && G.qi % G.list.length === 0) {
+      var lastS = G.list[G.list.length - 1];
+      G.list = rshuffle(G.list, G.R);
+      if (G.list.length > 1 && G.list[0] === lastS) G.list.push(G.list.shift());
+    }
     var s = G.list[G.qi % G.list.length]; G.qi++;
     var type = G.cfg.m === 'mix' ? (G.R() < 0.5 ? 'order' : 'cloze') : G.cfg.m;
     if (type === 'order') {
@@ -231,27 +250,46 @@
     }
     G.lock = false;
   }
-  function pts(base) { var p = Math.round(base * mult()); G.score += p; return p; }
-  function hit() { G.combo++; if (G.combo > G.maxCombo) G.maxCombo = G.combo; }
-  function miss() { G.combo = 0; G.miss++; }
+  function pts(base) {
+    var p = Math.round(base * mult()); G.score += p;
+    var sc = $('#hscore'); if (sc) { sc.classList.remove('bump'); void sc.offsetWidth; sc.classList.add('bump'); }
+    return p;
+  }
+  function hit() {
+    G.combo++; if (G.combo > G.maxCombo) G.maxCombo = G.combo;
+    if (G.combo % 10 === 0) { // 10 コンボごとの お祝い
+      FX('combo');
+      var card = $('.play .card'), r = card && card.getBoundingClientRect();
+      if (r && window.LXFX) { LXFX.pop(G.combo + ' COMBO!' + (mult() > 1 ? ' ×' + mult() : ''), r.left + r.width / 2, r.top + r.height * 0.35, 'big'); LXFX.burst(40, r.left + r.width / 2, r.top + r.height * 0.4); }
+    }
+  }
+  function miss() { G.combo = 0; G.miss++; FX('miss'); flash('ng'); }
+  function flash(k) {
+    var c = $('.play .card'); if (!c) return;
+    c.classList.remove('f-ok', 'f-ng'); void c.offsetWidth; c.classList.add('f-' + k);
+  }
   function solved() {
     G.ok++; G.words += words(G.q.s); G.lock = true;
+    FX('ok'); flash('ok');
     pushScore();
     setTimeout(function () { if (G && !G.over) { nextQ(); drawQ(); } }, 280);
   }
-  function tapTile(i) {
+  function tapTile(i, el) {
     var q = G.q; if (G.lock || q.placed.indexOf(i) >= 0) return;
     if (q.tiles[i] === q.tiles[q.ptr]) {
-      q.placed.push(i); q.ptr++; hit(); pts(10); q.bad = -1;
+      q.placed.push(i); q.ptr++; hit(); var p = pts(10); q.bad = -1;
+      FX('tap', G.combo); if (el && window.LXFX) LXFX.popAt(el, '+' + p);
       if (q.ptr === q.tiles.length) { pts(20); q.done = 1; solved(); }
     } else { miss(); q.bad = i; }
     drawQ();
   }
-  function pickChoice(i) {
+  function pickChoice(i, el) {
     var q = G.q; if (G.lock || q.pick >= 0) return;
     q.pick = i;
-    if (q.ch[i] === q.s.key) { hit(); pts(30); drawQ(); solved(); }
-    else {
+    if (q.ch[i] === q.s.key) {
+      hit(); var p = pts(30); if (window.LXFX) LXFX.popAt(el || document.querySelectorAll('.choice')[i], '+' + p);
+      drawQ(); solved();
+    } else {
       miss(); G.lock = true; drawQ();
       setTimeout(function () { if (G && !G.over) { nextQ(); drawQ(); } }, 900);
     }
@@ -263,6 +301,7 @@
       '<div class="hud">' +
       '<button type="button" class="btn ghost" data-ga="quit" title="やめる">✕</button>' +
       '<div class="tbar"><i id="tfill"></i><span id="tsec"></span></div>' +
+      (G && G.mode === 'battle' ? '<div class="hr" id="hrank"></div>' : '') +
       '<div class="hc" id="hcombo"></div>' +
       '<div class="hs"><small>' + esc(title) + '</small><b id="hscore">0</b></div>' +
       '</div>' +
@@ -276,13 +315,31 @@
     if (sec) sec.textContent = t < G.startAt ? G.cfg.t + '秒' : Math.ceil(left / 1000) + '秒';
     if (sc) sc.textContent = fmt(G.score);
     if (cb) cb.innerHTML = G.combo >= 2 ? '<b>' + G.combo + '</b> コンボ' + (mult() > 1 ? '<i>×' + mult() + '</i>' : '') : '';
+    var card = $('.play .card'); if (card) card.setAttribute('data-combo', G.combo >= 30 ? 3 : G.combo >= 20 ? 2 : G.combo >= 10 ? 1 : 0);
+    var tb = $('.play .tbar'); if (tb) tb.classList.toggle('hurry', t >= G.startAt && left < 10000);
+    if (G.mode === 'battle') liveRank();
   }
+  /* クラス対戦：プレイ中の 自分の順位 */
+  function liveRank() {
+    var el = $('#hrank'); if (!el || !B || !B.room) return;
+    var ps = B.room.players || {}, rank = 1, n = 0, me = pid();
+    Object.keys(ps).forEach(function (k) { var p = ps[k]; if (!p || p.r !== B.played) return; n++; if (k !== me && (p.s || 0) > G.score) rank++; });
+    n = Math.max(n, 1);
+    el.innerHTML = rank === 1 && G.score > 0 ? '<b>👑 1</b>位' : '<b>' + rank + '</b>位<small>/' + n + '</small>';
+    el.className = 'hr' + (rank === 1 && G.score > 0 ? ' first' : '');
+    if (rank === 1 && G.prevRank > 1 && G.score > 0) { FX('lead'); if (window.LXFX) LXFX.popAt(el, '👑 1位に浮上！', 'big'); }
+    G.prevRank = rank;
+  }
+
   function drawQ() {
     var el = $('#gq'); if (!el || !G) return;
     var t = now();
     if (t < G.startAt) {
       var n = Math.ceil((G.startAt - t) / 1000);
-      el.innerHTML = '<div class="count"><small>' + esc(cfgName(G.cfg)) + '</small><b>' + (n > 3 ? '…' : n) + '</b><small>正しいカード・答えを どんどんタップ！ ミスするとコンボが切れる</small></div>';
+      if (n !== G.lastN) {
+        G.lastN = n; if (n <= 3) FX('beep');
+        el.innerHTML = '<div class="count"><small>' + esc(cfgName(G.cfg)) + '</small><b class="cd">' + (n > 3 ? '…' : n) + '</b><small>正しいカード・答えを どんどんタップ！ ミスするとコンボが切れる</small></div>';
+      }
       drawHud(); return;
     }
     var q = G.q, s = q.s, h;
@@ -312,8 +369,12 @@
       if (!G) return;
       var t = now();
       if (t < G.startAt) { drawQ(); return; }
-      if (wasCount) { wasCount = false; drawQ(); }
-      if (t >= G.endAt && !G.over) { G.over = true; clearInterval(G.timer); onEnd(); return; }
+      if (wasCount) {
+        wasCount = false; drawQ(); FX('go');
+        var c = $('.play .card'), r = c && c.getBoundingClientRect();
+        if (r && window.LXFX) LXFX.pop('GO!', r.left + r.width / 2, r.top + r.height * 0.3, 'go');
+      }
+      if (t >= G.endAt && !G.over) { G.over = true; clearInterval(G.timer); FX('whistle'); onEnd(); return; }
       drawHud();
     }, 100);
     drawQ();
@@ -329,18 +390,20 @@
   /* ---------- ひとりで タイムアタック ---------- */
   function taCfg() { var s = S(); if (!s.ta) s.ta = { c: s.course || 'c1', m: 'order', p: 0, u: 12, t: 60 }; return s.ta; }
   function startSolo() {
-    var cfg = taCfg(), c2 = { c: cfg.c, m: cfg.m, p: cfg.p, u: 12, t: 60 };
+    var cfg = taCfg(), c2 = { c: cfg.c, m: cfg.m, p: cfg.p === 1 ? 1 : 0, u: 12, t: 60, us: cfg.p === 2 ? cfg.us || '' : '' };
+    if (cfg.p === 2 && !usOf(c2).length) { location.hash = '#game'; toast('出題する単元を えらんでください'); return; }
     if (!pool(c2).length) { c2.p = 0; toast('合格した単元がまだないので、全単元から出します'); }
     newGame(c2, Math.floor(Math.random() * 1e9), 'solo', Date.now() + 3200);
     playShell('スコア');
     runClock(endSolo);
   }
   function endSolo() {
-    var r = rw(), key = G.cfg.c + '-' + G.cfg.m, prev = r.best[key] || 0, rec = G.score > prev;
+    var r = rw(), key = (usOf(G.cfg).length ? 'pick' : G.cfg.c) + '-' + G.cfg.m, prev = r.best[key] || 0, rec = G.score > prev;
     if (rec) r.best[key] = G.score;
     var coins = afterGame(); save(); earn(coins); checkBadges();
     var share = '論理表現ラボ ⏱タイムアタック（' + cfgName(G.cfg) + '）\n' + fmt(G.score) + '点！ ' + G.words + '語を組み立てた（≒ ' + ruler(G.words) + '）\n最大' + G.maxCombo + 'コンボ・段位「' + levelOf(r.coins).name + '」\n' + location.origin + location.pathname;
     G.share = share;
+    if (rec && G.score > 0 && window.LXFX) { setTimeout(function () { FX('fanfare'); LXFX.rain(3); LXFX.burst(80); }, 500); }
     $('#gq').innerHTML = '<div class="result">' +
       (rec && G.score > 0 ? '<div class="bigstamp newrec">新記録</div>' : '') +
       '<div class="score">' + fmt(G.score) + '<small> 点</small></div>' +
@@ -365,29 +428,70 @@
     var seg = function (key, opts) {
       return '<div class="seg">' + opts.map(function (o) { return '<button type="button" data-ta="' + key + ':' + o[0] + '" aria-pressed="' + (String(cfg[key]) === String(o[0])) + '">' + o[1] + '</button>'; }).join('') + '</div>';
     };
-    var best = r.best[cfg.c + '-' + cfg.m] || 0;
+    var best = r.best[(cfg.p === 2 ? 'pick' : cfg.c) + '-' + cfg.m] || 0;
     var hasDb = !!base();
     A().view.innerHTML = '<div class="unit">' +
       '<div class="ubar"><button type="button" class="btn ghost" data-act="home">◀ 一覧</button>' +
       '<div class="utitle"><small>やるほど コインがたまって 段位が上がる</small><b>🎮 ゲーム</b></div>' +
       '<button type="button" class="btn ghost rwbtn" data-ga="rewards">🏅 段位・バッジ</button></div>' +
       '<div class="hub">' +
-      '<section class="panel hubp"><h3>⏱ タイムアタック</h3><p class="note">60 秒で 何点とれる？ 正しいカードを 次々タップ。続けて正解すると コンボで点数アップ</p>' +
+      '<section class="panel hubp ta"><h3><span class="hico">⏱</span> タイムアタック</h3><p class="note">60 秒で 何点とれる？ 正しいカードを 次々タップ。続けて正解すると コンボで点数アップ</p>' +
       '<div class="fld"><span class="fl">コース</span>' + seg('c', [['c1', 'Ⅰ'], ['c2', 'Ⅱ'], ['c3', 'Ⅲ'], ['all', '全部']]) + '</div>' +
       '<div class="fld"><span class="fl">種目</span>' + seg('m', [['order', '並べかえ'], ['cloze', '穴うめ'], ['mix', 'ミックス']]) + '</div>' +
-      '<div class="fld"><span class="fl">範囲</span>' + seg('p', [[1, '合格した単元'], [0, '全単元']]) + '</div>' +
+      '<div class="fld"><span class="fl">範囲</span>' + seg('p', [[2, '📚 えらぶ'], [1, '合格した単元'], [0, '全単元']]) + '</div>' +
+      (cfg.p === 2 ? '<div class="fld"><span class="fl"></span><button type="button" class="btn rangebtn" data-ga="spick">' + (usOf(cfg).length ? '📚 ' + esc(rangeName(cfg)) + ' ✎' : '📚 単元をえらぶ') + '</button></div>' : '') +
       '<div class="fld go"><button type="button" class="btn main big" data-ga="solo">▶ スタート</button><span class="bestv">ベスト <b>' + fmt(best) + '</b> 点</span></div>' +
       '</section>' +
-      '<section class="panel hubp"><h3>🏆 クラス対戦</h3><p class="note">先生の合図で 全員いっせいにスタート。ランキングが リアルタイムで動く</p>' +
+      '<section class="panel hubp vs"><h3><span class="hico">🏆</span> クラス対戦</h3><p class="note">先生の合図で 全員いっせいにスタート。ランキングが リアルタイムで動く</p>' +
       (hasDb ?
-        '<div class="fld"><input type="text" id="jCode" inputmode="numeric" maxlength="4" placeholder="部屋番号（4けた）"><input type="text" id="jName" maxlength="10" placeholder="ニックネーム" value="' + esc(s.nick || '') + '"></div>' +
-        '<div class="fld"><button type="button" class="btn main" data-ga="join">参加する ▶</button></div>' +
+        '<div class="fld joinrow"><input type="text" id="jCode" inputmode="numeric" maxlength="4" placeholder="部屋番号"><input type="text" id="jName" maxlength="10" placeholder="ニックネーム" value="' + esc(s.nick || '') + '"><button type="button" class="btn main" data-ga="join">参加 ▶</button></div>' +
         '<div class="fld teacher"><span class="note">先生</span><button type="button" class="btn" data-ga="mkroom">🏫 部屋をつくる</button></div>'
         : '<p class="body warnbox">まだ使えません。先生が ⚙ 設定で データベースを 1 回登録すると使えるようになります（README「クラス対戦の準備」）。<br>先生から届いた 部屋のリンク・QR を開けば すぐ参加できます。</p>' +
         '<div class="fld"><button type="button" class="btn" data-ga="settings">⚙ 設定を開く</button></div>') +
       '</section></div></div>';
   }
-  function hubTa(v) { var kv = v.split(':'), cfg = taCfg(); cfg[kv[0]] = kv[0] === 'p' ? +kv[1] : kv[1]; save(); renderHub(); }
+  function hubTa(v) {
+    var kv = v.split(':'), cfg = taCfg(); cfg[kv[0]] = kv[0] === 'p' ? +kv[1] : kv[1]; save(); renderHub();
+    if (kv[0] === 'p' && cfg.p === 2 && !usOf(cfg).length) soloPick();
+    if (kv[0] === 'c' && cfg.p === 2) { cfg.p = 0; save(); renderHub(); }
+  }
+  function soloPick() { var cfg = taCfg(); openPicker(cfg.us || '', cfg.c === 'all' ? S().course : cfg.c, function (us) { cfg.us = us; if (!us) cfg.p = 0; save(); renderHub(); }); }
+
+  /* ---------- 単元えらび（今日の授業の範囲） ---------- */
+  var P = null;
+  function openPicker(usStr, c, done) {
+    P = { sel: {}, c: c || S().course || 'c1', done: done };
+    String(usStr || '').split(',').forEach(function (id) { if (A().UNITS[id]) P.sel[id] = 1; });
+    var first = Object.keys(P.sel)[0]; if (first) P.c = A().UNITS[first].course.id;
+    drawPicker();
+  }
+  function drawPicker() {
+    var ids = Object.keys(P.sel), c = A().COURSES.filter(function (x) { return x.id === P.c; })[0] || A().COURSES[0];
+    var n = ids.reduce(function (m, id) { return m + A().UNITS[id].sentences.length; }, 0);
+    dlgOpen('<div class="dlg-head"><h2>📚 出題する単元</h2><button type="button" class="ibtn x" data-x>✕ とじる</button></div>' +
+      '<div class="tabs">' + A().COURSES.map(function (x) {
+        var k = ids.filter(function (id) { return A().UNITS[id].course === x; }).length;
+        return '<button type="button" data-pk="c:' + x.id + '" aria-selected="' + (x === c) + '">' + esc(x.name) + (k ? '<span class="badge">' + k + '</span>' : '') + '</button>';
+      }).join('') + '</div>' +
+      '<div class="dlg-body"><p class="note pknote">今日の授業でやった単元をタップ（いくつでも・コースをまたいでも OK）。えらんだ単元の例文だけが出ます</p>' +
+      '<div class="pick">' + c.units.map(function (u) {
+        return '<button type="button" class="pku" data-pk="u:' + u.id + '" aria-pressed="' + !!P.sel[u.id] + '"><small>' + esc(unitLabel(u.id)) + '</small><b>' + esc(u.title) + '</b></button>';
+      }).join('') + '</div>' +
+      '<div class="pkfoot"><span>✔ <b>' + ids.length + '</b> 単元・<b>' + n + '</b> 文</span>' +
+      '<button type="button" class="btn ghost" data-pk="none">ぜんぶはずす</button>' +
+      '<button type="button" class="btn main" data-pk="ok">' + (ids.length ? '決定 ▶' : 'コース全部にする') + '</button></div></div>');
+  }
+  function pickerClick(v) {
+    if (!P) return;
+    if (v === 'ok') {
+      var d = P.done, sel = P.sel, us = Object.keys(A().UNITS).filter(function (id) { return sel[id]; }).join(',');
+      P = null; gdlg.close(); d(us); return;
+    }
+    if (v === 'none') P.sel = {};
+    else if (v.indexOf('c:') === 0) P.c = v.slice(2);
+    else if (v.indexOf('u:') === 0) { var id = v.slice(2); if (P.sel[id]) delete P.sel[id]; else { P.sel[id] = 1; FX('pop'); } }
+    drawPicker();
+  }
 
   /* =========================================================
      クラス対戦（Firebase Realtime Database の REST ＋ ストリーム）
@@ -473,7 +577,9 @@
       H.stop = listen('rooms/' + code, function (room) {
         if (!H) return;
         if (!room) { toast('この部屋は閉じられました'); location.hash = '#game'; return; }
-        var first = !H.room; H.room = room;
+        // room は 同じ入れ物が 書きかえられて届くので、前の状態は 文字で覚えておく
+        var first = !H.room, prev = H.st; H.room = room; H.st = room.state + '|' + room.round;
+        if (!first && prev === 'play|' + room.round && room.state === 'end') setTimeout(function () { if (H && H.room) showPodium(H.room); }, 300);
         if (first) drawHostL();
         else drawHostL(true);
         drawBoard();
@@ -494,8 +600,7 @@
     var seg = function (key, opts) {
       return '<div class="seg">' + opts.map(function (o) { return '<button type="button" data-hc="' + key + ':' + o[0] + '" aria-pressed="' + (String(cfg[key]) === String(o[0])) + '"' + (busy ? ' disabled' : '') + '>' + o[1] + '</button>'; }).join('') + '</div>';
     };
-    var units = []; for (var i = 1; i <= 12; i++) units.push([i, i < 12 ? '〜' + i : '全部']);
-    var n = playersOf(r).length;
+    var n = playersOf(r).length, us = usOf(cfg);
     var qrOld = soft && $('#qr') ? $('#qr').innerHTML : '';
     el.innerHTML =
       '<div class="roomhd"><small>部屋番号</small><div class="code">' + H.code + '</div></div>' +
@@ -505,7 +610,8 @@
       '<div class="fld"><span class="fl">コース</span>' + seg('c', [['c1', 'Ⅰ'], ['c2', 'Ⅱ'], ['c3', 'Ⅲ'], ['all', '全']]) + '</div>' +
       '<div class="fld"><span class="fl">種目</span>' + seg('m', [['order', '並べかえ'], ['cloze', '穴うめ'], ['mix', 'ミックス']]) + '</div>' +
       '<div class="fld"><span class="fl">時間</span>' + seg('t', [[30, '30秒'], [60, '60秒'], [90, '90秒']]) + '</div>' +
-      '<div class="fld"><span class="fl">単元</span><select id="hU"' + (busy ? ' disabled' : '') + '>' + units.map(function (u) { return '<option value="' + u[0] + '"' + (+cfg.u === u[0] ? ' selected' : '') + '>' + u[1] + '</option>'; }).join('') + '</select><span class="note">（習ったところまで）</span></div>' +
+      '<div class="fld"><span class="fl">範囲</span><button type="button" class="btn rangebtn' + (us.length ? ' on' : '') + '" data-ga="hpick"' + (busy ? ' disabled' : '') + '>📚 ' +
+      (us.length ? esc(rangeName(cfg)) + ' ✎' : '今日の単元をえらぶ') + '</button></div>' +
       '</div>' +
       '<div class="hbtns"><span class="ppl">👥 <b>' + n + '</b> 人</span>' +
       '<button type="button" class="btn main big" data-ga="hstart"' + (busy ? ' disabled' : '') + '>' + (r.round ? '▶ 第' + (r.round + 1) + '回戦 スタート' : '▶ スタート') + '</button></div>' +
@@ -527,8 +633,16 @@
     }
     qrLib.addEventListener('load', put);
   }
+  function hostPick() {
+    var cfg = H.room.cfg;
+    openPicker(cfg.us || '', cfg.c === 'all' ? S().course : cfg.c, function (us) {
+      if (!H) return;
+      api('PATCH', 'rooms/' + H.code + '/cfg', { us: us }).catch(function () { toast('変更できませんでした'); });
+    });
+  }
   function hostCfg(v) {
     var kv = v.split(':'), val = kv[0] === 'c' || kv[0] === 'm' ? kv[1] : +kv[1], o = {}; o[kv[0]] = val;
+    if (kv[0] === 'c') { o.us = ''; o.u = 12; }
     api('PATCH', 'rooms/' + H.code + '/cfg', o).catch(function () { toast('変更できませんでした'); });
   }
   function hostStart() {
@@ -550,16 +664,49 @@
       var fs = Math.max(11, Math.min(26, H / rowsN * 0.55));
       style = ' style="grid-template-columns:repeat(' + cols + ',minmax(0,1fr));grid-template-rows:repeat(' + rowsN + ',minmax(0,1fr));font-size:' + fs.toFixed(1) + 'px"';
     }
-    var rank = 0, last = -1;
     return '<ol class="rk"' + style + '>' +
-      list.map(function (p, i) {
-        var v = mode === 'best' ? p.b || 0 : p.s || 0;
-        if (v !== last) { rank = i + 1; last = v; }
-        var medal = rank <= 3 && v > 0 ? ['🥇', '🥈', '🥉'][rank - 1] : rank;
-        return '<li class="' + (rank <= 3 && v > 0 ? 'top top' + rank : '') + (p.id === pid() ? ' me' : '') + '"><span class="rn">' + medal + '</span><span class="nm">' + esc(p.n) + (mode !== 'best' && p.k >= 10 ? ' <i class="fire">🔥' + p.k + '</i>' : '') + '</span>' +
-          '<span class="bar"><i style="width:' + (v / top * 100).toFixed(1) + '%"></i></span><span class="sc">' + fmt(v) + '</span></li>';
+      rowData(list, mode, top).map(function (d) {
+        return '<li data-id="' + esc(d.p.id) + '" class="' + (d.top ? 'top top' + d.rank : '') + (d.p.id === pid() ? ' me' : '') + '"><span class="rn">' + d.medal + '</span><span class="nm">' + nmHTML(d, mode) + '</span>' +
+          '<span class="bar"><i style="width:' + d.pct + '%"></i></span><span class="sc">' + fmt(d.v) + '</span></li>';
       }).join('') + (more ? '<li class="more">…ほか ' + more + ' 人</li>' : '') + '</ol>';
   }
+  function rowData(list, mode, top) {
+    if (!top) top = Math.max(1, list.reduce(function (m, p) { return Math.max(m, mode === 'best' ? p.b || 0 : p.s || 0); }, 0));
+    var rank = 0, last = -1;
+    return list.map(function (p, i) {
+      var v = mode === 'best' ? p.b || 0 : p.s || 0;
+      if (v !== last) { rank = i + 1; last = v; }
+      return { p: p, v: v, rank: rank, top: rank <= 3 && v > 0, medal: rank <= 3 && v > 0 ? ['🥇', '🥈', '🥉'][rank - 1] : rank, pct: (v / top * 100).toFixed(1) };
+    });
+  }
+  function nmHTML(d, mode) { return esc(d.p.n) + (mode !== 'best' && d.p.k >= 10 ? ' <i class="fire">🔥' + d.p.k + '</i>' : ''); }
+  /* 順位が同じときは 数字と棒だけ書きかえる（棒がなめらかにのびる） */
+  function patchRows(bb, list, mode) {
+    rowData(list, mode).forEach(function (d) {
+      var li = bb.querySelector('li[data-id="' + d.p.id + '"]'); if (!li) return;
+      var sc = li.querySelector('.sc'), t = fmt(d.v);
+      if (sc.textContent !== t) { sc.textContent = t; li.classList.remove('up'); void li.offsetWidth; li.classList.add('up'); }
+      li.querySelector('.bar i').style.width = d.pct + '%';
+      li.querySelector('.nm').innerHTML = nmHTML(d, mode);
+      li.querySelector('.rn').innerHTML = d.medal;
+      li.classList.remove('top', 'top1', 'top2', 'top3'); if (d.top) li.classList.add('top', 'top' + d.rank);
+    });
+  }
+  /* 順位が入れかわったら 行がすべって動く */
+  function flip(bb, old) {
+    bb.querySelectorAll('li[data-id]').forEach(function (li) {
+      var o = old[li.dataset.id]; if (!o) { li.classList.add('enter'); return; }
+      var n = li.getBoundingClientRect(), dx = o.left - n.left, dy = o.top - n.top;
+      if (!dx && !dy) return;
+      li.style.transition = 'none'; li.style.transform = 'translate(' + dx + 'px,' + dy + 'px)';
+      requestAnimationFrame(function () { requestAnimationFrame(function () { li.style.transition = 'transform .55s cubic-bezier(.2,.8,.2,1)'; li.style.transform = ''; }); });
+    });
+  }
+  function banner(text, cls) {
+    var b = document.createElement('div'); b.className = 'lbanner ' + (cls || ''); b.textContent = text;
+    document.body.appendChild(b); setTimeout(function () { b.remove(); }, 2200);
+  }
+  function hueOf(n) { var h = 0; for (var i = 0; i < n.length; i++) h = (h * 31 + n.charCodeAt(i)) % 360; return h; }
   function drawBoard() {
     var el = $('#board'), r = H && H.room; if (!el || !r) return;
     var t = now(), head, body, bl, lst = null, lmode = 'now';
@@ -569,23 +716,90 @@
       bl = playersOf(r).filter(function (p) { return p.b > 0; });
       if (bl.length) { lst = bl; lmode = 'best'; } else body = '<div class="count"><small>まだ記録がありません</small></div>';
     } else if (r.state === 'lobby' || !r.round) {
-      var ps = playersOf(r);
-      head = '<div class="bhead"><b>参加者を待っています</b>' + tabs + '</div>';
-      body = ps.length ? '<div class="chips">' + ps.map(function (p) { return '<span class="chipn">' + esc(p.n) + '</span>'; }).join('') + '</div>'
-        : '<div class="count"><small>生徒が 部屋番号 ' + H.code + ' で 入ってくると ここに名前が出ます</small></div>';
+      var ps = playersOf(r), seen = H.seen || (H.seen = {});
+      if (ps.length > (H.lastN || 0) && H.lastN != null) FX('pop');
+      H.lastN = ps.length;
+      head = '<div class="bhead"><b>' + (ps.length ? '👥 <span class="bign">' + ps.length + '</span> 人 参加中！' : '参加者を待っています') + '</b>' + tabs + '</div>';
+      body = ps.length ? '<div class="chips">' + ps.map(function (p) {
+        var nw = !seen[p.id]; seen[p.id] = 1;
+        return '<span class="chipn' + (nw ? ' new' : '') + '" style="--h:' + hueOf(p.n) + '">' + esc(p.n) + '</span>';
+      }).join('') + '</div>'
+        : '<div class="count"><b class="wave">👋</b><small>生徒が 部屋番号 <b class="inl">' + H.code + '</b> で 入ってくると ここに名前が出ます</small></div>';
+      body += '<p class="note rangeinfo">出題：' + esc(cfgName(r.cfg)) + '</p>';
     } else if (r.state === 'play' && t < r.startAt) {
+      var cn = Math.max(1, Math.ceil((r.startAt - t) / 1000));
+      if (cn !== H.cdN) { H.cdN = cn; if (cn <= 3) FX('beep'); }
       head = '<div class="bhead"><b>第' + r.round + '回戦　' + esc(cfgName(r.cfg)) + '</b>' + tabs + '</div>';
-      body = '<div class="count"><b>' + Math.max(1, Math.ceil((r.startAt - t) / 1000)) + '</b><small>まもなく スタート！</small></div>';
+      body = '<div class="count"><b class="cd" data-n="' + cn + '">' + cn + '</b><small>まもなく スタート！</small></div>';
     } else {
       lst = playersOf(r, r.round);
       var end = r.state === 'end', left = Math.max(0, r.startAt + r.cfg.t * 1000 - t);
       head = '<div class="bhead"><b>' + (end ? '🎉 第' + r.round + '回戦 結果発表' : '⏱ 残り ' + Math.ceil(left / 1000) + ' 秒') + '</b>' + tabs + '</div>' +
         (end ? '' : '<div class="tbar host"><i style="width:' + (left / (r.cfg.t * 1000) * 100) + '%"' + (left < 10000 ? ' class="hurry"' : '') + '></i></div>');
-      if (end && lst[0] && lst[0].s > 0) head += '<div class="champ">🥇 ' + esc(lst[0].n) + ' さん　' + fmt(lst[0].s) + ' 点</div>';
+      if (end && lst[0] && lst[0].s > 0) head += '<div class="champ">👑 ' + esc(lst[0].n) + ' さん　' + fmt(lst[0].s) + ' 点 <button type="button" class="btn ghost replay" data-ga="podium">🎉 表彰式をもう一度</button></div>';
       if (!lst.length) { lst = null; body = '<div class="count"><small>まだ だれも 答えていません</small></div>'; }
     }
-    el.innerHTML = head + '<div class="bbody">' + (lst ? '' : body) + '</div>';
-    if (lst) { var bb = el.querySelector('.bbody'); bb.innerHTML = rows(lst, lmode, bb.clientWidth, bb.clientHeight); }
+    if (r.state === 'play' && t >= r.startAt && H.goR !== r.round) { H.goR = r.round; FX('go'); banner('スタート！', 'go'); }
+    if (r.state === 'play' && t >= r.startAt + r.cfg.t * 1000 && H.whR !== r.round) { H.whR = r.round; FX('whistle'); banner('そこまで！', 'stop'); }
+    var key = H.tab + '|' + r.state + '|' + r.round + '|' + (lst ? lst.map(function (p) { return p.id; }).join(',') : body);
+    var bb = el.querySelector('.bbody');
+    if (H.bkey === key && bb) {
+      var bh = el.querySelector('.bh'); if (bh && bh.innerHTML !== head) bh.innerHTML = head;
+      if (lst) patchRows(bb, lst, lmode);
+      return;
+    }
+    var old = {};
+    if (bb) bb.querySelectorAll('li[data-id]').forEach(function (li) { old[li.dataset.id] = li.getBoundingClientRect(); });
+    el.innerHTML = '<div class="bh">' + head + '</div><div class="bbody">' + (lst ? '' : body) + '</div>';
+    if (lst) { bb = el.querySelector('.bbody'); bb.innerHTML = rows(lst, lmode, bb.clientWidth, bb.clientHeight); if (H.bkey && H.bkey.split('|')[1] === r.state) flip(bb, old); }
+    H.bkey = key;
+    // トップ交代
+    if (r.state === 'play' && H.tab === 'now' && lst && lst[0] && lst[0].s > 0) {
+      if (H.leader && H.leader !== lst[0].id && (!lst[1] || lst[1].s < lst[0].s)) { banner('👑 トップ交代！ ' + lst[0].n + ' さん', 'lead'); FX('lead'); }
+      H.leader = lst[0].id;
+    }
+  }
+
+  /* ---------- 表彰式（結果発表の演出） ---------- */
+  function showPodium(room) {
+    var lst = playersOf(room, room.round).filter(function (p) { return p.s > 0; }).slice(0, 3);
+    if (!lst.length) return;
+    closeShow();
+    var pd = function (p, k) {
+      if (!p) return '<div class="pd p' + k + ' empty"></div>';
+      return '<div class="pd p' + k + '">' + (k === 1 ? '<div class="crown">👑</div>' : '') +
+        '<div class="who"><span class="medal">' + ['', '🥇', '🥈', '🥉'][k] + '</span><b style="--len:' + Math.max(3, Array.from(p.n).length) + '">' + esc(p.n) + '</b>' +
+        '<small><span class="cnt" data-to="' + p.s + '">' + (k === 1 ? '0' : fmt(p.s)) + '</span> 点</small></div>' +
+        '<div class="block"><span>' + k + '</span></div></div>';
+    };
+    var d = document.createElement('div'); d.className = 'show'; d.id = 'show';
+    d.innerHTML = '<div class="rays"></div><div class="showin">' +
+      '<p class="stitle">🎉 第' + room.round + '回戦 結果発表</p><p class="drum">ドゥルルルル…</p>' +
+      '<div class="podium">' + pd(lst[1], 2) + pd(lst[0], 1) + pd(lst[2], 3) + '</div>' +
+      '<div class="sbtns"><button type="button" class="btn" data-sh="close">ランキングを見る ▶</button></div></div>';
+    document.body.appendChild(d);
+    d.addEventListener('click', function (e) { if (e.target.closest('[data-sh=close]')) closeShow(); });
+    var T = H.showT = [], at = function (ms, fn) { T.push(setTimeout(fn, ms)); };
+    FX('drum', 2.4);
+    at(2500, function () { d.classList.add('s3'); if (lst[2]) FX('medal'); });
+    at(3700, function () { d.classList.add('s2'); if (lst[1]) FX('medal'); });
+    at(4900, function () { d.classList.add('dark'); });
+    at(6100, function () {
+      d.classList.add('s1'); FX('fanfare');
+      if (window.LXFX) { LXFX.rain(8); LXFX.burst(180, innerWidth / 2, innerHeight * 0.45); }
+      countUp(d.querySelector('.p1 .cnt'), 1400);
+    });
+    at(7600, function () { d.classList.add('done'); });
+  }
+  function closeShow() {
+    var d = $('#show'); if (d) d.remove();
+    if (H && H.showT) H.showT.forEach(clearTimeout);
+    if (window.LXFX) LXFX.stop();
+  }
+  function countUp(el, ms) {
+    if (!el) return;
+    var to = +el.dataset.to, t0 = Date.now();
+    (function f() { var k = Math.min(1, (Date.now() - t0) / ms); el.textContent = fmt(to * (1 - Math.pow(1 - k, 3))); if (k < 1) requestAnimationFrame(f); })();
   }
 
   /* ---------- 生徒：参加 ---------- */
@@ -649,6 +863,13 @@
       var lst = playersOf(room, room.round), my = lst.map(function (p) { return p.id; }).indexOf(pid());
       if (my >= 0 && my < 3 && lst[my].s > 0) { rw().top3++; earn(50); }
       save(); checkBadges();
+      B.cel = { round: room.round, rank: my + 1, n: lst.length };
+      setTimeout(function () {
+        if (!window.LXFX || !B) return;
+        if (my === 0 && lst[0].s > 0) { FX('fanfare'); LXFX.rain(5); LXFX.burst(120); }
+        else if (my > 0 && my < 3 && lst[my].s > 0) { FX('medal'); LXFX.burst(60); }
+        else FX('pop');
+      }, 400);
     }
     if (!G || G.over) drawWait();
   }
@@ -676,8 +897,10 @@
     else if (B.played && room.round === B.played) {
       var lst = playersOf(room, room.round), my = lst.map(function (p) { return p.id; }).indexOf(pid()), meP = lst[my] || {};
       var fin = room.state === 'end';
+      var rk = my + 1, win = fin && rk === 1 && (meP.s || 0) > 0, med = fin && rk <= 3 && (meP.s || 0) > 0;
       mid = '<p class="note">第' + room.round + '回戦 ' + (fin ? '結果' : '（集計中… みんなが終わるのを待っています）') + '</p>' +
-        '<div class="score">' + (my + 1) + '<small> 位 / ' + lst.length + ' 人</small></div>' +
+        (win ? '<div class="winner"><span class="crown">👑</span><b>優勝！</b></div>' : med ? '<div class="winner m' + rk + '"><span class="crown">' + ['', '🥇', '🥈', '🥉'][rk] + '</span><b>' + rk + '位！</b></div>' : fin ? '<p class="h">おつかれさま！</p>' : '') +
+        '<div class="score' + (win ? ' gold' : '') + '">' + rk + '<small> 位 / ' + lst.length + ' 人</small></div>' +
         '<p class="tstats">' + fmt(meP.s || 0) + ' 点　🧩 ' + (meP.w || 0) + ' 語' + (G && G.coins ? '　🪙 +' + G.coins : '') + '</p>' +
         rows(lst.slice(0, 5), 'now') +
         '<p class="note">' + (fin ? '先生が 次のスタートをおすと 始まります' : '') + '</p>';
@@ -690,6 +913,7 @@
      画面の切りかえ（app.js から よばれる）
      ========================================================= */
   function leave() {
+    if ($('#show')) closeShow();
     if (G) { clearInterval(G.timer); G = null; }
     if (H) { clearInterval(H.timer); if (H.stop) H.stop(); H = null; }
   }
@@ -717,12 +941,13 @@
       var b = e.target.closest('button'); if (!b) return;
       if (b.hasAttribute('data-x')) gdlg.close();
       else if (b.dataset.set) settingsClick(b.dataset.set);
+      else if (b.dataset.pk) pickerClick(b.dataset.pk);
     });
     A().view.addEventListener('click', function (e) {
       var b = e.target.closest('button'); if (!b || b.disabled) return;
       var d = b.dataset;
-      if (d.gt != null && G) { tapTile(+d.gt); return; }
-      if (d.gp != null && G) { pickChoice(+d.gp); return; }
+      if (d.gt != null && G) { tapTile(+d.gt, b); return; }
+      if (d.gp != null && G) { pickChoice(+d.gp, b); return; }
       if (d.ta) { hubTa(d.ta); return; }
       if (d.hc) { hostCfg(d.hc); return; }
       switch (d.ga && d.ga.split(':')[0]) {
@@ -744,12 +969,14 @@
           if (confirm('部屋 ' + H.code + ' を閉じますか？（ランキングも消えます）')) { var c = H.code; leave(); api('DELETE', 'rooms/' + c).then(function () { location.hash = '#game'; }, function () { location.hash = '#game'; }); }
           break;
         case 'tab': H.tab = d.ga.split(':')[1]; drawBoard(); break;
+        case 'hpick': hostPick(); break;
+        case 'spick': soloPick(); break;
+        case 'podium': if (H && H.room) showPodium(H.room); break;
         case 'bleave': leaveBattle(); leave(); location.hash = '#game'; break;
       }
     });
-    A().view.addEventListener('change', function (e) {
-      if (e.target.id === 'hU' && H) api('PATCH', 'rooms/' + H.code + '/cfg', { u: +e.target.value }).catch(function () { });
-    });
+    document.addEventListener('pointerdown', function () { if (window.LXFX) LXFX.unlock(); }, { once: true });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && $('#show')) closeShow(); });
     A().view.addEventListener('keydown', function (e) {
       if (e.key === 'Enter' && (e.target.id === 'jName' || e.target.id === 'jCode')) join();
     });
