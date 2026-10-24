@@ -1,4 +1,4 @@
-/* 論理表現Ⅱ 1〜6 単元の 追加教材（ひとことで言うと・わかりやすい説明・演習 12 文） */
+/* 論理表現Ⅱ 1〜6 単元の 追加教材（ひとことで言うと・わかりやすい説明・演習 24 文・絵） */
 window.LX = window.LX || { courses: [] };
 window.LX.plus = window.LX.plus || {};
 
@@ -56,7 +56,19 @@ window.LX.plus["c2-u01"] = {
     { en: "I [will have finished] this book by tomorrow.", ja: "明日までにはこの本を読み終えているだろう。", alt: ["will finish have", "have finished", "had finished"], tip: "未来の時点までに完了 → will have", why: "明日（未来）までに完了。have／had は今・過去が基準。will finish have は語順×。", p: 2 },
     { en: "She [will have arrived] in London by tonight.", ja: "今夜までには彼女はロンドンに着いているだろう。", alt: ["has arrived", "had arrived", "will arrived"], tip: "by tonight ＝ 未来の基準", why: "今夜（未来）までに到着している。has／had は今・過去が基準。will arrived は形が×。", p: 2 },
     { en: "By next year, we [will have been] friends for five years.", ja: "来年で、私たちは友だちになって5年になる。", alt: ["have been", "had been", "will be been"], tip: "未来の時点までの継続", why: "来年（未来）までの5年の継続。will be been という形はない。have／had は基準ちがい。", p: 2 },
-    { en: "If I read it again, I [will have read] it three times.", ja: "もう一度読めば、それを3回読んだことになる。", alt: ["have read", "had read", "will had read"], tip: "未来の時点までの経験", why: "もう一度読む未来の時点で3回目の経験。will had は形が×、have／had は基準ちがい。", p: 2 }
+    { en: "If I read it again, I [will have read] it three times.", ja: "もう一度読めば、それを3回読んだことになる。", alt: ["have read", "had read", "will had read"], tip: "未来の時点までの経験", why: "もう一度読む未来の時点で3回目の経験。will had は形が×、have／had は基準ちがい。", p: 2 },
+    { en: "When we arrived, the concert [had already started].", ja: "私たちが着いたとき、コンサートはもう始まっていた。", alt: ["has already started", "already starts", "have already started"], tip: "着いたより前に始まった", why: "着いたより前に始まっていた → had。has／have は今が基準、starts は今のこと。", p: 0 },
+    { en: "I noticed that I [had left] my phone at home.", ja: "私は家に電話を置いてきたことに気づいた。", alt: ["have left", "has left", "had leave"], tip: "気づいたより前に置いてきた", why: "気づいた時より前に置いてきた → had left。had leave は過去分詞でないので×。", p: 0 },
+    { en: "The shop [had closed] by the time I got there.", ja: "私が着いたときには、店は閉まっていた。", alt: ["has closed", "closes", "had close"], tip: "着いた時までに閉まっていた", why: "着いた（過去）より前に閉まった → had closed。closes は今、had close は形が×。", p: 0 },
+    { en: "He returned the book he [had borrowed] from me.", ja: "彼は私から借りていた本を返した。", alt: ["has borrowed", "had borrow", "have borrowed"], tip: "返したより前に借りた", why: "返すより前に借りていた → had borrowed。has／have は今が基準なので×。", p: 0 },
+    { en: "When I called her, she [had just finished] dinner.", ja: "私が電話したとき、彼女はちょうど夕食を終えたところだった。", alt: ["has just finished", "just finishes", "have just finished"], tip: "電話の直前に終えた → had just", why: "電話した過去の時点の直前 → had just finished。has／have は今が基準。", p: 0 },
+    { en: "I [had lived] in Osaka for three years before I moved here.", ja: "ここに引っ越す前、私は大阪に3年間住んでいた。", alt: ["have lived", "has lived", "had live"], tip: "引っ越しまでの3年間", why: "引っ越した過去までの継続 → had lived。have／has は今まで、had live は×。", p: 1 },
+    { en: "She [had never eaten] sushi before she came to Japan.", ja: "彼女は日本に来るまで、すしを食べたことがなかった。", alt: ["has never eaten", "have never eaten", "had never ate"], tip: "来日までの経験 → had never", why: "来日（過去）までの経験 → had never eaten。ate は過去分詞ではないので×。", p: 1 },
+    { en: "They [had been] married for ten years when their son was born.", ja: "息子が生まれたとき、彼らは結婚して10年だった。", alt: ["have been", "has been", "had be"], tip: "生まれた時までの10年", why: "生まれた時（過去）までの10年 → had been。have／has は今まで、had be は×。", p: 1 },
+    { en: "By the time you wake up, I [will have left] home.", ja: "あなたが起きるころには、私は家を出てしまっているだろう。", alt: ["had left", "have left", "will left"], tip: "起きる時（未来）までに完了", why: "未来の時点までに完了 → will have left。had／have は今や過去が基準。", p: 2 },
+    { en: "By the end of this month, he [will have saved] enough money.", ja: "今月末までに、彼は十分なお金をためているだろう。", alt: ["has saved", "had saved", "will saved"], tip: "月末（未来）までに完了", why: "月末という未来までに完了 → will have saved。will のあとは原形 have。", p: 2 },
+    { en: "By 2030, the city [will have changed] a lot.", ja: "2030年までに、その町は大きく変わっているだろう。", alt: ["has changed", "had changed", "will changed"], tip: "2030年までに変化", why: "2030年という未来までの変化 → will have changed。will changed は×。", p: 2 },
+    { en: "Next month, we [will have known] each other for a year.", ja: "来月で、私たちは知り合って1年になる。", alt: ["have known", "had known", "will knew"], tip: "来月（未来）までの継続", why: "来月という未来までの継続 → will have known。will knew は形が×。", p: 2 },
   ],
   swhy: [
     { why: "着いた（過去）より前に始まっていたので had started。has／have は今が基準なのでダメ。", p: 0 },
@@ -80,6 +92,7 @@ window.LX.plus["c2-u02"] = {
       h: "must have＝したにちがいない",
       body: "過去のことを「ぜったいそうだった」と推理する。名探偵が証拠から言い切るイメージ。何か根拠があるときに使う。",
       form: "must have ＋ 過去分詞",
+      fig: { t: "pic", items: [{ e: "🌂", x: 20, y: 62, l: "ぬれた傘", s: 0.9 }, { e: "🕵️", x: 76, y: 62, l: "推理する", b: "雨だったはず！" }], arrows: [[0, 1, "証拠", "dash"]], cap: "証拠から過去を言い切る＝must have" },
       ex: "He [must have been] tired.",
       exja: "彼は疲れていたにちがいない。",
       ng: { bad: "He must be tired yesterday.", good: "He must have been tired yesterday.", why: "過去の推理は must have＋過去分詞" },
@@ -121,7 +134,19 @@ window.LX.plus["c2-u02"] = {
     { en: "You [shouldn't have told] him the secret.", ja: "彼に秘密を話すべきではなかったのに。", alt: ["shouldn't told", "shouldn't have tell", "shouldn't has told"], tip: "shouldn't have＝しなければよかった", why: "言わなければよかった → shouldn't have told。tell は原形、has は形が×。", p: 2 },
     { en: "He [needn't have worried] about the test.", ja: "彼はテストのことを心配する必要はなかったのに。", alt: ["needn't worried", "needn't have worry", "needn't has worried"], tip: "needn't have＝する必要はなかった", why: "心配する必要はなかった（のにした）→ needn't have worried。worry は原形で×。", p: 2 },
     { en: "You [could have called] me from the station.", ja: "駅から電話してくれてもよかったのに。", alt: ["could called", "could have call", "could has called"], tip: "could have＝できたのに（しなかった）", why: "電話してくれればよかったのに → could have called。call は原形、has は形が×。", p: 2 },
-    { en: "If I had run, I [could have caught] the bus.", ja: "走っていたら、バスに間に合ったのに。", alt: ["could caught", "could have catch", "can have caught"], tip: "過去の反対の想像 → could have", why: "走っていたら間に合った → could have caught。can は今の話、catch は原形で×。", p: 1 }
+    { en: "If I had run, I [could have caught] the bus.", ja: "走っていたら、バスに間に合ったのに。", alt: ["could caught", "could have catch", "can have caught"], tip: "過去の反対の想像 → could have", why: "走っていたら間に合った → could have caught。can は今の話、catch は原形で×。", p: 1 },
+    { en: "The road is wet. It [must have rained] last night.", ja: "道がぬれている。昨夜雨が降ったにちがいない。", alt: ["must rained", "must have rain", "must had rained"], tip: "証拠から過去を推理", why: "ぬれた道（証拠）から過去を推理 → must have rained。must のあとは原形。", p: 0 },
+    { en: "You [must have worked] hard to pass the test.", ja: "その試験に合格するなんて、一生けんめい勉強したにちがいない。", alt: ["must worked", "must have work", "must had worked"], tip: "合格から過去を推理", why: "合格したから「したにちがいない」→ must have worked。have のあとは過去分詞。", p: 0 },
+    { en: "He looks happy. He [must have won] the game.", ja: "彼はうれしそうだ。試合に勝ったにちがいない。", alt: ["must won", "must have win", "must had won"], tip: "うれしそう → 勝ったはず", why: "うれしそうな顔から推理 → must have won。win は過去分詞でないので×。", p: 0 },
+    { en: "She [may have gone] home already.", ja: "彼女はもう家に帰ったかもしれない。", alt: ["may went", "may have go", "may has gone"], tip: "may have ＝ 〜したかもしれない", why: "過去の「かもしれない」→ may have gone。may のあとは has ではなく have。", p: 1 },
+    { en: "I [might have left] my bag in the classroom.", ja: "教室にかばんを置いてきたかもしれない。", alt: ["might left", "might have leave", "might has left"], tip: "might have ＝ 〜したかもしれない", why: "自信のない過去の推量 → might have left。might left は過去形で×。", p: 1 },
+    { en: "He [can't have said] such a thing.", ja: "彼がそんなことを言ったはずがない。", alt: ["can't said", "can't have say", "can't has said"], tip: "can't have ＝ したはずがない", why: "過去の「ありえない」→ can't have said。have のあとは過去分詞 said。", p: 1 },
+    { en: "They [couldn't have known] the answer.", ja: "彼らが答えを知っていたはずがない。", alt: ["couldn't knew", "couldn't have know", "couldn't has known"], tip: "couldn't have ＝ したはずがない", why: "過去の否定の推量 → couldn't have known。knew・know の形は×。", p: 1 },
+    { en: "I [should have brought] an umbrella.", ja: "かさを持ってくるべきだった。", alt: ["should brought", "should have bring", "should has brought"], tip: "should have ＝ すべきだった（後悔）", why: "しなかった後悔 → should have brought。bring は過去分詞ではない。", p: 2 },
+    { en: "We [shouldn't have stayed] up so late.", ja: "そんなに夜ふかしするべきではなかった。", alt: ["shouldn't stayed", "shouldn't have stay", "shouldn't has stayed"], tip: "してしまった後悔", why: "してしまったことへの後悔 → shouldn't have stayed。stay は形が×。", p: 2 },
+    { en: "You ought to [have told] me earlier.", ja: "もっと早く言ってくれればよかったのに。", alt: ["told", "has told", "had told"], tip: "ought to have ＝ すべきだった", why: "ought to のあとは原形 → have told。told／has／had は to のあとに置けない。", p: 2 },
+    { en: "She [needn't have bought] so much food.", ja: "彼女はそんなにたくさん食べ物を買う必要はなかったのに。", alt: ["needn't bought", "needn't have buy", "needn't has bought"], tip: "needn't have ＝ しなくてよかったのに", why: "買う必要はなかった（のに買った）→ needn't have bought。buy は×。", p: 2 },
+    { en: "He [could have helped] us, but he didn't.", ja: "彼は私たちを手伝えたのに、手伝わなかった。", alt: ["could helped", "could have help", "could has helped"], tip: "could have ＝ できたのに", why: "できたのにしなかった → could have helped。could のあとは原形 have。", p: 2 },
   ],
   swhy: [
     { why: "驚いたにちがいない（過去の推理）→ must have been。助動詞の後は原形なので had／be は×。", p: 0 },
@@ -138,7 +163,7 @@ window.LX.plus["c2-u03"] = {
     ico: "🔮",
     catch: "仮定法は「時制を1段過去にずらす」",
     say: "現実とちがう想像は、わざと時制を1つ過去にずらして「これは現実じゃないよ」と知らせる。",
-    fig: { t: "vs", a: ["If it rains, I'll stay.", "ありうる話"], b: ["If I were rich, I'd...", "ありえない想像"] }
+    fig: { t: "pic", items: [{ e: "🧒", x: 22, y: 66, l: "I", b: "もし鳥なら…" }, { e: "🐦", x: 76, y: 45, l: "a bird", s: 0.9 }], arrows: [[0, 1, "If I were", "dash"]], cap: "ありえない想像 → 時制を1段過去へ" }
   },
   points: [
     {
@@ -187,7 +212,19 @@ window.LX.plus["c2-u03"] = {
     { en: "If we had left earlier, we [could have seen] the sunrise.", ja: "もっと早く出発していたら、日の出が見られたのに。", alt: ["could seen", "can have seen", "could have saw"], tip: "could have＋過去分詞", why: "早く出なかった過去の反対の結論 → could have seen。have の後は過去分詞 seen。", p: 1 },
     { en: "If I [had saved] money, I could buy it now.", ja: "お金をためていたら、今それが買えるのに。", alt: ["have saved", "had save", "would save"], tip: "ミックス型：if 側は過去の反対", why: "貯金しなかった（過去）→ 今買えない（今）のミックス。if 側は過去の反対で had saved。", p: 2 },
     { en: "If he had not missed the train, he [would be] here now.", ja: "電車に乗りおくれなかったら、彼は今ここにいるのに。", alt: ["will be", "would have be", "is"], tip: "now → 結論は would＋原形", why: "乗り遅れた（過去）→ 今ここにいない。now があるので結論は今の反対 would be。", p: 2 },
-    { en: "If you [had come] to the party, you would have met her.", ja: "パーティーに来ていたら、彼女に会えたのに。", alt: ["have come", "had came", "would come"], tip: "come の過去分詞は come", why: "来なかった過去の反対 → had come。have come は今が基準、had came は過去分詞が×。", p: 1 }
+    { en: "If you [had come] to the party, you would have met her.", ja: "パーティーに来ていたら、彼女に会えたのに。", alt: ["have come", "had came", "would come"], tip: "come の過去分詞は come", why: "来なかった過去の反対 → had come。have come は今が基準、had came は過去分詞が×。", p: 1 },
+    { en: "If I [had] wings, I would fly to the moon.", ja: "もし翼があったら、月まで飛んでいくのに。", alt: ["have", "has", "will have"], tip: "今の反対 → 過去形", why: "翼は今ない（現実の反対）→ 過去形 had。have／has／will は事実の話。", p: 0 },
+    { en: "If I [were] you, I would accept the offer.", ja: "もし私があなたなら、その申し出を受けるだろう。", alt: ["am", "be", "will be"], tip: "仮定法では were", why: "私はあなたになれない → 仮定法 were。am／will be は現実の話になる。", p: 0 },
+    { en: "If she lived near here, she [would visit] us more often.", ja: "もし彼女がこの近くに住んでいたら、もっとよく来てくれるのに。", alt: ["will visit", "visits", "would visited"], tip: "if 節が過去形 → would＋原形", why: "if 節が仮定法過去 → 主節は would visit。will は現実、would visited は×。", p: 0 },
+    { en: "If I [spoke] English well, I could travel alone.", ja: "英語がうまく話せたら、ひとりで旅行できるのに。", alt: ["speak", "will speak", "had spoke"], tip: "今の反対 → 過去形", why: "今は話せない（現実の反対）→ 過去形 spoke。had spoke は形が×。", p: 0 },
+    { en: "If we [didn't have] homework, we could play more.", ja: "宿題がなければ、もっと遊べるのに。", alt: ["don't have", "won't have", "haven't had"], tip: "今の反対 → 過去形", why: "今は宿題がある（現実の反対）→ didn't have。don't／won't は現実の話。", p: 0 },
+    { en: "If I had known the answer, I [would have told] you.", ja: "答えを知っていたら、あなたに教えたのに。", alt: ["will have told", "would told", "had told"], tip: "過去の反対 → would have", why: "過去の反対 → would have told。would told は形が×、will は現実の未来。", p: 1 },
+    { en: "If it [hadn't rained], we would have gone camping.", ja: "雨が降らなかったら、キャンプに行ったのに。", alt: ["didn't rain", "hasn't rained", "wouldn't rain"], tip: "過去の反対 → had＋過去分詞", why: "過去の反対 → if 節は hadn't rained。didn't rain だと主節と合わない。", p: 1 },
+    { en: "If you had studied harder, you [could have passed] the exam.", ja: "もっと勉強していたら、試験に合格できたのに。", alt: ["can have passed", "could have pass", "could passed"], tip: "過去の反対 → could have", why: "過去の反対 → could have passed。can have は×、pass は過去分詞でない。", p: 1 },
+    { en: "What would you have done if you [had missed] the bus?", ja: "もしバスに乗り遅れていたら、どうしていましたか。", alt: ["have missed", "would miss", "had miss"], tip: "過去の反対 → had＋過去分詞", why: "過去の想像 → if 節は had missed。have missed は今基準、had miss は×。", p: 1 },
+    { en: "If I [had taken] the medicine, I would feel better now.", ja: "薬を飲んでいたら、今は気分がいいのに。", alt: ["have taken", "had took", "would take"], tip: "if は過去、主節は今", why: "飲まなかった過去の反対 → had taken。took は過去分詞でないので×。", p: 2 },
+    { en: "If she had gone to bed earlier, she [wouldn't be] sleepy now.", ja: "もっと早く寝ていたら、彼女は今眠くないのに。", alt: ["won't be", "wouldn't have be", "isn't"], tip: "now があるので今の反対", why: "now の反対 → wouldn't be。won't／isn't は現実、have be は形が×。", p: 2 },
+    { en: "If I [had practiced] more, I could play the piano now.", ja: "もっと練習していたら、今ピアノがひけるのに。", alt: ["have practiced", "had practice", "would practice"], tip: "過去の練習 → 今の結果", why: "練習しなかった過去の反対 → had practiced。had practice は形が×。", p: 2 },
   ],
   swhy: [
     { why: "時間がない今の現実の反対 → 過去形 had。have は現実の話になり、would と合わない。", p: 0 },
@@ -224,7 +261,7 @@ window.LX.plus["c2-u04"] = {
       form: "as if ＋ 過去形／had 過去分詞",
       ex: "He talks as if he [knew] everything.",
       exja: "彼はまるで何でも知っているかのように話す。",
-      fig: { t: "slots", parts: [["He talks", "S V"], ["as if", "接続"], ["he knew everything", "仮定法"]] },
+      fig: { t: "pic", items: [{ e: "👦", x: 22, y: 64, l: "He", b: "何でも知ってる！" }, { e: "🎓", x: 76, y: 58, l: "博士みたい", s: 0.9 }], arrows: [[0, 1, "as if", "dash"]], cap: "本当はちがう → 1段過去の knew" },
       ng: { bad: "He looked as if he has seen a ghost.", good: "He looked as if he had seen a ghost.", why: "見えた時より前のことは had＋過去分詞" },
       why: "as if の中身は事実ではない想像。だから仮定法と同じく、時を1段ずらした形を使う。",
       easy: "「本当は知らないのに、知っているみたい」。本当じゃない部分だけ1段過去にする。同じ時 → 過去形、前のこと → had。"
@@ -253,7 +290,19 @@ window.LX.plus["c2-u04"] = {
     { en: "[If it were] not for your advice, I would give up.", ja: "あなたの助言がなければ、私はあきらめるだろう。", alt: ["If it is", "If it was be", "Unless it were"], tip: "If it were not for ＝ 〜がなければ", why: "if it were not for の形。If it is は現実、Unless it were は意味が×。", p: 2 },
     { en: "[But for] the rain, the game would have been exciting.", ja: "雨がなかったら、試合は盛り上がっただろう。", alt: ["But", "Except", "Without for"], tip: "But for ＝ Without", why: "But for＝Without（〜がなかったら）。But だけ・Except は意味が×。", p: 2 },
     { en: "It's time we [started] the meeting.", ja: "もう会議を始める時間だ。", alt: ["will start", "starting", "had start"], tip: "It's time ＋ 過去形", why: "It's time＋過去形で「もう〜すべき時だ」。starting・will start は×。", p: 0 },
-    { en: "It's high time you [cleaned] your room.", ja: "とっくに部屋をそうじする時間だよ。", alt: ["will clean", "cleaning", "had clean"], tip: "It's high time ＋ 過去形", why: "It's high time＋過去形で「とっくに〜すべき時だ」。clean の過去形 cleaned。", p: 0 }
+    { en: "It's high time you [cleaned] your room.", ja: "とっくに部屋をそうじする時間だよ。", alt: ["will clean", "cleaning", "had clean"], tip: "It's high time ＋ 過去形", why: "It's high time＋過去形で「とっくに〜すべき時だ」。clean の過去形 cleaned。", p: 0 },
+    { en: "I wish I [lived] near the sea.", ja: "海の近くに住んでいたらなあ。", alt: ["live", "will live", "had live"], tip: "今の願い → 過去形", why: "今の願い → 1段過去の lived。live／will live は現実の話になる。", p: 0 },
+    { en: "I wish I [could fly] like a bird.", ja: "鳥のように飛べたらなあ。", alt: ["can fly", "could flew", "will fly"], tip: "can → could にずらす", why: "かなわない願い → can を could に。could flew は could のあとが×。", p: 0 },
+    { en: "I wish you [were] here with me.", ja: "あなたがここにいてくれたらなあ。", alt: ["are", "be", "will be"], tip: "今の願い → were", why: "今いない人への願い → were。are／will be は現実の話になる。", p: 0 },
+    { en: "I wish I [had studied] English harder in junior high.", ja: "中学でもっと英語を勉強しておけばよかった。", alt: ["have studied", "had study", "would study"], tip: "過去への後悔 → had＋過去分詞", why: "中学（過去）への後悔 → had studied。had study は形が×。", p: 0 },
+    { en: "I wish I [hadn't eaten] so much.", ja: "あんなに食べなければよかった。", alt: ["haven't eaten", "don't eat", "hadn't ate"], tip: "過去への後悔 → hadn't", why: "食べた過去への後悔 → hadn't eaten。ate は過去分詞でないので×。", p: 0 },
+    { en: "It's about time you [went] home.", ja: "もう家に帰る時間だよ。", alt: ["go", "will go", "going"], tip: "It's time ＋ 過去形", why: "It's (about) time のあとは過去形 went。go／will go／going は×。", p: 0 },
+    { en: "He spends money as if he [were] rich.", ja: "彼はまるでお金持ちのようにお金を使う。", alt: ["is being", "be", "will be"], tip: "as if ＋ 過去形", why: "本当はお金持ちではない → as if＋were。be／will be は形が合わない。", p: 1 },
+    { en: "He looked as if he [had run] a marathon.", ja: "彼はまるでマラソンを走ってきたように見えた。", alt: ["has run", "had ran", "runs"], tip: "見えた時より前 → had＋過去分詞", why: "見えた時より前のこと → had run。ran は過去分詞でないので×。", p: 1 },
+    { en: "You talk as if you [knew] the answer.", ja: "あなたはまるで答えを知っているかのように話す。", alt: ["had knew", "knowing", "will know"], tip: "同じ時 → 過去形", why: "話す今と同じ時の想像 → knew。had knew は形が×、knowing も×。", p: 1 },
+    { en: "[Without] your support, I couldn't have finished the project.", ja: "あなたの支えがなかったら、その計画をやり終えられなかった。", alt: ["Unless", "Except", "If"], tip: "Without ＋ 名詞 ＝ 〜がなければ", why: "名詞 your support の前 → Without。Unless／If は後ろに文が必要。", p: 2 },
+    { en: "[If it had] not been for the map, we would have gotten lost.", ja: "地図がなかったら、私たちは道に迷っていただろう。", alt: ["If it has", "If it was", "Unless it had"], tip: "過去なら If it had not been for", why: "過去の「〜がなければ」→ If it had not been for。has／was は形が×。", p: 2 },
+    { en: "[But for] his advice, I would have made a mistake.", ja: "彼の助言がなかったら、私はまちがえていただろう。", alt: ["Except", "Unless", "But not"], tip: "But for ＝ Without", why: "But for＋名詞 ＝ 〜がなければ。Unless は文が必要、Except は意味が×。", p: 2 },
   ],
   swhy: [
     { why: "妹がいない今の現実と反対の願い → 過去形 had。have／has は現実の話で wish と合わない。", p: 0 },
@@ -290,7 +339,7 @@ window.LX.plus["c2-u05"] = {
       form: "過去分詞 ～, S ＋ V",
       ex: "[Written] in easy English, the book is popular.",
       exja: "やさしい英語で書かれているので、その本は人気だ。",
-      fig: { t: "slots", parts: [["Written", "過去分詞"], ["the book", "S"], ["is popular", "V C"]], arc: [0, 1, "本が書かれる"] },
+      fig: { t: "pic", items: [{ e: "✍️", x: 20, y: 60, l: "作者（書く側）" }, { e: "📘", x: 76, y: 60, l: "the book" }], arrows: [[0, 1, "書く"]], cap: "本は書かれる側 → Written" },
       ng: { bad: "Writing in easy English, the book is popular.", good: "Written in easy English, the book is popular.", why: "本は「書かれる」側なので過去分詞" },
       why: "主語がその動作を「される」側なら受け身。Being written の Being は省けるので、過去分詞から始まる。",
       easy: "主語に「〜する？される？」と聞こう。本は書く？書かれる？→ 書かれる。だから Written。する側なら -ing。"
@@ -319,7 +368,19 @@ window.LX.plus["c2-u05"] = {
     { en: "[Having lived] in Tokyo, he knows the city well.", ja: "東京に住んでいたので、彼はその街をよく知っている。", alt: ["Have lived", "Having live", "Had living"], tip: "前のこと → Having＋過去分詞", why: "東京に住んでいたのは今より前 → Having lived。Have・Had は分詞構文の形でない。", p: 2 },
     { en: "She walked to school, [listening] to music.", ja: "彼女は音楽を聞きながら学校へ歩いた。", alt: ["listened", "listen", "to listening"], tip: "後ろに付けて「〜しながら」", why: "歩きながら音楽を聞く（同時）→ listening。listened・listen だと動詞が2つで×。", p: 0 },
     { en: "The boy ran into the room, [shouting] my name.", ja: "少年は私の名前をさけびながら部屋にかけこんだ。", alt: ["shouted", "shout", "to shouting"], tip: "同時に起きる動作 → -ing", why: "走りながら叫ぶ（同時）→ shouting。shouted・shout だと動詞が2つで×。", p: 0 },
-    { en: "[Judging from] his face, he must be angry.", ja: "顔から判断すると、彼は怒っているにちがいない。", alt: ["Judged from", "Judge from", "To judging from"], tip: "決まった形：Judging from ～", why: "Judging from＝「〜から判断すると」の決まった形。Judged・Judge は×。", p: 0 }
+    { en: "[Judging from] his face, he must be angry.", ja: "顔から判断すると、彼は怒っているにちがいない。", alt: ["Judged from", "Judge from", "To judging from"], tip: "決まった形：Judging from ～", why: "Judging from＝「〜から判断すると」の決まった形。Judged・Judge は×。", p: 0 },
+    { en: "[Walking] along the beach, I found a shell.", ja: "浜辺を歩いていたら、貝がらを見つけた。", alt: ["Walked", "Walk", "To walking"], tip: "I が歩く → -ing", why: "歩くのは I（する側）→ Walking。Walked だと「歩かされた」の形。", p: 0 },
+    { en: "[Getting] off the bus, she saw her friend.", ja: "バスを降りると、彼女は友だちを見かけた。", alt: ["Got", "Get", "To getting"], tip: "降りたのは she → -ing", why: "降りるのは she（する側）→ Getting。Got／Get は文のつなぎにならない。", p: 0 },
+    { en: "[Turning] left, you will see the station.", ja: "左に曲がると、駅が見えます。", alt: ["Turned", "Turn", "To turning"], tip: "曲がるのは you → -ing", why: "曲がるのは you（する側）→ Turning。Turn だと命令文になり文がつながらない。", p: 0 },
+    { en: "[Having] a cold, she couldn't go to school.", ja: "かぜをひいていたので、彼女は学校に行けなかった。", alt: ["Had", "Have", "To having"], tip: "理由 → -ing", why: "「かぜをひいていたので」→ Having。Had／Have は文のつなぎにならない。", p: 0 },
+    { en: "He came into the room, [carrying] a big box.", ja: "彼は大きな箱をかかえて部屋に入ってきた。", alt: ["carried", "carry", "to carrying"], tip: "〜しながら → -ing", why: "入りながら運ぶ（同時）→ carrying。carried では2つ目の動詞になり×。", p: 0 },
+    { en: "[Built] 100 years ago, the bridge is still strong.", ja: "100年前に建てられたが、その橋は今もじょうぶだ。", alt: ["Building", "Build", "To built"], tip: "橋は建てられる側", why: "橋は建てられる側 → 過去分詞 Built。Building だと橋が建てることに。", p: 1 },
+    { en: "[Left] alone, the baby began to cry.", ja: "ひとりにされて、赤ちゃんは泣き出した。", alt: ["Leaving", "Leave", "To left"], tip: "赤ちゃんは残される側", why: "赤ちゃんはひとりに「される」側 → Left。Leaving だと赤ちゃんが去ることに。", p: 1 },
+    { en: "[Excited] about the trip, we couldn't sleep.", ja: "旅行にわくわくして、私たちは眠れなかった。", alt: ["Exciting", "Excite", "To excited"], tip: "わくわくさせられる → 過去分詞", why: "私たちはわくわく「させられる」側 → Excited。Exciting は人をわくわくさせる側。", p: 1 },
+    { en: "[Not knowing] what to do, I asked my teacher.", ja: "どうしたらいいかわからず、私は先生にたずねた。", alt: ["Knowing not", "Not know", "Don't knowing"], tip: "否定は Not を前に", why: "否定は分詞の前に Not → Not knowing。Knowing not は語順が×。", p: 2 },
+    { en: "[Not wanting] to be late, she ran to the station.", ja: "遅れたくなかったので、彼女は駅まで走った。", alt: ["Wanting not", "Not want", "Don't wanting"], tip: "否定は Not ＋ -ing", why: "分詞構文の否定 → Not wanting。Don't は分詞の前に使えない。", p: 2 },
+    { en: "[Having seen] the movie before, I knew the ending.", ja: "前にその映画を見ていたので、結末を知っていた。", alt: ["Having see", "Had seen", "Have seen"], tip: "前のこと → Having＋過去分詞", why: "知っていた時より前に見た → Having seen。see は過去分詞でない。", p: 2 },
+    { en: "[Having spent] all my money, I had to walk home.", ja: "お金を全部使ってしまったので、歩いて帰るしかなかった。", alt: ["Having spend", "Had spent", "Have spent"], tip: "先に使い切った → Having", why: "歩いて帰る前に使い切った → Having spent。Had／Have では文がつながらない。", p: 2 },
   ],
   swhy: [
     { why: "彼女が知らせを聞く（する側）→ Hearing。Heard は「聞かれる」、To hearing は形が×。", p: 0 },
@@ -385,7 +446,19 @@ window.LX.plus["c2-u06"] = {
     { en: "My sister, [who] lives in Osaka, is a nurse.", ja: "姉は大阪に住んでいて、看護師をしている。", alt: ["that", "which", "whom"], tip: "コンマのあと・人 → who", why: "姉は1人なので補足説明 → , who。that はコンマの後に使えない。", p: 2 },
     { en: "We visited Nara, [which] has many old temples.", ja: "私たちは奈良を訪れたが、そこには古い寺がたくさんある。", alt: ["that", "who", "where"], tip: "主語の役 → which", why: "奈良（物・場所）の付け足し → , which。that はコンマの後に使えず、who は人用。", p: 2 },
     { en: "He passed the exam, [which] surprised everyone.", ja: "彼は試験に合格し、そのことはみんなを驚かせた。", alt: ["that", "what", "who"], tip: ", which ＝ 前の文全体", why: "合格したこと（前の文全体）を指す → , which。that・what はコンマの後で×。", p: 2 },
-    { en: "I called Mika, [who] was in the hospital.", ja: "ミカに電話したが、彼女は入院していた。", alt: ["that", "which", "whose"], tip: "コンマのあとに that は ✕", why: "ミカ（人）の付け足し → , who。that はコンマの後で×、which は物用。", p: 2 }
+    { en: "I called Mika, [who] was in the hospital.", ja: "ミカに電話したが、彼女は入院していた。", alt: ["that", "which", "whose"], tip: "コンマのあとに that は ✕", why: "ミカ（人）の付け足し → , who。that はコンマの後で×、which は物用。", p: 2 },
+    { en: "This is the school [where] my mother teaches.", ja: "ここは母が教えている学校です。", alt: ["which", "when", "what"], tip: "場所の説明 → where", why: "teaches のあとに目的語がない場所の説明 → where。which だと in が必要。", p: 0 },
+    { en: "I'll never forget the day [when] I won the race.", ja: "レースに勝った日を、私は決して忘れない。", alt: ["where", "which", "what"], tip: "時の説明 → when", why: "the day（時）を説明 → when。where は場所、what は先行詞がいらない語。", p: 0 },
+    { en: "Spring is the season [when] flowers bloom.", ja: "春は花がさく季節だ。", alt: ["where", "which", "what"], tip: "季節（時）→ when", why: "the season（時）のあとに完全な文 → when。which だと in が必要。", p: 0 },
+    { en: "Hawaii is a place [where] people enjoy surfing.", ja: "ハワイは人々がサーフィンを楽しむ場所だ。", alt: ["which", "when", "what"], tip: "場所の説明 → where", why: "a place（場所）＋完全な文 → where。surfing まで文が完成しているので which は×。", p: 0 },
+    { en: "The restaurant [where] we had lunch was crowded.", ja: "私たちが昼食を食べたレストランは混んでいた。", alt: ["which", "when", "what"], tip: "場所の説明 → where", why: "had lunch で文が完成 → 場所の where。which なら at が必要。", p: 0 },
+    { en: "Tell me the reason [why] you were late.", ja: "遅れた理由を教えて。", alt: ["where", "which", "what"], tip: "the reason ＋ why", why: "理由（the reason）を説明 → why。where は場所、what は×。", p: 1 },
+    { en: "That's [why] I was so tired.", ja: "そういうわけで、私はとても疲れていた。", alt: ["what", "which", "whose"], tip: "That's why ＝ だから〜", why: "前の話が原因 → That's why＋結果。what だと意味が通らない。", p: 1 },
+    { en: "This is [how] I make curry.", ja: "こうやって私はカレーを作ります。", alt: ["the way how", "which", "what"], tip: "方法 → how", why: "方法 → how だけ。the way how とは言わない。what では意味が×。", p: 1 },
+    { en: "My father, [who] works at a bank, is very busy.", ja: "父は銀行で働いていて、とても忙しい。", alt: ["that", "which", "whom"], tip: "コンマ＋人の補足 → who", why: "人の補足説明 → , who。that はコンマの後に使えず、whom は主語にならない。", p: 2 },
+    { en: "We went to Kyoto, [where] we saw many temples.", ja: "私たちは京都に行き、そこでたくさんの寺を見た。", alt: ["which", "that", "when"], tip: "コンマ＋場所の補足 → where", why: "場所の補足で後ろは完全な文 → , where。which は in が必要。", p: 2 },
+    { en: "I lost my bike, [which] my uncle had given me.", ja: "おじがくれた自転車を、私はなくした。", alt: ["that", "who", "what"], tip: "コンマ＋物 → which", why: "物の補足 → , which。that はコンマの後に使えず、who は人用。", p: 2 },
+    { en: "She said she was sick, [which] was not true.", ja: "彼女は病気だと言ったが、それは本当ではなかった。", alt: ["that", "what", "who"], tip: "前の内容全体 → , which", why: "前の文全体を指す → , which。that はコンマの後×、what は先行詞なし。", p: 2 },
   ],
   swhy: [
     { why: "the day（時）＋完全な文 we first met → when。which だと後ろに足りない部分が必要。", p: 0 },

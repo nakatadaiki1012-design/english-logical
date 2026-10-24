@@ -1668,3 +1668,112 @@ window.LX.plus["c1-u06"] = {
     }
   ]
 };
+
+/* ===== 追加：演習文 12 文ずつ（計 24 文）と 絵の図 ===== */
+(function () {
+  var P = window.LX.plus;
+  function D(en, ja, alt, tip, why, p) { return { en: en, ja: ja, alt: alt, tip: tip, why: why, p: p }; }
+  function add(id, arr) { P[id].drills = P[id].drills.concat(arr); }
+
+  add("c1-u01", [
+    D("The flowers [smell] sweet.", "花は甘い香りがする。", ["smell at", "smells", "smelling"], "smell ＋ 形容詞「〜のにおいがする」", "「花＝甘い香り」で smell＋形容詞。複数なので smells は×。smell at・smelling も×。", 0),
+    D("Your idea [sounds] interesting.", "あなたの考えはおもしろそうだ。", ["sounds like", "hears", "listens"], "sound ＋ 形容詞「〜に聞こえる」", "「考え＝おもしろい」で sound＋形容詞。sounds like の後は名詞。hears・listens は×。", 0),
+    D("My grandmother [felt] happy at the party.", "祖母はパーティーで幸せな気分だった。", ["felt to", "feels to", "feeling"], "feel ＋ 形容詞「〜と感じる」", "「祖母＝幸せ」で feel＋形容詞。to は不要。feeling だけでは文の動詞にならない。", 0),
+    D("He [kept] quiet during the meeting.", "彼は会議の間ずっと黙っていた。", ["kept to", "keeps to", "keeping"], "keep ＋ 形容詞「〜のままでいる」", "「彼＝静か」の状態が続く keep＋形容詞。to は不要。keeping だけでは文の動詞にならない。", 0),
+    D("Grandma [made us] a big cake.", "おばあちゃんは私たちに大きなケーキを作ってくれた。", ["made to us", "made for us", "made us to"], "make ＋ 人 ＋ 物「人に物を作る」", "SVOO は「人→物」の順で前置詞なし。made for us は物の後ろなら可。to us・us to は×。", 1),
+    D("Could you [lend me] your eraser?", "消しゴムを貸してくれませんか。", ["lend to me", "lend for me", "lend me to"], "lend ＋ 人 ＋ 物「人に物を貸す」", "lend me your eraser は「人→物」の順。人の前に to・for を入れると×。me to も×。", 1),
+    D("The guide [showed us] an old map.", "ガイドは私たちに古い地図を見せてくれた。", ["showed to us", "showed for us", "showed us to"], "show ＋ 人 ＋ 物「人に物を見せる」", "show＋人＋物で「人に物を見せる」。人を先に置くなら前置詞なし。to us・for us は×。", 1),
+    D("I'll [send you] the photos tonight.", "今夜、写真を送るね。", ["send to you", "send for you", "send you to"], "send ＋ 人 ＋ 物「人に物を送る」", "send＋人＋物の形。人の前に to は付けない。物を先に言うなら send the photos to you。", 1),
+    D("Everyone [calls him] Taku.", "みんなは彼をタクと呼ぶ。", ["calls to him", "calls him as", "call him"], "call ＋ O ＋ C「O を C と呼ぶ」", "him＝Taku の SVOC。as や to は不要。Everyone は単数なので call は×。", 2),
+    D("The hot weather made us [tired].", "暑さで私たちは疲れた。", ["tiredly", "tiredness of", "to tired"], "make ＋ O ＋ 形容詞「O を〜にする」", "us＝tired で O＝C。tiredly は副詞で×。tiredness of・to tired も×。", 2),
+    D("Please keep your hands [clean].", "手をきれいにしておいてください。", ["cleanly", "cleaning", "to clean"], "keep ＋ O ＋ 形容詞「O を〜のままにする」", "hands＝clean の状態を保つ。cleanly は副詞で×。cleaning・to clean も×。", 2),
+    D("We [named our baby] Hana.", "私たちは赤ちゃんをハナと名づけた。", ["named to our baby", "named for our baby", "name our baby to"], "name ＋ O ＋ C「O を C と名づける」", "our baby＝Hana の SVOC。O の前に to・for は付けない。name … to も×。", 2)
+  ]);
+  add("c1-u02", [
+    D("My sister [plays] the piano every evening.", "姉は毎晩ピアノを弾く。", ["play", "is play", "playing"], "毎日の習慣は現在形。3単現の s", "every evening は習慣で現在形。主語が単数で plays。play・is play・playing は×。", 0),
+    D("The museum [opens] at nine.", "その博物館は9時に開く。", ["open", "opening", "is opens"], "決まった予定・事実は現在形", "いつも9時に開く「いつもの事実」なので現在形 opens。museum は単数で open は×。", 0),
+    D("My father usually [goes] to bed at eleven.", "父はふだん11時に寝る。", ["go", "going", "is go"], "usually ＋ 現在形で習慣", "usually は習慣の目印で現在形。主語が単数なので goes。go・going・is go は×。", 0),
+    D("I [watched] a soccer game last night.", "昨夜サッカーの試合を見た。", ["watch", "have watched", "am watching"], "last night は過去形", "last night は終わった過去の一点なので過去形。have watched は過去の点と使えないので×。", 1),
+    D("He [left] home an hour ago.", "彼は1時間前に家を出た。", ["leaves", "has left", "is leaving"], "〜 ago は過去形", "an hour ago は過去の一点なので過去形 left。has left は ago と使えない。今形も×。", 1),
+    D("[Did she call] you yesterday?", "彼女は昨日あなたに電話をしましたか。", ["Does she call", "Has she called", "Is she calling"], "過去の疑問文は Did ＋ 主語 ＋ 原形", "yesterday は過去で Did＋主語＋原形。Has she called・現在形は×。", 1),
+    D("We [didn't go] out last Sunday.", "この前の日曜日は出かけなかった。", ["don't go", "didn't went", "haven't gone"], "過去の否定は didn't ＋ 原形", "過去の否定は didn't＋原形。didn't went は過去が2回で×。haven't gone も×。", 1),
+    D("Look! A cat [is climbing] the tree.", "見て！ネコが木に登っている。", ["climbs", "climb", "climbing"], "Look! ＝ 今まさに → 進行形", "Look! は今その瞬間の目印で進行形。climbs は「いつも」の意味。climb・climbing は形が×。", 2),
+    D("Mom [is cooking] dinner right now.", "母はちょうど今夕食を作っている。", ["cooks", "cook", "was cooking"], "right now は現在進行形", "right now は今の瞬間で is cooking。was cooking は過去で×。cooks も×。", 2),
+    D("[Are you listening] to me?", "私の話を聞いてる？", ["Do you listening", "Are you listen", "Is you listening"], "進行形の疑問文は be ＋ 主語 ＋ -ing", "進行形の疑問文は be を前に出す。Do と -ing は組めない。Are you listen・Is you は×。", 2),
+    D("I [was reading] a book at ten last night.", "昨夜10時には本を読んでいた。", ["am reading", "read at", "were reading"], "過去のその瞬間は過去進行形", "昨夜10時という過去の瞬間の動作は was＋-ing。I には were は×。am reading は今で×。", 2),
+    D("The students [were running] when it started to rain.", "雨が降り出したとき、生徒たちは走っていた。", ["are running", "was running", "run"], "when ＋ 過去 → その時していた", "雨が降り出した過去の瞬間にしていた動作で were running。students は複数で was は×。", 2)
+  ]);
+  add("c1-u03", [
+    D("They [have been] friends since childhood.", "彼らは子どもの頃からずっと友だちだ。", ["are", "were", "have be"], "since ＋ 起点 → 現在完了の継続", "since childhood（子どもの頃から今まで）は継続で have been。are・were は×。", 0),
+    D("She has studied Spanish [for] two years.", "彼女は2年間スペイン語を勉強している。", ["since", "from", "during"], "期間の長さは for", "two years は期間の長さなので for。since は始まった時点、from・during はここでは×。", 0),
+    D("We have lived in this town [since] 2015.", "私たちは2015年からこの町に住んでいる。", ["for", "from", "ago"], "始まった時点は since", "2015 は始まった時点なので since。for は期間の長さ。from・ago は現在完了と使えない。", 0),
+    D("How long [have you known] Ken?", "ケンとはどれくらいの付き合いですか。", ["do you know", "have you know", "are you knowing"], "How long ＋ 現在完了で「どれくらいずっと」", "今まで続く長さを聞くので have you known。know は進行形にしない。have you know も×。", 0),
+    D("I [have seen] this movie three times.", "この映画を3回見たことがある。", ["have saw", "see", "am seeing"], "回数は経験の現在完了", "three times は経験の回数で have＋過去分詞 seen。saw は過去形なので have saw は×。", 1),
+    D("Have you ever [climbed] Mt. Fuji?", "富士山に登ったことがありますか。", ["climb", "climbing", "to climb"], "Have you ever ＋ 過去分詞？", "経験を聞く Have you ever の後は過去分詞。climb・climbing・to climb は形が×。", 1),
+    D("He [has never eaten] sushi.", "彼はすしを一度も食べたことがない。", ["never ate has", "has never eat", "has eaten never"], "never は have と過去分詞の間", "経験の否定は has never＋過去分詞。never の位置は has の後ろ。eat は原形で×。", 1),
+    D("I [have been] to Kyoto many times.", "京都には何度も行ったことがある。", ["have be", "has been", "was"], "have been to 〜「〜へ行ったことがある」", "経験の「行ったことがある」は have been to。I に has は×。was to・have be も×。", 1),
+    D("She [has already done] her homework.", "彼女はもう宿題を終えた。", ["already did has", "has already do", "have already done"], "already は has と過去分詞の間", "完了「もう〜した」は has already＋過去分詞。She に have は×。do は原形で×。", 2),
+    D("I [haven't read] the email yet.", "まだそのメールを読んでいない。", ["didn't read have", "haven't readed", "hasn't read"], "否定＋yet「まだ〜していない」", "完了の否定は haven't＋過去分詞。read の過去分詞は read。I に hasn't は×。", 2),
+    D("The game [has just started].", "試合はちょうど始まったところだ。", ["has just start", "have just started", "is just started"], "just は has と過去分詞の間", "「ちょうど〜したところ」は has just＋過去分詞。game は単数で have は×。is は×。", 2),
+    D("Has the movie started [yet]?", "映画はもう始まりましたか。", ["ago", "still", "since"], "疑問文の「もう」は yet", "疑問文の最後で「もう〜した？」は yet。ago は過去形用、still・since はここでは×。", 2)
+  ]);
+  add("c1-u04", [
+    D("My dog [can swim] very well.", "うちの犬はとても上手に泳げる。", ["can swims", "cans swim", "can to swim"], "can ＋ 動詞の原形", "助動詞の後は必ず原形。can swims・can to swim は×。can に s は付かない。", 0),
+    D("[Could you] say that again?", "もう一度言っていただけますか。", ["Could you to", "Do you could", "Could to you"], "Could you 〜? ＝ ていねいなお願い", "ていねいなお願いは Could you＋原形。助動詞に to や do は組み合わせない。", 0),
+    D("[Shall I] carry your bag?", "かばんを持ちましょうか。", ["Shall I to", "Do I shall", "Shall to I"], "Shall I 〜?「〜しましょうか」", "申し出の Shall I＋原形。助動詞の後に to は不要。do と shall は重ねない。", 0),
+    D("We [must finish] this by Friday.", "金曜日までにこれを終えなければならない。", ["must to finish", "must finishing", "musts finish"], "must ＋ 原形「〜しなければならない」", "must の後は原形。to や -ing は付けない。助動詞に s は付かない。", 1),
+    D("You [must not] run in the hallway.", "廊下を走ってはいけない。", ["don't have to", "have not to", "need"], "must not ＝ 禁止", "「〜してはいけない」は禁止の must not。don't have to は「しなくてよい」で意味が反対。", 1),
+    D("He [has to] get up at five tomorrow.", "彼は明日5時に起きなければならない。", ["have to", "has", "must to"], "has to ＝ must（3人称単数）", "主語 He なので has to＋原形。have to は形が×。has だけ・must to は×。", 1),
+    D("You [don't have to] bring lunch tomorrow.", "明日はお弁当を持ってこなくてよい。", ["must not", "have not", "doesn't have to"], "don't have to ＝ 不要", "「しなくてよい」は不要の don't have to。must not は禁止。You に doesn't は×。", 1),
+    D("You [should try] this cake.", "このケーキを食べてみるべきだよ。", ["should to try", "should trying", "should tried"], "should ＋ 原形「〜したほうがいい」", "should の後は原形。to・-ing・過去形は付けない。おすすめの気持ちを表す。", 2),
+    D("She [may know] the answer.", "彼女なら答えを知っているかもしれない。", ["may knows", "may to know", "may knowing"], "may ＋ 原形「〜かもしれない」", "may の後は原形。主語が She でも may knows とはしない。to・-ing も×。", 2),
+    D("We [shouldn't eat] too much sugar.", "砂糖をとりすぎるべきではない。", ["shouldn't to eat", "don't should eat", "shouldn't eating"], "shouldn't ＋ 原形「〜すべきでない」", "否定は shouldn't＋原形。to・-ing は×。don't should のように do を重ねない。", 2),
+    D("It [might snow] tonight.", "今夜は雪が降るかもしれない。", ["might snows", "might to snow", "mights snow"], "might ＋ 原形「ひょっとすると〜」", "might は may より弱い推量。後ろは原形。s・to は付けない。", 2),
+    D("You [had better] see a dentist.", "歯医者に行ったほうがいい。", ["had better to", "have better", "had best to"], "had better ＋ 原形「〜したほうがいい」", "had better の後は原形で to は不要。have better という形はない。", 2)
+  ]);
+  add("c1-u05", [
+    D("This car [is washed] every Sunday.", "この車は毎週日曜日に洗われる。", ["washes", "is washing", "washed"], "be ＋ 過去分詞「〜される」", "車は洗われる側なので is washed。washes・is washing は車が洗う意味で×。", 0),
+    D("Japanese [is studied] by many students.", "日本語は多くの学生に勉強されている。", ["studies", "is studying", "is study"], "される側が主語 → 受動態", "日本語は勉強される側なので is studied。is study は過去分詞でないので×。", 0),
+    D("[Was this cake] made by you?", "このケーキはあなたが作ったのですか。", ["Did this cake", "Is this cakes", "Were this cake"], "受動態の疑問文は be を前に", "受動態の疑問文は be を主語の前へ。Did は made と組めない。cake は単数で Were は×。", 0),
+    D("The door [isn't locked] now.", "ドアは今、鍵がかかっていない。", ["doesn't locked", "isn't lock", "not locked"], "受動態の否定は be ＋ not", "否定は isn't＋過去分詞。doesn't と過去分詞は組めない。lock は原形で×。", 0),
+    D("The letter [was sent] last week.", "その手紙は先週送られた。", ["sent", "is sent", "was send"], "過去の受動態は was ＋ 過去分詞", "last week は過去なので was＋過去分詞。手紙は送る側でないので sent だけは×。", 1),
+    D("These pictures [were taken] in Hokkaido.", "これらの写真は北海道で撮られた。", ["took", "were took", "was taken"], "複数の主語は were", "写真は撮られる側で過去なので were taken。took は過去形で×。複数なので was は×。", 1),
+    D("The castle [was destroyed] in a fire.", "その城は火事で焼失した。", ["destroyed", "was destroy", "is destroyed"], "be ＋ 過去分詞（過去）", "城は壊される側で過去の出来事なので was destroyed。destroy は原形で×。", 1),
+    D("The concert [will be held] next month.", "コンサートは来月開かれる。", ["will hold", "will be hold", "is held will"], "未来の受動態は will be ＋ 過去分詞", "未来の受動態は will be＋過去分詞。hold は原形で×。will hold はコンサートが開く意味で×。", 1),
+    D("I [was born] in Nagoya.", "私は名古屋で生まれた。", ["born", "was bear", "am born"], "「生まれる」は be born", "「生まれた」は受動態の was born。born だけ・am born（今）は×。bear は原形で×。", 1),
+    D("The box [is filled with] toys.", "その箱はおもちゃでいっぱいだ。", ["is filled of", "is filling with", "filled with is"], "be filled with 〜「〜でいっぱい」", "be filled with はセットの形。of は×。is filling は箱が満たす意味で×。", 2),
+    D("She [is known as] a great writer.", "彼女はすばらしい作家として知られている。", ["is knowing as", "knows as", "is known to as"], "be known as 〜「〜として知られている」", "「〜として知られる」は be known as。know は進行形にしない。knows as・to as は×。", 2),
+    D("He [is worried about] his test.", "彼はテストのことを心配している。", ["worried about is", "is worried of", "is worry about"], "be worried about 〜「〜を心配する」", "気持ちの受動態 be worried about。of は×。worry は動詞の原形なので is と組めない。", 2)
+  ]);
+  add("c1-u06", [
+    D("I [want to go] to Canada someday.", "いつかカナダに行きたい。", ["want go", "want going", "want to going"], "want to ＋ 原形「〜したい」", "want の後は to＋原形。want go・want going は×。to の後に -ing は×。", 0),
+    D("He [plans to buy] a new bike.", "彼は新しい自転車を買う予定だ。", ["plans buy", "plans buying", "plans to buying"], "plan to ＋ 原形「〜するつもり」", "plan はこれからのことなので to＋原形。to は必要。to の後に -ing は×。", 0),
+    D("Her job is [to teach] children.", "彼女の仕事は子どもたちに教えることだ。", ["teach", "to teaching", "taught"], "is ＋ to 不定詞「〜すること」", "is の後の「〜すること」は to＋原形。teach だけ・taught は×。to teaching も×。", 0),
+    D("I [would like to] try it.", "それをやってみたいです。", ["would like", "would like to to", "would liking to"], "would like to ＝ want to のていねい形", "「〜したい」のていねい形 would like to＋原形。to が無い・2つ・liking は×。", 0),
+    D("I need something [to write] with.", "何か書くものが必要だ。", ["write", "writing to", "to writing"], "名詞 ＋ to ＋ 原形「〜するための」", "something を後ろから説明して「書くための」で to write。write だけ・to writing は×。", 1),
+    D("There are many things [to do] today.", "今日はやることがたくさんある。", ["do", "to doing", "doing to"], "things to do「するべきこと」", "things を説明して「するべき」で to do。do だけ・to doing・doing to は×。", 1),
+    D("I want a friend [to talk] with.", "話し相手になる友だちがほしい。", ["talk", "to talking", "talking to"], "名詞 ＋ to ＋ 原形 ＋ 前置詞", "a friend を説明して「話すための」で to talk with。talk だけ・to talking は×。", 1),
+    D("She saved money [to buy] a guitar.", "彼女はギターを買うためにお金をためた。", ["for buy", "to buying", "for to buy"], "目的「〜するために」は to ＋ 原形", "お金をためた目的なので to buy。for の後に原形は×。to buying・for to buy も×。", 2),
+    D("I came here [to see] you.", "あなたに会うためにここに来た。", ["for see", "seeing", "to seeing"], "目的の to 不定詞", "来た目的「会うために」で to see。for see は×。seeing・to seeing では目的を表せない。", 2),
+    D("I was happy [to meet] you.", "あなたに会えてうれしかった。", ["for meet", "to meeting", "met"], "感情 ＋ to 不定詞「〜して」", "うれしい原因「会えて」は感情＋to＋原形。for meet・to meeting・met は×。", 2),
+    D("[It is] easy to make this dish.", "この料理を作るのはかんたんだ。", ["That is", "There is", "This is"], "It is 〜 to …「…するのは〜だ」", "It が後ろの to make this dish を指す仮の主語。That・There・This では指せない。", 2),
+    D("It is important [to listen] to others.", "人の話を聞くことは大切だ。", ["listen", "listening", "to listening"], "It is 〜 to ＋ 原形", "It is important の後の「〜すること」は to＋原形。listen・listening などは×。", 2)
+  ]);
+
+  /* 絵の図：イメージで覚えると効く所だけ */
+  P["c1-u01"].points[2].fig = { t: "pic",
+    items: [{ e: "📰", x: 18, y: 58, l: "The news" }, { e: "😊", x: 72, y: 58, l: "me ＝ happy", b: "うれしい！" }],
+    arrows: [[0, 1, "made"]], cap: "me＝happy：O を C の状態にする" };
+  P["c1-u05"].core.fig = { t: "pic",
+    items: [{ e: "⚽", x: 22, y: 62, l: "The ball", s: 0.8 }, { e: "👦", x: 78, y: 58, l: "by Ken" }],
+    arrows: [[1, 0, "was kicked", "dash"]], cap: "される側が主役。する側は by で後ろへ" };
+  P["c1-u05"].points[2].fig = { t: "pic",
+    items: [{ e: "🏯", x: 20, y: 60, l: "history" }, { e: "🧑", x: 76, y: 58, l: "I", b: "おもしろい！" }],
+    arrows: [[0, 1, "interests"]], cap: "人は興味をもたされる側 → interested" };
+  P["c1-u06"].core.fig = { t: "pic",
+    items: [{ e: "🧑", x: 18, y: 60, l: "I" }, { e: "🎯", x: 80, y: 58, l: "これからすること" }],
+    arrows: [[0, 1, "to ＋ 動詞"]], cap: "to は これから向かう矢印 → 目的・予定" };
+  P["c1-u06"].points[2].fig = { t: "pic",
+    items: [{ e: "🧑", x: 14, y: 60, l: "I" }, { e: "🏫", x: 50, y: 60, l: "the library" }, { e: "📖", x: 86, y: 60, l: "to study" }],
+    arrows: [[0, 1, "went"], [1, 2, "何のため？", "dash"]], cap: "to ＝ 行った先で これからすること" };
+})();

@@ -479,3 +479,120 @@ window.LX.plus["c2-u12"] = {
     [2, "cause は「〜を引き起こす」で後ろにすぐ名詞。causes to は to が余分、because は動詞でない。"]
   ]);
 })(window.LX.plus);
+
+/* ===== 演習文を 24 文に（うしろに 12 文）・絵の図 =====
+   D(単元, [[英文, 日本語, [わな×3], ヒント, ポイント番号, なぜ]×12]) */
+(function (P) {
+  function D(id, rows) {
+    rows.forEach(function (r) { P[id].drills.push({ en: r[0], ja: r[1], alt: r[2], tip: r[3], p: r[4], why: r[5] }); });
+  }
+
+  D("c2-u07", [
+    ["Mika said that the test [was] difficult.", "ミカはテストが難しかったと言った。", ["be", "were", "being"], "said の中は is → was", 0, "said（過去）に合わせて is→was。test は単数で were は×、be／being は×。"],
+    ["He said he [would] call me later.", "彼はあとで私に電話すると言った。", ["will to", "would to", "was"], "will → would", 0, "said の中では will が would に下がる。助動詞の後ろに to は付かず、was call も形がない。"],
+    ["She said she [didn't like] spicy food.", "彼女は辛い食べ物が好きではないと言った。", ["doesn't liked", "didn't liked", "don't like"], "don't → didn't ＋ 原形", 0, "否定も過去に下げて didn't like。did の後ろは原形なので liked は×、she に don't も×。"],
+    ["They told us that they [were] ready.", "彼らは準備ができていると私たちに言った。", ["was", "be", "being"], "are → were", 0, "主語 they は複数なので are を過去の were に。was は単数用、be／being は動詞の形でない。"],
+    ["I knew that he [was] telling the truth.", "彼が本当のことを言っていると私はわかっていた。", ["were", "be", "being"], "knew の中も過去 was ～ing", 0, "knew（過去）の中なので進行形も was ～ing。he に were は×、be／being では動詞にならない。"],
+    ["She said that she [had finished] her homework.", "彼女は宿題を終えたと言った。", ["has finish", "have finished", "had finish"], "言う前に終えた → had＋過去分詞", 1, "言った時より前に終えたので had＋過去分詞。has finish は形がこわれ、she に have も×。"],
+    ["He told me he [had met] her before.", "彼は以前彼女に会ったことがあると私に言った。", ["have met", "had meet", "has meeting"], "had ＋ 過去分詞", 1, "言った時より前の経験なので had met。he に have は×、had の後ろは過去分詞で meet は×。"],
+    ["I found that someone [had taken] my bike.", "だれかが私の自転車を持っていったとわかった。", ["has took", "had took", "have taken"], "気づく前に持っていかれた", 1, "気づいた時より前のことなので had taken。took は過去形で had の後ろに使えない。"],
+    ["The clerk asked me [if] I needed a bag.", "店員は私に袋が必要かとたずねた。", ["that", "what", "do"], "Yes/No の質問 → if", 2, "「必要ですか？」は Yes/No の質問なので if（〜かどうか）。that では質問にならない。"],
+    ["She asked me [where] I had bought my shoes.", "彼女は私がどこで靴を買ったのかたずねた。", ["where did", "where do", "that where"], "where ＋ S ＋ V の語順", 2, "文の中の質問はふつうの語順なので where I had bought。did／do を入れると疑問文の形で×。"],
+    ["The doctor told me [to rest] for a few days.", "医者は私に数日休むように言った。", ["rest", "resting", "that rest"], "命令 → tell 人 to ＋ 原形", 2, "「休みなさい」という命令は tell 人 to 原形。to がない rest や resting はつながらない。"],
+    ["My teacher told us [not to] use our phones.", "先生は私たちにスマホを使わないように言った。", ["don't to", "not", "no to"], "否定の命令 → not to", 2, "「使うな」は tell 人 not to 原形。not だけでは to がない。don't to／no to は×。"]
+  ]);
+
+  D("c2-u08", [
+    ["It was Mika [who] won the speech contest.", "スピーチコンテストで優勝したのはミカだった。", ["which", "whom", "what"], "人を強調 → who も OK", 0, "強調したいのは人（ミカ）で、後ろの主語になるので who。which は物、whom は目的語用、what は×。"],
+    ["It is music [that] makes me happy.", "私を幸せにしてくれるのは音楽だ。", ["what", "who", "where"], "It is ～ that で強調", 0, "It is と that で music をはさんで強調。what は×、who は人用、where は場所用。"],
+    ["It was in 2010 [that] we moved here.", "私たちがここに引っこしたのは2010年だった。", ["what", "which", "who"], "時を強調しても that", 0, "強調の型は It was ～ that。時をはさんでも that。what／which／who ではこの型にならない。"],
+    ["It was at the station [that] I lost my wallet.", "私が財布をなくしたのは駅でだった。", ["what", "which", "who"], "場所を強調しても that", 0, "at the station をはさんで強調するので that。what／which／who では型がこわれる。"],
+    ["We [do] need your help.", "私たちは本当にあなたの助けが必要だ。", ["does", "did to", "doing"], "we ＋ do ＋ 原形", 1, "主語 we・現在なので do で強調し、後ろは原形 need。does は三人称単数用、did to／doing は×。"],
+    ["She [did] call me last night.", "彼女は昨夜本当に私に電話してきた。", ["does", "do", "done"], "過去 → did ＋ 原形", 1, "last night で過去なので did＋原形。does／do は現在の形で、done は動詞の前に置けない。"],
+    ["He [does] study hard every day.", "彼は本当に毎日一生懸命勉強している。", ["do", "did to", "is"], "三人称単数・現在 → does", 1, "he・毎日の習慣なので does で強調。he に do は×、did to は形がなく、is study も×。"],
+    ["I [did] tell you the truth.", "私は本当にあなたに真実を話したんだ。", ["do to", "does", "done"], "過去の「本当に」→ did", 1, "過去に話したことを強く言うので did＋原形。I に does は×、do to／done は形にならない。"],
+    ["Never [had I] felt so happy.", "あれほど幸せに感じたことはなかった。", ["I had", "I have", "had"], "Never が先頭 → had I", 2, "否定語 Never が先頭に来たら疑問文の語順で had I。I had はふつうの語順、had だけでは主語がない。"],
+    ["Seldom [do we] see snow here.", "ここではめったに雪を見ない。", ["we do", "we", "does we"], "Seldom が先頭 → do we", 2, "Seldom（めったに〜ない）が先頭なので do we。we do はふつうの順、does は we に×。"],
+    ["Not once [did she] complain about the work.", "彼女は一度もその仕事に文句を言わなかった。", ["she did", "she", "did her"], "Not once が先頭 → did she", 2, "Not once が先頭なので did she の倒置。she did は語順が逆、her は主語に使えない。"],
+    ["Little [did we] know about the plan.", "私たちはその計画についてほとんど知らなかった。", ["we did", "we knew", "did us"], "Little が先頭 → did we", 2, "否定の Little が先頭なので did we＋原形。we knew はふつうの語順、us は主語に使えない。"]
+  ]);
+
+  D("c2-u09", [
+    ["[I believe that] students should read every day.", "私は生徒は毎日読書すべきだと思う。", ["I believing that", "I am believe that", "I believe to"], "主張は I believe that ＋ 文", 0, "主張を言い切る型 I believe that＋文。believing では動詞がなく、am believe も×。"],
+    ["[In my opinion], school lunches should be free.", "私の意見では、給食は無料にすべきだ。", ["In my opinion of", "On my opinion", "By my opinion"], "In my opinion, ＝ 私の意見では", 0, "決まった言い方は In my opinion,。前置詞は in で、on／by は×。of を足すと文がつながらない。"],
+    ["[I strongly think] that we should save water.", "水を節約すべきだと私は強く思う。", ["I strong think", "I am strongly think", "I strongly thinking"], "strongly で主張を強める", 0, "think を強めるのは副詞 strongly。strong は形容詞で×、am think／thinking も×。"],
+    ["[First], volunteering teaches us teamwork.", "第一に、ボランティアはチームワークを教えてくれる。", ["Firstly of all", "At first of", "The first"], "理由①は First,", 1, "理由の1つ目は First,。Firstly of all 等は形がなく、The first も×。"],
+    ["[Second], it helps us meet new people.", "第二に、新しい人と出会う助けになる。", ["Two", "Secondary", "The second of"], "理由②は Second,", 1, "理由の2つ目は Second,。Two は順番でなく、Secondary は「二次的な」。"],
+    ["[Also], it gives us a sense of purpose.", "また、目的意識を与えてくれる。", ["Also of", "And also of", "Too"], "Also, で理由を追加", 1, "文の頭で理由を足すのは Also,。of を付けると形がこわれ、Too は文頭に置けない。"],
+    ["[For example], I clean the park with my friends.", "たとえば、私は友だちと公園をそうじする。", ["For examples", "By example", "Example for"], "具体例は For example,", 1, "具体例の合図は For example,（単数）。examples と複数にしない。By／Example for は×。"],
+    ["[In fact], many people feel happier after helping others.", "実際、人を助けたあと多くの人は幸せを感じる。", ["In facts", "On fact", "By fact"], "In fact, ＝ 実際に", 1, "事実で理由を支える合図は In fact,。fact は複数にせず、前置詞も in。On／By fact は×。"],
+    ["[Furthermore], it can help our future careers.", "さらに、将来の仕事にも役立つ。", ["Further of", "Furthermores", "More further"], "Furthermore, ＝ さらに", 1, "理由を積み重ねる Furthermore,。of を付けたり s を付けたりはしない。More further は×。"],
+    ["[In conclusion], volunteering is worth trying.", "結論として、ボランティアはやってみる価値がある。", ["In conclude", "At conclusion", "To conclusion"], "まとめは In conclusion,", 2, "最後の主張の合図は In conclusion,。conclude は動詞で×、前置詞も in で At／To は×。"],
+    ["[To sum up], exercise makes our lives better.", "まとめると、運動は生活をよりよくする。", ["To summing up", "To sum", "For sum up"], "To sum up, ＝ まとめると", 2, "決まった形は To sum up,。to の後ろは原形で summing は×、up を落とす・For にするのも×。"],
+    ["[That is why] I think everyone should volunteer.", "だから、みんなボランティアをすべきだと思う。", ["That is because why", "This why", "That why is"], "That is why ＝ だから", 2, "理由を受けて結論を言う That is why＋文。because と why を重ねる形や is のない形は×。"]
+  ]);
+
+  D("c2-u10", [
+    ["I [agree with] my friend's idea.", "私は友だちの考えに賛成だ。", ["am agree with", "agree to with", "agreeing with"], "agree は動詞！ be はいらない", 0, "agree は動詞なので I agree with。am を付けると動詞が2つ、agreeing では動詞にならない。"],
+    ["We [agree that] the park should stay open.", "私たちは公園を開けておくべきだということに賛成だ。", ["are agree that", "agree with that", "agreeing that"], "agree that ＋ 文", 0, "後ろが文なら agree that＋文。with は名詞の前に使うので×。are agree／agreeing も×。"],
+    ["I [totally disagree] with his opinion.", "私は彼の意見にまったく反対だ。", ["am totally disagree", "totally disagreeing", "totally not agree"], "totally ＋ disagree", 0, "反対の動詞は disagree。be 動詞は不要で、～ing では動詞がない。not agree の語順も×。"],
+    ["Many students are [in favor of] longer breaks.", "多くの生徒は長い休み時間に賛成している。", ["in favor to", "favor of", "on favor of"], "be in favor of ＝ 賛成", 0, "決まった形は in favor of。to／on にしたり in を落としたりすると形がこわれる。"],
+    ["My parents are [against] the idea.", "両親はその考えに反対している。", ["against to", "oppose", "opposite"], "be against ＝ 反対", 0, "be against＋名詞で「反対」。to は不要、oppose は動詞、opposite は意味がずれる。"],
+    ["I'm [for] the plan to build a library.", "私は図書館を建てる計画に賛成だ。", ["for to", "pro of", "on"], "be for ＝ 賛成", 0, "be for＋名詞で「賛成」。for to は形がなく、pro of／on では賛成にならない。"],
+    ["[One reason is] that it is cheaper.", "理由の一つは、それがより安いことだ。", ["One reason are", "One reasons is", "One reason being"], "One reason is that ～", 1, "One reason は単数なので is。are は複数用、reasons は×、being では文にならない。"],
+    ["I agree, [because] it helps the environment.", "環境に役立つので、私は賛成だ。", ["because of", "due to", "owing"], "後ろが文 → because", 1, "後ろが it helps…という文なので because。because of／due to は後ろに名詞だけが来る。"],
+    ["[This is why] I support the plan.", "こういうわけで、私はその計画を支持する。", ["This is because why", "This why", "Why this is"], "This is why ＝ だから", 1, "理由を言ったあと結論を出す This is why＋文。because と why を重ねたり語順を変えたりは×。"],
+    ["You [have a point], but it is too expensive.", "一理あるけれど、それは高すぎる。", ["have point", "has a point", "are a point"], "have a point ＝ 一理ある", 2, "相手を認める決まり文句 have a point。a を落とすのは×、you に has も×、are でもない。"],
+    ["[I understand], but I still disagree.", "わかるけれど、それでも私は反対だ。", ["I am understand", "I understanding", "I understands"], "I understand, but ～", 2, "まず認める I understand。am を付けると動詞が2つ、～ing では動詞がなく、I に s は付かない。"],
+    ["That [sounds good], but who will pay for it?", "それはよさそうだけど、だれがお金を払うの？", ["sounds well", "sound good", "is sound good"], "sound ＋ 形容詞", 2, "sound＋形容詞なので good。well は×、That に s なしの sound も×、is sound も×。"]
+  ]);
+
+  D("c2-u11", [
+    ["Ken likes rice, [while] Mika prefers bread.", "ケンはご飯が好きだが、一方ミカはパンが好きだ。", ["during", "since then", "but while"], "S V, while S V", 0, "2つの文を対比でつなぐのは while。during は名詞の前だけ、since then／but while は×。"],
+    ["Cats sleep a lot, [whereas] dogs need walks.", "ネコはよく寝るが、一方イヌは散歩が必要だ。", ["where", "whatever", "whether"], "whereas ＝ 一方で", 0, "左右をくらべる whereas。where は場所、whatever は「何でも」、whether は「〜かどうか」。"],
+    ["Summer is hot here, [while] winter is mild.", "ここの夏は暑いが、一方冬はおだやかだ。", ["during", "meanwhile of", "when while"], "while で 夏と冬を対比", 0, "2つの季節を1文でくらべる while。during は後ろが名詞、meanwhile of 等は×。"],
+    ["Old people often watch TV, [whereas] young people use phones.", "お年寄りはよくテレビを見るが、若者はスマホを使う。", ["where", "whatever", "whether"], "whereas はかたい対比", 0, "世代のちがいを対比する whereas。where／whatever／whether では「一方で」の意味にならない。"],
+    ["Big cities are exciting. [However], they are crowded.", "大都市はわくわくする。しかし、混んでいる。", ["Although", "But also", "Despite"], "However, ＝ しかし", 1, "文と文の間で反対を出す However,。Although は文をつなぐ語、Despite は名詞の前。"],
+    ["Paper books are heavy. On [the other hand], they feel nice.", "紙の本は重い。その一方で、手ざわりがいい。", ["other hand", "the another hand", "the others hand"], "On the other hand", 1, "決まった形は On the other hand。the を落とす、another／others にするのは×。"],
+    ["Buses are cheap. [In contrast], taxis are expensive.", "バスは安い。それに対して、タクシーは高い。", ["In contrasts", "On contrast", "By contrast of"], "In contrast, ＝ それに対して", 1, "反対を並べる In contrast,。複数にせず、On は×、By contrast に of は付かない。"],
+    ["My town is quiet. [By contrast], Tokyo is very busy.", "私の町は静かだ。対照的に、東京はとてもにぎやかだ。", ["By contrast of", "On contrast", "In contrasts"], "By contrast, ＝ 対照的に", 1, "By contrast, も文頭の対比の合図。後ろに of は付かず、On は×、contrasts と複数にもしない。"],
+    ["[Compared with] last year, prices are higher.", "去年とくらべると、物価が高い。", ["Compare with", "Comparing to with", "Compared"], "Compared with ＝ 〜とくらべると", 2, "「くらべられると」の Compared with。Compare は命令の形、with なし・重ねるのは×。"],
+    ["[Compared to] cats, dogs need more care.", "ネコとくらべると、イヌはもっと世話が必要だ。", ["Compare to", "Comparing with to", "Compared of"], "Compared to も同じ意味", 2, "Compared to も「〜とくらべると」。Compare は動詞の原形で×、of は×、前置詞を重ねるのも×。"],
+    ["[Unlike] me, my sister is good at singing.", "私とちがって、姉は歌が上手だ。", ["Dislike", "Not like as", "Unlikely"], "Unlike A ＝ Aとちがって", 2, "「〜とちがって」は Unlike。Dislike は「きらう」、Unlikely は「ありそうにない」。"],
+    ["[Like] her mother, Yui is a good cook.", "母親と同じように、ユイは料理が上手だ。", ["Likely", "Alike", "As like"], "Like A ＝ Aと同じように", 2, "Like で「〜と同じように」。Likely は「ありそうな」、Alike は名詞の前に置けない。"]
+  ]);
+
+  D("c2-u12", [
+    ["We couldn't play outside [because of] the storm.", "嵐のせいで外で遊べなかった。", ["because", "because for", "since of"], "後ろが名詞 → because of", 0, "後ろが名詞 the storm なので because of。because は後ろに文が必要、for 等は×。"],
+    ["The road was closed [due to] an accident.", "事故のため道路が閉鎖された。", ["due", "because", "owing"], "due to ＋ 名詞", 0, "後ろが名詞なので due to。due／owing は to がないと使えず、because は後ろに文が必要。"],
+    ["[Thanks to] the bus, I arrived on time.", "バスのおかげで、時間どおりに着いた。", ["Thank to", "Thanks for", "Thanking to"], "Thanks to ＝ 〜のおかげで", 0, "よい原因は Thanks to＋名詞。Thank は s が必要、Thanks for は「〜をありがとう」。"],
+    ["I stayed home [because] I had a cold.", "かぜをひいていたので家にいた。", ["because of", "due to", "thanks to"], "後ろが文 → because", 0, "後ろが文 I had a cold なので because。because of 等は名詞の前だけ。"],
+    ["He was absent [since] he was sick.", "彼は病気だったので休んだ。", ["since of", "because of", "due to"], "since ＋ 文 ＝ 〜なので", 0, "後ろが文なので since（〜なので）。since of は形がなく、because of／due to は後ろが名詞。"],
+    ["She trained every day. [As a result], she won.", "彼女は毎日練習した。その結果、勝った。", ["As result", "In a result", "As the result of"], "As a result, ＝ その結果", 1, "原因の文のあとに結果を出す As a result,。a を落とす、In にする、of を付けるのは×。"],
+    ["The shop was closed. [Therefore], we went home.", "店は閉まっていた。だから、私たちは帰った。", ["Because", "Although", "So that"], "Therefore, ＝ だから", 1, "閉まっていた→だから帰った、で Therefore,。Because は理由側、Although は逆。"],
+    ["I forgot my umbrella, [so] I got wet.", "かさを忘れたので、ぬれた。", ["so of", "because of", "such"], "S V, so S V", 1, "原因の文のあとに結果をつなぐ so。because of は後ろが名詞、so of／such ではつながらない。"],
+    ["[For this reason], we changed the plan.", "この理由で、私たちは計画を変えた。", ["For this reasons", "By this reason", "For reason this"], "For this reason, ＝ この理由で", 1, "決まった形は For this reason,。this の後ろは単数、前置詞は for。語順を変えるのも×。"],
+    ["Stress can [lead to] headaches.", "ストレスは頭痛につながることがある。", ["lead", "leads to", "lead with"], "can ＋ lead to", 2, "「〜につながる」は lead to。to なしは×、can の後ろに leads は×、with も×。"],
+    ["Using phones at night [causes] sleep problems.", "夜スマホを使うことは睡眠の問題を引き起こす。", ["causes to", "is caused", "because"], "cause ＋ 名詞", 2, "Using phones（単数）が引き起こすので causes。to は不要、is caused は逆の意味。"],
+    ["Too much rain can [result in] floods.", "雨が多すぎると洪水になることがある。", ["result", "results in", "result to"], "result in ＝ 〜という結果になる", 2, "原因→結果は result in。in を落とす・to にするのは×、can の後ろに results は×。"]
+  ]);
+
+  /* 絵の図：イメージで覚えると効くところだけ */
+  P["c2-u07"].points[2].fig = { t: "pic",
+    items: [{ e: "👩", x: 20, y: 66, l: "She", b: "お腹すいた？" }, { e: "🧒", x: 78, y: 62, l: "me" }],
+    arrows: [[0, 1, "asked me if"]], cap: "質問は if（〜かどうか）で伝える" };
+  P["c2-u08"].points[0].fig = { t: "pic",
+    items: [{ e: "🔦", x: 14, y: 28, l: "It was～that", s: 0.9 }, { e: "👦", x: 52, y: 65, l: "Tom", s: 1.3 }, { e: "🪟", x: 86, y: 62, l: "the window", s: 0.8 }],
+    arrows: [[0, 1, "ここを強調"]], cap: "It was と that の間に スポットライト" };
+  P["c2-u10"].points[2].fig = { t: "pic",
+    items: [{ e: "🙂", x: 16, y: 64, l: "相手", b: "～すべき！" }, { e: "🤝", x: 50, y: 60, l: "認める", s: 0.9 }, { e: "🙋", x: 85, y: 62, l: "but 反論" }],
+    arrows: [[0, 1, ""], [1, 2, ""]], cap: "受け止めてから 自分の意見を返す" };
+  P["c2-u11"].points[2].fig = { t: "bars",
+    items: [["last year", 40], ["this year", 75]], cap: "Compared with で 基準とくらべる" };
+  P["c2-u12"].core.fig = { t: "pic",
+    items: [{ e: "🌨️", x: 12, y: 58, l: "大雪" }, { e: "🚃", x: 50, y: 58, l: "電車が遅れる" }, { e: "😓", x: 88, y: 58, l: "遅刻" }],
+    arrows: [[0, 1, "because of"], [1, 2, "as a result"]], cap: "原因から結果へ ドミノのように つなぐ" };
+  P["c2-u12"].points[2].fig = { t: "pic",
+    items: [{ e: "😴", x: 18, y: 60, l: "寝不足" }, { e: "🤒", x: 80, y: 60, l: "体調不良" }],
+    arrows: [[0, 1, "lead to"]], cap: "原因 → lead to → 結果" };
+})(window.LX.plus);

@@ -69,15 +69,36 @@ window.LX.plus["c1-u07"] = {
       "ex": "We [enjoyed singing] together.",
       "exja": "私たちはいっしょに歌うのを楽しんだ。",
       "fig": {
-        "t": "vs",
-        "a": [
-          "We enjoyed singing.",
-          "もうやっている"
+        "t": "pic",
+        "items": [
+          {
+            "e": "🎤",
+            "x": 16,
+            "y": 62,
+            "l": "enjoy -ing",
+            "b": "もう歌ってる"
+          },
+          {
+            "e": "🏃",
+            "x": 52,
+            "y": 62,
+            "l": "want to ~"
+          },
+          {
+            "e": "🎯",
+            "x": 86,
+            "y": 62,
+            "l": "これから"
+          }
         ],
-        "b": [
-          "We want to sing.",
-          "これから向かう"
-        ]
+        "arrows": [
+          [
+            1,
+            2,
+            "向かう矢印"
+          ]
+        ],
+        "cap": "-ing は今やっている・to はこれから"
       },
       "ng": {
         "bad": "We enjoyed to sing together.",
@@ -268,6 +289,150 @@ window.LX.plus["c1-u07"] = {
       "tip": "about ＋ -ing",
       "why": "about は前置詞なので visiting。visit・visited は動詞、to visit は置けない。",
       "p": 2
+    },
+    {
+      "en": "[Watching] movies is my favorite pastime.",
+      "ja": "映画を見ることが私のいちばんの楽しみだ。",
+      "alt": [
+        "Watch",
+        "Watches",
+        "To watching"
+      ],
+      "tip": "主語の「〜すること」＝ -ing",
+      "why": "主語は名詞の席なので Watching で「見ること」。Watch・Watches は動詞のままで主語になれない。",
+      "p": 0
+    },
+    {
+      "en": "[Studying] abroad is my dream.",
+      "ja": "留学することが私の夢だ。",
+      "alt": [
+        "Study",
+        "Studies",
+        "To studying"
+      ],
+      "tip": "主語になる -ing",
+      "why": "Studying abroad で「留学すること」という名詞。Study・Studies は主語になれない。",
+      "p": 0
+    },
+    {
+      "en": "Her job is [teaching] children.",
+      "ja": "彼女の仕事は子どもたちを教えることだ。",
+      "alt": [
+        "teach",
+        "teaches",
+        "taught"
+      ],
+      "tip": "補語の「〜すること」＝ -ing",
+      "why": "「仕事＝教えること」なので teaching。teach・teaches は is と並べられない。",
+      "p": 0
+    },
+    {
+      "en": "My father [enjoys cooking] on weekends.",
+      "ja": "父は週末に料理を楽しむ。",
+      "alt": [
+        "enjoys to cook",
+        "enjoys cook",
+        "enjoy cooking"
+      ],
+      "tip": "enjoy ＋ -ing",
+      "why": "enjoy は -ing だけをとる。to cook は ✕。主語が My father なので enjoys。",
+      "p": 1
+    },
+    {
+      "en": "Have you [finished cleaning] your room?",
+      "ja": "部屋のそうじは終わった？",
+      "alt": [
+        "finished to clean",
+        "finished clean",
+        "finish cleaning"
+      ],
+      "tip": "finish ＋ -ing",
+      "why": "finish は -ing だけ。to clean・clean は ✕。Have you のあとは finished。",
+      "p": 1
+    },
+    {
+      "en": "Please [avoid using] your phone in class.",
+      "ja": "授業中は電話を使うのを避けてください。",
+      "alt": [
+        "avoid to use",
+        "avoid use",
+        "avoiding use"
+      ],
+      "tip": "avoid ＋ -ing",
+      "why": "avoid は -ing をとる（メガフェプスの a）。to use・use は ✕。",
+      "p": 1
+    },
+    {
+      "en": "It suddenly [stopped raining].",
+      "ja": "急に雨がやんだ。",
+      "alt": [
+        "stopped to raining",
+        "stop raining",
+        "stopping rain"
+      ],
+      "tip": "stop ＋ -ing ＝ 〜するのをやめる",
+      "why": "stop -ing で「〜するのをやめる」。to raining は ✕。過去の話なので stopped。",
+      "p": 1
+    },
+    {
+      "en": "I'm thinking of [joining] the tennis club.",
+      "ja": "テニス部に入ろうかと考えている。",
+      "alt": [
+        "join",
+        "to join",
+        "joined"
+      ],
+      "tip": "前置詞 of ＋ -ing",
+      "why": "of は前置詞なので、うしろは名詞の席。joining にする。join・to join・joined は置けない。",
+      "p": 2
+    },
+    {
+      "en": "Thank you for [helping] me with my homework.",
+      "ja": "宿題を手伝ってくれてありがとう。",
+      "alt": [
+        "help",
+        "to help",
+        "helped"
+      ],
+      "tip": "for（前置詞）＋ -ing",
+      "why": "for は前置詞。うしろの動詞は -ing で名詞にする。help・to help・helped は ✕。",
+      "p": 2
+    },
+    {
+      "en": "She is afraid of [making] mistakes.",
+      "ja": "彼女はまちがえることをこわがっている。",
+      "alt": [
+        "make",
+        "to make",
+        "made"
+      ],
+      "tip": "be afraid of ＋ -ing",
+      "why": "of は前置詞なので making。make・made は名詞の席に置けず、of to make も ✕。",
+      "p": 2
+    },
+    {
+      "en": "Before [going] to bed, I brush my teeth.",
+      "ja": "寝る前に歯をみがく。",
+      "alt": [
+        "go",
+        "to go",
+        "went"
+      ],
+      "tip": "before ＋ -ing",
+      "why": "ここの before は前置詞として使い、うしろは -ing。go・to go・went は ✕。",
+      "p": 2
+    },
+    {
+      "en": "He is proud of [being] a member of the team.",
+      "ja": "彼はチームの一員であることを誇りに思っている。",
+      "alt": [
+        "be",
+        "is",
+        "to be"
+      ],
+      "tip": "be proud of ＋ -ing",
+      "why": "of のうしろは名詞の席。be 動詞も -ing にして being。be・is・to be は置けない。",
+      "p": 2
     }
   ],
   "swhy": [
@@ -370,15 +535,38 @@ window.LX.plus["c1-u08"] = {
       "ex": "This is a car [made] in Japan.",
       "exja": "これは日本製の車だ。",
       "fig": {
-        "t": "vs",
-        "a": [
-          "a crying baby",
-          "自分で泣いている"
+        "t": "pic",
+        "items": [
+          {
+            "e": "👶",
+            "x": 16,
+            "y": 62,
+            "l": "crying",
+            "b": "えーん"
+          },
+          {
+            "e": "⚾",
+            "x": 52,
+            "y": 40,
+            "l": "ボール",
+            "s": 0.8
+          },
+          {
+            "e": "🏺",
+            "x": 84,
+            "y": 62,
+            "l": "broken vase"
+          }
         ],
-        "b": [
-          "a broken window",
-          "割られた"
-        ]
+        "arrows": [
+          [
+            1,
+            2,
+            "割った",
+            "dash"
+          ]
+        ],
+        "cap": "-ing は自分で・過去分詞はされた側"
       },
       "ng": {
         "bad": "I read a book writing by a famous writer.",
@@ -395,15 +583,29 @@ window.LX.plus["c1-u08"] = {
       "ex": "We were [excited] about the trip.",
       "exja": "私たちは旅行にわくわくしていた。",
       "fig": {
-        "t": "vs",
-        "a": [
-          "The game was exciting.",
-          "させる側（物）"
+        "t": "pic",
+        "items": [
+          {
+            "e": "🎢",
+            "x": 18,
+            "y": 58,
+            "l": "exciting"
+          },
+          {
+            "e": "😆",
+            "x": 80,
+            "y": 58,
+            "l": "excited"
+          }
         ],
-        "b": [
-          "I was excited.",
-          "させられた側（人）"
-        ]
+        "arrows": [
+          [
+            0,
+            1,
+            "わくわくさせる"
+          ]
+        ],
+        "cap": "させる物は -ing、させられた人は -ed"
       },
       "ng": {
         "bad": "I was very exciting.",
@@ -558,6 +760,150 @@ window.LX.plus["c1-u08"] = {
       "tip": "people を -ing がうしろから説明",
       "why": "人々が自分で待っている側なので waiting。waited だと「待たれた」になる。",
       "p": 0
+    },
+    {
+      "en": "Look at the [flying] bird.",
+      "ja": "飛んでいる鳥を見て。",
+      "alt": [
+        "flew",
+        "flies",
+        "to fly"
+      ],
+      "tip": "1語の -ing は名詞の前",
+      "why": "鳥が自分で飛んでいるので -ing。1語なら名詞の前。flew・flies は動詞のままで名詞を説明できない。",
+      "p": 0
+    },
+    {
+      "en": "The girl [wearing] a red hat is my cousin.",
+      "ja": "赤い帽子をかぶっている女の子は私のいとこだ。",
+      "alt": [
+        "wore",
+        "wears",
+        "is wearing"
+      ],
+      "tip": "名詞 ＋ -ing 語句",
+      "why": "女の子が自分で身につけているので -ing。語句が長いのでうしろから説明。wears などでは文が2つになる。",
+      "p": 0
+    },
+    {
+      "en": "I have a friend [living] in Osaka.",
+      "ja": "私には大阪に住んでいる友だちがいる。",
+      "alt": [
+        "lived",
+        "lives",
+        "is living"
+      ],
+      "tip": "名詞 ＋ -ing 語句",
+      "why": "友だちが自分で住んでいるので living。lives・is living だと動詞が2つになり、つなぐ語がない。",
+      "p": 0
+    },
+    {
+      "en": "The [rising] sun was beautiful.",
+      "ja": "のぼってくる太陽は美しかった。",
+      "alt": [
+        "rose",
+        "rises",
+        "to rise"
+      ],
+      "tip": "1語の -ing は名詞の前",
+      "why": "太陽が自分でのぼっているので rising。rose・rises は動詞で、名詞の前に置いて説明できない。",
+      "p": 0
+    },
+    {
+      "en": "This is a cake [made] by my grandmother.",
+      "ja": "これは祖母が作ったケーキだ。",
+      "alt": [
+        "making",
+        "makes",
+        "make"
+      ],
+      "tip": "名詞 ＋ 過去分詞 ＋ by",
+      "why": "ケーキは「作られた」側なので過去分詞 made。making だとケーキが自分で作ることになる。",
+      "p": 1
+    },
+    {
+      "en": "I received a letter [written] in English.",
+      "ja": "英語で書かれた手紙を受け取った。",
+      "alt": [
+        "writing",
+        "wrote",
+        "writes"
+      ],
+      "tip": "〜された ＝ 過去分詞",
+      "why": "手紙は「書かれた」側なので written。writing は手紙が書く側になり ✕。wrote・writes は動詞。",
+      "p": 1
+    },
+    {
+      "en": "The [stolen] bike was found in the park.",
+      "ja": "ぬすまれた自転車は公園で見つかった。",
+      "alt": [
+        "stealing",
+        "stole",
+        "steal"
+      ],
+      "tip": "1語の過去分詞は名詞の前",
+      "why": "自転車は「ぬすまれた」側なので stolen。stealing だと自転車がぬすむ側になる。",
+      "p": 1
+    },
+    {
+      "en": "Most of the songs [sung] at the concert were new.",
+      "ja": "コンサートで歌われた歌のほとんどは新曲だった。",
+      "alt": [
+        "singing",
+        "sang",
+        "sings"
+      ],
+      "tip": "〜された ＝ 過去分詞",
+      "why": "歌は「歌われた」側なので sung。singing だと歌が歌う側になる。sang・sings は動詞で ✕。",
+      "p": 1
+    },
+    {
+      "en": "Japanese is a language [studied] by many people.",
+      "ja": "日本語は多くの人に学ばれている言語だ。",
+      "alt": [
+        "studying",
+        "studies",
+        "study"
+      ],
+      "tip": "名詞 ＋ 過去分詞 ＋ by",
+      "why": "言語は「学ばれる」側なので studied。studying だと言語が学ぶ側になる。by 〜 も「される」の合図。",
+      "p": 1
+    },
+    {
+      "en": "The news was [shocking].",
+      "ja": "そのニュースは衝撃的だった。",
+      "alt": [
+        "shocked",
+        "shock",
+        "shocks"
+      ],
+      "tip": "物 ＋ -ing（させる側）",
+      "why": "ニュースは人をショックに「させる」側なので shocking。shocked は「させられた人」に使う。",
+      "p": 2
+    },
+    {
+      "en": "I was [bored] with the long speech.",
+      "ja": "長いスピーチにうんざりした。",
+      "alt": [
+        "boring",
+        "bore",
+        "bores"
+      ],
+      "tip": "人 ＋ -ed（させられた側）",
+      "why": "私は退屈「させられた」側なので bored。boring だと私が人を退屈させる人になってしまう。",
+      "p": 2
+    },
+    {
+      "en": "The students were [interested] in the experiment.",
+      "ja": "生徒たちはその実験に興味をもった。",
+      "alt": [
+        "interesting",
+        "interest",
+        "interests"
+      ],
+      "tip": "人の気持ち ＝ -ed",
+      "why": "生徒は興味を「もたされた」側なので interested。interesting は「興味をひく物」に使う。",
+      "p": 2
     }
   ],
   "swhy": [
@@ -630,7 +976,25 @@ window.LX.plus["c1-u09"] = {
         "why": "as と as の間は 元の形のまま"
       },
       "why": "as 〜 as は「同じ量」を表すので、どちらかが上という -er は入れない。元の形のまま両側を as ではさむ。",
-      "easy": "① シーソーが平らにつりあう様子。② as tall as＝同じくらいの背。③ not をつけると「そこまで届かない」＝〜ほど…ない。"
+      "easy": "① シーソーが平らにつりあう様子。② as tall as＝同じくらいの背。③ not をつけると「そこまで届かない」＝〜ほど…ない。",
+      "fig": {
+        "t": "bars",
+        "items": [
+          [
+            "Tom",
+            72
+          ],
+          [
+            "his father",
+            72
+          ],
+          [
+            "his brother",
+            50
+          ]
+        ],
+        "cap": "as tall as ＝ 同じ高さ（つりあい）"
+      }
     },
     {
       "h": "比較級 ＋ than は「かたむき」",
@@ -664,9 +1028,7 @@ window.LX.plus["c1-u09"] = {
       "ex": "Mt. Fuji is [the highest] mountain in Japan.",
       "exja": "富士山は日本でいちばん高い山だ。",
       "fig": {
-        "t": "scale",
-        "left": "ひくい",
-        "right": "たかい",
+        "t": "bars",
         "items": [
           [
             "Mt. Takao",
@@ -680,7 +1042,8 @@ window.LX.plus["c1-u09"] = {
             "Mt. Fuji",
             95
           ]
-        ]
+        ],
+        "cap": "the highest ＝ 全部の中で1番"
       },
       "ng": {
         "bad": "She is the best player in the five.",
@@ -835,6 +1198,150 @@ window.LX.plus["c1-u09"] = {
       "tip": "Nothing ＋ 比較級 ＝ 最上級の意味",
       "why": "Nothing is 比較級 than＝〜ほど大切なものはない。importanter・most は✕。",
       "p": 1
+    },
+    {
+      "en": "This box is [as big as] that one.",
+      "ja": "この箱はあの箱と同じくらいの大きさだ。",
+      "alt": [
+        "as bigger as",
+        "so big than",
+        "big as"
+      ],
+      "tip": "as ＋ 元の形 ＋ as",
+      "why": "つりあいは as 〜 as。間は元の形 big。bigger は ✕、than とも組まない。最初の as も必要。",
+      "p": 0
+    },
+    {
+      "en": "My sister can't cook [as well as] my mother.",
+      "ja": "姉は母ほど料理が上手ではない。",
+      "alt": [
+        "as better as",
+        "so well than",
+        "as well than"
+      ],
+      "tip": "not as 〜 as ＝ 〜ほど…ない",
+      "why": "cook を説明するのは副詞 well。as と as ではさむ。better は比較級で ✕。than とは組まない。",
+      "p": 0
+    },
+    {
+      "en": "This summer was not [as hot as] last summer.",
+      "ja": "今年の夏は去年の夏ほど暑くなかった。",
+      "alt": [
+        "as hotter as",
+        "so hot than",
+        "hot as"
+      ],
+      "tip": "not as 〜 as ＝ 〜ほど…ない",
+      "why": "not のあとに as hot as。間は元の形で hotter は ✕。as を1つ落とすのも ✕。",
+      "p": 0
+    },
+    {
+      "en": "Jupiter is [bigger than] the earth.",
+      "ja": "木星は地球より大きい。",
+      "alt": [
+        "more big than",
+        "big than",
+        "biggest than"
+      ],
+      "tip": "短い語 ＋ -er than",
+      "why": "big は短い語なので bigger（g を重ねる）。more big は ✕。than の前は比較級。",
+      "p": 1
+    },
+    {
+      "en": "This test was [more difficult than] the last one.",
+      "ja": "このテストは前回より難しかった。",
+      "alt": [
+        "difficulter than",
+        "more difficult as",
+        "most difficult than"
+      ],
+      "tip": "長い語は more 〜 than",
+      "why": "difficult は長い語なので more。difficulter は ✕。than と組むのは most ではない。",
+      "p": 1
+    },
+    {
+      "en": "My brother gets up [earlier than] me.",
+      "ja": "兄は私より早く起きる。",
+      "alt": [
+        "more early than",
+        "early than",
+        "earliest than"
+      ],
+      "tip": "early → earlier（y を i に）",
+      "why": "early の比較級は earlier。more early・early・earliest は ✕。",
+      "p": 1
+    },
+    {
+      "en": "Your idea is [much better than] mine.",
+      "ja": "君の考えは私のよりずっとよい。",
+      "alt": [
+        "very better than",
+        "more better than",
+        "much good than"
+      ],
+      "tip": "比較級を強める much",
+      "why": "比較級を強めるのは much。very は比較級につかない。better に more を重ねるのも ✕。",
+      "p": 1
+    },
+    {
+      "en": "Lake Biwa is [the largest] lake in Japan.",
+      "ja": "琵琶湖は日本でいちばん大きな湖だ。",
+      "alt": [
+        "the larger",
+        "largest of",
+        "the most large"
+      ],
+      "tip": "the ＋ -est ＋ in 場所",
+      "why": "日本の中で1番なので the largest。larger は比較級。large は短い語で most は ✕。",
+      "p": 2
+    },
+    {
+      "en": "This is [the most exciting] game of the season.",
+      "ja": "これは今シーズンでいちばんわくわくする試合だ。",
+      "alt": [
+        "the excitingest",
+        "the more exciting",
+        "most exciting of"
+      ],
+      "tip": "長い語は the most",
+      "why": "exciting は長い語なので the most。-est は ✕。1番なので more も ✕。",
+      "p": 2
+    },
+    {
+      "en": "Who is [the tallest] in your class?",
+      "ja": "クラスでいちばん背が高いのはだれ？",
+      "alt": [
+        "the taller",
+        "tallest of",
+        "the most tall"
+      ],
+      "tip": "the ＋ -est ＋ in 集団",
+      "why": "クラスの中で1番なので the tallest。taller は比較級。tall は短い語なので most は使わない。",
+      "p": 2
+    },
+    {
+      "en": "Winter is [the coldest] season of the year.",
+      "ja": "冬は1年でいちばん寒い季節だ。",
+      "alt": [
+        "the colder",
+        "coldest in",
+        "the most cold"
+      ],
+      "tip": "the ＋ -est",
+      "why": "四季で1番なので the coldest。colder は比較級。cold は短い語で most は ✕。",
+      "p": 2
+    },
+    {
+      "en": "She is [the youngest] of the three sisters.",
+      "ja": "彼女は3姉妹の中でいちばん年下だ。",
+      "alt": [
+        "the younger",
+        "youngest in",
+        "the most young"
+      ],
+      "tip": "the ＋ -est ＋ of 仲間",
+      "why": "3人の中で1番なので最上級 the youngest。3人なので比較級 younger は ✕。young は短い語。",
+      "p": 2
     }
   ],
   "swhy": [
@@ -937,15 +1444,28 @@ window.LX.plus["c1-u10"] = {
       "ex": "This is the bus [which] goes to the airport.",
       "exja": "これは空港へ行くバスだ。",
       "fig": {
-        "t": "vs",
-        "a": [
-          "a friend who …",
-          "人"
+        "t": "pic",
+        "items": [
+          {
+            "e": "🧑",
+            "x": 16,
+            "y": 55,
+            "l": "人 → who"
+          },
+          {
+            "e": "🚌",
+            "x": 50,
+            "y": 55,
+            "l": "物 → which"
+          },
+          {
+            "e": "🐶",
+            "x": 84,
+            "y": 55,
+            "l": "動物 → which"
+          }
         ],
-        "b": [
-          "a bus which …",
-          "物・動物"
-        ]
+        "cap": "迷ったら that でどれも OK"
       },
       "ng": {
         "bad": "This is the bus who goes to the airport.",
@@ -1140,6 +1660,150 @@ window.LX.plus["c1-u10"] = {
       "tip": "人 ＋ who ＋ 動詞",
       "why": "生徒＝人なので who。which は物用、whose は「〜の」、what は✕。",
       "p": 0
+    },
+    {
+      "en": "I know a girl [who] can play the violin.",
+      "ja": "バイオリンをひける女の子を知っている。",
+      "alt": [
+        "which",
+        "whose",
+        "what"
+      ],
+      "tip": "人 ＋ who",
+      "why": "説明する名詞 a girl は人なので who。which は物・動物用。whose は「〜の」で、うしろに名詞が要る。",
+      "p": 0
+    },
+    {
+      "en": "The boy [who won] the race is my classmate.",
+      "ja": "レースに勝った男の子は私のクラスメートだ。",
+      "alt": [
+        "which won",
+        "who winning",
+        "won who"
+      ],
+      "tip": "人 ＋ who ＋ 動詞",
+      "why": "人なので who、そのあとに動詞 won。which は物用。who winning は動詞がなく ✕。",
+      "p": 0
+    },
+    {
+      "en": "People [who] live in the city often use trains.",
+      "ja": "都会に住む人はよく電車を使う。",
+      "alt": [
+        "which",
+        "what",
+        "they"
+      ],
+      "tip": "人 ＋ who ＋ 動詞",
+      "why": "People は人なので who。which は物用。they ではつなぐ働きがなく、文が2つになる。",
+      "p": 0
+    },
+    {
+      "en": "This is the house [which] was built 100 years ago.",
+      "ja": "これは100年前に建てられた家だ。",
+      "alt": [
+        "who",
+        "where",
+        "what"
+      ],
+      "tip": "物 ＋ which ＋ 動詞",
+      "why": "家は物なので which。who は人用。where だと was built の主語がなく ✕。",
+      "p": 1
+    },
+    {
+      "en": "I have a cat [that] has blue eyes.",
+      "ja": "私は青い目をしたネコを飼っている。",
+      "alt": [
+        "what",
+        "whose",
+        "it"
+      ],
+      "tip": "that は人にも物にも",
+      "why": "that はネコ（動物）も説明できる。what は前に名詞をとらない。whose は「〜の」。it ではつなげない。",
+      "p": 1
+    },
+    {
+      "en": "Look at the mountain [which] is covered with snow.",
+      "ja": "雪におおわれた山を見て。",
+      "alt": [
+        "who",
+        "what",
+        "where"
+      ],
+      "tip": "物 ＋ which",
+      "why": "山は物なので which。who は人用。what は名詞のうしろに置けない。where だと is の主語がない。",
+      "p": 1
+    },
+    {
+      "en": "The book [that] you lent me was interesting.",
+      "ja": "君が貸してくれた本はおもしろかった。",
+      "alt": [
+        "what",
+        "who",
+        "whose"
+      ],
+      "tip": "物 ＋ that ＋ S ＋ V",
+      "why": "本は物なので that（which も可）。what は前に名詞をとらない。who は人用。whose は「〜の」。",
+      "p": 1
+    },
+    {
+      "en": "The man [I met] yesterday was a doctor.",
+      "ja": "昨日会った男の人は医者だった。",
+      "alt": [
+        "met I",
+        "who I met him",
+        "I met him"
+      ],
+      "tip": "名詞 ＋ S ＋ V（穴あき）",
+      "why": "met の目的語（男の人）が前に出ているので、うしろは空っぽ。him を入れると二重になる。語順は I met。",
+      "p": 2
+    },
+    {
+      "en": "This is the song [we sang] at the festival.",
+      "ja": "これはお祭りで私たちが歌った歌だ。",
+      "alt": [
+        "sang we",
+        "we sang it",
+        "which we sang it"
+      ],
+      "tip": "名詞 ＋ S ＋ V（穴あき）",
+      "why": "sang の目的語は前の the song。うしろに it を入れると二重。語順は we sang。",
+      "p": 2
+    },
+    {
+      "en": "The pen [she gave] me is very nice.",
+      "ja": "彼女がくれたペンはとてもすてきだ。",
+      "alt": [
+        "gave she",
+        "she gave it",
+        "which she gave it"
+      ],
+      "tip": "名詞 ＋ S ＋ V（穴あき）",
+      "why": "gave の「物」は前の The pen。うしろに it を入れると二重。語順は she gave。",
+      "p": 2
+    },
+    {
+      "en": "Is this the key [you are looking] for?",
+      "ja": "これが君のさがしているかぎ？",
+      "alt": [
+        "are you looking",
+        "you are looking it",
+        "you look it"
+      ],
+      "tip": "名詞 ＋ S ＋ V ＋ 前置詞",
+      "why": "for の目的語（かぎ）が前に出ている。だから it は入れない。説明の中は疑問文の語順にしない。",
+      "p": 2
+    },
+    {
+      "en": "The country [I visited] last year was Italy.",
+      "ja": "去年私が訪れた国はイタリアだった。",
+      "alt": [
+        "visited I",
+        "I visited it",
+        "which I visited it"
+      ],
+      "tip": "名詞 ＋ S ＋ V（穴あき）",
+      "why": "visited の目的語（国）が前に出ているので、うしろは空っぽ。it を入れると二重。語順は I visited。",
+      "p": 2
     }
   ],
   "swhy": [
@@ -1391,6 +2055,150 @@ window.LX.plus["c1-u11"] = {
       ],
       "tip": "Therefore,「したがって」",
       "why": "Therefore,＝だから。理由を受けて結論へ。Because・Although・So that は✕。",
+      "p": 2
+    },
+    {
+      "en": "[I think] high school students should have part-time jobs.",
+      "ja": "高校生はアルバイトをすべきだと思う。",
+      "alt": [
+        "I think of",
+        "I am think",
+        "Thinking"
+      ],
+      "tip": "I think (that) ＋ 文",
+      "why": "意見は I think ＋ 文。think of のうしろは名詞。I am think は動詞が2つで ✕。",
+      "p": 0
+    },
+    {
+      "en": "[In my opinion], we should have more holidays.",
+      "ja": "私の考えでは、休日をもっと増やすべきだ。",
+      "alt": [
+        "In my opinion of",
+        "On my opinion",
+        "For my opinion"
+      ],
+      "tip": "In my opinion, ＝ 私の考えでは",
+      "why": "決まった形は In my opinion,。前置詞は in。on・for は ✕。of をつけると続きがおかしい。",
+      "p": 0
+    },
+    {
+      "en": "I [don't think] we need more homework.",
+      "ja": "もっと宿題が必要だとは思わない。",
+      "alt": [
+        "think not",
+        "not think",
+        "am not think"
+      ],
+      "tip": "not は think の方につける",
+      "why": "英語は先に「思わない」と否定する。think not・not think・am not think は ✕。",
+      "p": 0
+    },
+    {
+      "en": "I [agree with] the idea of wearing uniforms.",
+      "ja": "制服を着るという考えに賛成だ。",
+      "alt": [
+        "agree to with",
+        "am agree with",
+        "agree for"
+      ],
+      "tip": "agree with ＋ 考え・人",
+      "why": "agree は動詞なので am はつけない。考えや人に賛成は agree with。to with・for は ✕。",
+      "p": 0
+    },
+    {
+      "en": "I like dogs [because] they are friendly.",
+      "ja": "犬は人なつっこいので好きだ。",
+      "alt": [
+        "because of",
+        "due to",
+        "as for"
+      ],
+      "tip": "because ＋ S ＋ V",
+      "why": "うしろが they are 〜 の文なので because。because of・due to のうしろは名詞。",
+      "p": 1
+    },
+    {
+      "en": "We stayed inside [because of] the heavy rain.",
+      "ja": "大雨のせいで私たちは家の中にいた。",
+      "alt": [
+        "because",
+        "because for",
+        "since of"
+      ],
+      "tip": "because of ＋ 名詞",
+      "why": "うしろが the heavy rain（名詞）なので because of。because のうしろは文。",
+      "p": 1
+    },
+    {
+      "en": "I chose this school [because] it has a good library.",
+      "ja": "よい図書館があるのでこの学校を選んだ。",
+      "alt": [
+        "because of",
+        "due to",
+        "for of"
+      ],
+      "tip": "because ＋ S ＋ V",
+      "why": "うしろが it has 〜 という文なので because。because of・due to のうしろは名詞だけ。",
+      "p": 1
+    },
+    {
+      "en": "[This is because] reading is fun.",
+      "ja": "なぜなら読書は楽しいからだ。",
+      "alt": [
+        "This is why because",
+        "Because of",
+        "That because"
+      ],
+      "tip": "This is because ＋ 理由",
+      "why": "前の文の理由は This is because ＋ 文。Because of のうしろは名詞。",
+      "p": 1
+    },
+    {
+      "en": "[First], we can save money.",
+      "ja": "まず、お金を節約できる。",
+      "alt": [
+        "At first",
+        "Firstly of all",
+        "The first"
+      ],
+      "tip": "First, ＝ 理由の1つ目",
+      "why": "理由に番号をふるのは First,。At first は「はじめは（あとで変わる）」で意味がちがう。",
+      "p": 2
+    },
+    {
+      "en": "[Second], it is good for the environment.",
+      "ja": "2つ目に、環境によい。",
+      "alt": [
+        "Two",
+        "Secondary",
+        "The second of"
+      ],
+      "tip": "Second, ＝ 理由の2つ目",
+      "why": "2つ目の理由は Second,。Two は数。Secondary は「二次的な」で意味がちがう。",
+      "p": 2
+    },
+    {
+      "en": "[In conclusion], I support the plan.",
+      "ja": "結論として、私はその計画を支持する。",
+      "alt": [
+        "In conclude",
+        "At conclusion",
+        "To conclusion"
+      ],
+      "tip": "In conclusion, ＝ 結論として",
+      "why": "決まった形は In conclusion,。conclude は動詞なので in のあとに置けない。at・to は ✕。",
+      "p": 2
+    },
+    {
+      "en": "[For these reasons], I think we should walk more.",
+      "ja": "これらの理由から、もっと歩くべきだと思う。",
+      "alt": [
+        "By these reasons",
+        "For this reasons",
+        "Because these reasons"
+      ],
+      "tip": "For these reasons, ＝ まとめ",
+      "why": "まとめは For these reasons,。this は reasons と合わない。by・because は ✕。",
       "p": 2
     }
   ],
@@ -1664,6 +2472,150 @@ window.LX.plus["c1-u12"] = {
       "tip": "such as ＋ 名詞を並べる",
       "why": "国の名前（名詞）を並べるので such as。such・such like・as such は✕。",
       "p": 2
+    },
+    {
+      "en": "She is kind. She is [also] very funny.",
+      "ja": "彼女はやさしい。そのうえ、とてもおもしろい。",
+      "alt": [
+        "too also",
+        "and",
+        "either"
+      ],
+      "tip": "also は be 動詞のあと",
+      "why": "「さらに」を文の中で足すのは also。be 動詞のあとに置く。either は否定文用。and は文の中で浮く。",
+      "p": 0
+    },
+    {
+      "en": "The park is beautiful. [In addition], it is free.",
+      "ja": "その公園は美しい。さらに、無料だ。",
+      "alt": [
+        "In addition to",
+        "In additional",
+        "Addition"
+      ],
+      "tip": "In addition, ＋ 文",
+      "why": "文頭の「さらに」は In addition,。In addition to のうしろは名詞。",
+      "p": 0
+    },
+    {
+      "en": "This plan is cheap. [Moreover], it is safe.",
+      "ja": "この計画は安い。そのうえ、安全だ。",
+      "alt": [
+        "More",
+        "Moreover of",
+        "Most"
+      ],
+      "tip": "Moreover, ＝ そのうえ",
+      "why": "情報を足すのは Moreover,。More・Most だけでは「さらに」の意味にならない。of はつかない。",
+      "p": 0
+    },
+    {
+      "en": "You can study online. [Furthermore], it is free.",
+      "ja": "オンラインで勉強できる。さらに、無料だ。",
+      "alt": [
+        "Further of",
+        "Furthermore of",
+        "Farther"
+      ],
+      "tip": "Furthermore, ＝ さらに",
+      "why": "文の頭で「さらに」は Furthermore,。of はつかない。Farther は「もっと遠く」で意味がちがう。",
+      "p": 0
+    },
+    {
+      "en": "I play the guitar. My brother plays it, [too].",
+      "ja": "私はギターをひく。兄もひく。",
+      "alt": [
+        "either",
+        "so",
+        "neither"
+      ],
+      "tip": "肯定文の「〜も」＝ too",
+      "why": "「〜も」は肯定文なら文末の too。either は否定文用。so・neither は文頭で使う形。",
+      "p": 0
+    },
+    {
+      "en": "[For example], you can turn off the lights.",
+      "ja": "たとえば、電気を消すことができる。",
+      "alt": [
+        "Such as",
+        "For examples",
+        "As example"
+      ],
+      "tip": "For example, ＋ 文",
+      "why": "うしろが文なので For example,。Such as のうしろは名詞だけ。example は s をつけない。",
+      "p": 1
+    },
+    {
+      "en": "[For instance], we can walk to school.",
+      "ja": "たとえば、学校へ歩いて行ける。",
+      "alt": [
+        "For instances",
+        "In instance",
+        "By instance"
+      ],
+      "tip": "For instance, ＝ For example,",
+      "why": "例を出す決まった形は For instance,。instance に s はつけない。in・by は ✕。",
+      "p": 1
+    },
+    {
+      "en": "[For example], many people use paper bags.",
+      "ja": "たとえば、多くの人が紙ぶくろを使っている。",
+      "alt": [
+        "For examples",
+        "By example",
+        "As example"
+      ],
+      "tip": "For example, ＋ 文",
+      "why": "具体例の合図は For example,。examples と s をつけない。by・as は ✕。",
+      "p": 1
+    },
+    {
+      "en": "Some animals, [such as] bears, sleep in winter.",
+      "ja": "クマのように、冬に眠る動物もいる。",
+      "alt": [
+        "such",
+        "like as",
+        "so as"
+      ],
+      "tip": "名詞, such as 名詞,",
+      "why": "animals の例を名詞で並べるので such as。such だけ・like as・so as は形がない。",
+      "p": 2
+    },
+    {
+      "en": "I want to visit cities [such as] London and Paris.",
+      "ja": "ロンドンやパリのような都市を訪れたい。",
+      "alt": [
+        "such",
+        "as such",
+        "so as"
+      ],
+      "tip": "such as ＋ 名詞を並べる",
+      "why": "cities の例として名詞を並べるので such as。such・as such・so as では例の意味にならない。",
+      "p": 2
+    },
+    {
+      "en": "We sell fruits [like] apples and oranges.",
+      "ja": "リンゴやオレンジのような果物を売っている。",
+      "alt": [
+        "likes",
+        "liking",
+        "alike"
+      ],
+      "tip": "like ＋ 名詞 ＝ 〜のような",
+      "why": "「〜のような」は like。likes・liking は動詞の形。alike は名詞の前に置けない。",
+      "p": 2
+    },
+    {
+      "en": "Many sports, [such as] judo, started in Japan.",
+      "ja": "柔道のように、日本で始まったスポーツは多い。",
+      "alt": [
+        "such",
+        "like as",
+        "so as"
+      ],
+      "tip": "名詞, such as 名詞,",
+      "why": "sports の例を名詞で入れるので such as。such だけ・like as・so as は形がない。",
+      "p": 2
     }
   ],
   "swhy": [
@@ -1693,4 +2645,3 @@ window.LX.plus["c1-u12"] = {
     }
   ]
 };
-
