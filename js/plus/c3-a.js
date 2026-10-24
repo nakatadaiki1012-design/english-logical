@@ -311,3 +311,207 @@ window.LX.plus["c3-u06"] = {
     { en: "[Compared with] last year, sales have increased.", ja: "昨年と比べて、売り上げは増えた。", alt: ["Compare with", "Comparing to with", "Compared"], tip: "Compared with 〜＝〜と比べて" }
   ]
 };
+
+/* 解説（なぜ？・それでもわからない人へ）：points[i].why / easy、drills[j].why / p、swhy */
+(function (P) {
+  var W = {
+    "c3-u01": {
+      pt: [
+        ["英語は「だれ・何が動作するか」をはっきり言う言葉。道や電車が人を運ぶと考えれば、物を主語にした方が短く自然になる。",
+         "① 日本語「この電車に乗れば京都に行ける」。② 英語は「この電車が あなたを 京都へ 運ぶ」と考える。③ だから This train takes you to Kyoto. 物を運転手にするイメージ。"],
+        ["make・cause の後ろの人は「動かされる側」。原因を主語にすると、because 〜 の長い文が「原因→結果」の1文にまとまる。",
+         "① 「アドバイスのせいで 私は考えを変えた」。② 英語は「アドバイスが 私に 考えを変えさせた」。③ His advice made me change my mind. 原因が人の背中をおすイメージ。"],
+        ["enable は en（〜にする）＋able（できる）で「できるようにする」。prevent は「前に立ちはだかる」から、from 〜ing で「〜から遠ざける」。",
+         "① enable＝ドアを開けてあげる→ to do（これからできる）。② prevent＝通せんぼ→ from 〜ing（〜から引きはなす）。③ to と from は反対の向きと覚える。"]
+      ],
+      s: [
+        ["lead to で「〜に通じる」。leads at・goes us は言えず、brings は運ぶ物（人）が必要。", 0],
+        ["bring 人 to 場所＝人を〜へ連れていく。came・arrived は人を目的語にとれない。", 0],
+        ["prevent 人 from 〜ing の形。stopped to・kept to は from の形に合わない。", 2],
+        ["enable 人 to do。makes・lets・has は後ろが原形で、to は使えない。", 2],
+        ["make 人 原形「〜させる」。made me to は to が不要、caused は to が必要。", 1],
+        ["cause 人 to do。makes・lets・has は to をとらないのでここでは×。", 1]
+      ],
+      d: [
+        ["take 人 to 場所。goes・arrives は人を目的語にできず、reach に to は不要。", 0],
+        ["lead to 場所＝〜へ通じる。leads at は×、reach は to 不要、arrive は道に使わない。", 0],
+        ["bring 人 to 場所。came・arrived・went は me を目的語にとれない。", 0],
+        ["make 人 形容詞＝人を〜にする。caused・let は形容詞をとれず、felt は感じる側が主語。", 1],
+        ["keep 人 形容詞＝ずっと〜にしておく。made to は×、let は原形、stayed は人をとれない。", 1],
+        ["make 人 原形。make to は to が不要、let to も×、cause なら to が必要。", 1],
+        ["「何があなたに選ばせた？」で make 人 原形。caused は to が必要、let to・had to は×。", 1],
+        ["remind 人 of 〜＝思い出させる。remember は思い出す側が主語。to は不要。", 0],
+        ["prevent A from 〜ing。stopped to は形が×、made・let は from とつながらない。", 2],
+        ["enable 人 to do。made・let・had は後ろが原形なので to と合わない。", 2],
+        ["allow 人 to do＝〜できるようにする。let・make・have は原形をとるので to と×。", 2],
+        ["cause 人 to do。makes・lets・has は to をとらない。", 1]
+      ]
+    },
+    "c3-u02": {
+      pt: [
+        ["英語は名詞を主語や目的語にして文を短くまとめるのが好き。動詞を名詞にすると、主語の he は所有格 his、副詞は形容詞に変わる。",
+         "① He suddenly died.（彼は突然死んだ）。② died を名詞 death に。③ he→his、suddenly→sudden。④ His sudden death＝彼の突然の死。部品を箱につめかえるだけ。"],
+        ["形容詞は「様子」、名詞は「もの」。the difficulty of 〜 のように名詞にすると、文の主語や目的語として使えるようになる。",
+         "① difficult（むずかしい）は様子。② difficulty（むずかしさ）はもの。③ 「〜の」は of。④ the difficulty of the task＝その仕事のむずかしさ。"],
+        ["a good cook は cook（料理する人）を good がほめる形。名詞を修飾するのは形容詞なので well（副詞）ではなく good になる。",
+         "① He cooks well.（上手に料理する）。② 人を表す名詞 cook に変える。③ well は good に変身。④ He is a good cook.「上手な料理人」＝料理が上手。"]
+      ],
+      s: [
+        ["cook（料理人）は名詞なのでほめるのは形容詞 good。well は副詞、語順 a cook good も×。", 2],
+        ["主語に置く名詞の形。She suddenly died は文で主語にならず、suddenly die・dead も×。", 0],
+        ["arrive の名詞は arrival。arrive は動詞、arriving to・arrived も×。", 0],
+        ["difficult の名詞は difficulty。the のあとに形容詞・副詞・ing 形は置けない。", 1],
+        ["read→reading、carefully→careful。副詞は名詞を修飾できない。", 0],
+        ["grow の名詞は growth、rapidly は rapid に。grow は動詞なので the の後に置けない。", 0]
+      ],
+      d: [
+        ["swimmer は名詞。名詞をほめるのは good。well は副詞、語順 a swimmer good も×。", 2],
+        ["riser は「起きる人」。rise は動作、rising では人にならず、語順 a riser early も×。", 2],
+        ["kind の名詞は kindness。by の後は名詞。kind・kindly・she is kind は×。", 1],
+        ["important の名詞は importance。the の後に形容詞・副詞は置けない。", 1],
+        ["return を名詞で使い、所有格 his。he returns は文、returned も×。", 0],
+        ["decide→decision、suddenly→sudden。主語になるのは名詞のかたまり。", 0],
+        ["absent の名詞は absence。主語なので名詞が必要。absent は形容詞、absently は副詞。", 1],
+        ["discover の名詞は discovery。the の後に動詞 discover や ing to は置けない。", 0],
+        ["rest（休けい）を a short rest に。shortly は副詞なので名詞を修飾できない。", 0],
+        ["look を名詞にして a quick look。quickly は副詞なので名詞を修飾できない。", 0],
+        ["grow の名詞は growth。the の後に動詞 grow・grows や growing to は×。", 0],
+        ["increase は名詞でも使う。the の後に increasingly・increased は置けない。", 0]
+      ]
+    },
+    "c3-u03": {
+      pt: [
+        ["although は接続詞なので文（主語＋動詞）をつなぐ。despite は前置詞なので名詞しかとれない。品詞が後ろの形を決めている。",
+         "① カンマの前の部分を見る。② 「he was tired」のように主語と動詞があれば although。③ 「the rain」のように名詞だけなら despite。後ろを見て決めるだけ。"],
+        ["if は「もしも」なので、起こるかわからないこと。though は「〜だけれど」なので本当に起きたこと。even はそれを強めるだけ。",
+         "① 明日の雪はまだわからない→ even if（たとえ〜でも）。② 勉強したのは本当→ even though（〜したのに）。③ 「もしも」か「本当」かで選ぶ。"],
+        ["unless は if not の意味をもともと持っている。だから not を入れると二重否定になる。時や条件の節なので未来も現在形。",
+         "① unless＝「〜しないなら」。② You can't enter unless you have a ticket.＝チケットがないなら入れない。③ not はもう入っているので足さない。"]
+      ],
+      s: [
+        ["後ろが he was tired（主語＋動詞）なので接続詞 although。despite などは名詞だけ。", 0],
+        ["後ろが the rain（名詞）なので前置詞 despite。although・even though は文が必要。", 0],
+        ["雪はまだ起きていない「たとえ〜でも」で even if。even だけ・despite は文をつなげない。", 1],
+        ["チケットがない限り入れない→ unless。if では逆の意味、as long as は「〜さえすれば」。", 2],
+        ["静かにしていさえすれば→ as long as。unless は逆の意味、despite は名詞をとる。", 2],
+        ["勉強したのは事実なので even though。despite は名詞のみ、unless・as long as は条件。", 1]
+      ],
+      d: [
+        ["後ろが it was cold（文）なので although。despite などは名詞しかとれない。", 0],
+        ["後ろが he is young（文）で though。despite は名詞のみ、in spite は of 不足。", 0],
+        ["後ろが名詞 the heavy rain で despite。although・though は文が必要。", 0],
+        ["in spite of＋名詞。although は文が必要、despite of は of が余分。", 0],
+        ["失敗するかはわからない→ even if。even だけでは文をつなげず、despite は名詞のみ。", 1],
+        ["遅かったのは事実→ even though。even だけ・despite・in spite of は文をつなげない。", 1],
+        ["勉強しない限り合格しない→ unless。unless not は二重否定、despite は名詞のみ。", 2],
+        ["返しさえすれば→ as long as。as long は as が不足、despite は名詞のみ。", 2],
+        ["雪が降らない限り→ unless。despite・in spite of は名詞のみ、even だけでは×。", 2],
+        ["his injury は名詞で in spite of。although は文が必要、in spite は×。", 0],
+        ["かぜをひいていたのは事実→ even though。despite は名詞のみ、even だけでは×。", 1],
+        ["気をつけさえすれば→ as long as。unless not は×、despite は名詞のみ。", 2]
+      ]
+    },
+    "c3-u04": {
+      pt: [
+        ["英語の文章は「結論が先」が基本。読み手は最初の1文で立場を知り、その後の理由をその立場の証拠として読むから。",
+         "① ハンバーガーの上のパン＝主張。② 最初に「〜だと思う」と言い切る。③ 理由はそのあと。答えを先に言うクイズ番組だと思えばよい。"],
+        ["理由だけだと「本当？」と思われる。例があると読み手が具体的に想像でき、理由が事実に支えられて説得力が増す。",
+         "① 理由＝「スマホは便利」。② 例＝「旅行で地図アプリを使う」。③ 理由と例をセットで出す。お肉（理由）と野菜（例）をはさむイメージ。"],
+        ["結論は主張をもう一度確認する場所。新しい理由を出すと、それを支える例がないまま終わり、文章がぼやけるから。",
+         "① ハンバーガーの下のパン＝結論。② For these reasons, で始める。③ 最初の主張を言いかえる。④ 新しい話はしない。ふたをして終わり。"]
+      ],
+      s: [
+        ["believe that S V＝〜だと思う。I am believe は be 動詞が余分。", 0],
+        ["in my opinion が決まった形。on・by は前置詞がちがい、opinions of も×。", 0],
+        ["reason for 〜＝〜の理由。to・at・with は reason とつながらない。", 1],
+        ["理由の1つ目は First,。At first は「はじめは（あとで変わる）」で意味がちがう。", 1],
+        ["In conclusion,＝結論として。conclude は動詞で、at・to も前置詞がちがう。", 2],
+        ["For these reasons,。this reasons は数が合わず、by は理由の前置詞にならない。", 2]
+      ],
+      d: [
+        ["believe that S V。I am believe は be 動詞が余分、believe to は×。", 0],
+        ["in my opinion が決まった形。on・by は前置詞がちがい、opinions of も×。", 0],
+        ["agree は動詞なので be 動詞は不要。agree to with・agreeing は×。", 0],
+        ["be against 〜＝〜に反対。against to は to が余分、oppose は be の後に置けない。", 0],
+        ["two のあとは複数形 reasons。two reason・two of reason は×。", 1],
+        ["理由の1つ目は First,。At first は「最初は〜（後で変わる）」で意味がちがう。", 1],
+        ["2つ目の理由は Second,。Secondary は「二次的な」、Two は数だけ。", 1],
+        ["For example, が決まった形。examples・By example・Example for は×。", 1],
+        ["最後の理由は Finally,。Final は形容詞、At final・In finally は×。", 1],
+        ["In conclusion,＝結論として。conclude は動詞、at・to は前置詞が×。", 2],
+        ["For these reasons,。this reasons は数が合わず、by・because も×。", 2],
+        ["That is why＝だから〜。the why・That why・This is reason は×。", 2]
+      ]
+    },
+    "c3-u05": {
+      pt: [
+        ["反対意見を自分で先に出しておくと、読み手の「でも〜では？」に先回りできる。そのうえで打ち消すので主張が強くなる。",
+         "① 「〜と言う人もいる」と相手の考えを紹介。② 「たしかにそうだ」と少し認める。③ 「しかし」で自分の考えを言う。ボールを受けてから投げ返す。"],
+        ["相手の正しい点を認めると、書き手が公平な人だと伝わる。読み手は心を開くので、そのあとの but 以下の反論が届きやすくなる。",
+         "① 友だちと意見が合わないとき、まず「たしかにね」と言うと話が進む。② 英語では It is true that 〜。③ その後に but で自分の考え。"],
+        ["However は副詞なので、2つの文を1文につなぐ力はない。だから文の頭に置いてカンマを打ち、前の文とは別の文として書く。",
+         "① 前の文をピリオドで終える。② 次の文の頭に However,。③ そのあとに自分の主張と理由。However は「でもね」と話を切りかえる合図。"]
+      ],
+      s: [
+        ["people は複数なので argue that。argues は主語が1人のとき、argue to は×。", 0],
+        ["It is true that 〜 の形。truth は名詞、truly は副詞で be の後に合わない。", 1],
+        ["文頭で話を切りかえるのは However,。although は文が2つ必要、despite は名詞のみ。", 2],
+        ["it は単数なので costs、much は量。many は数えるものにしか使わない。", 0],
+        ["On the other hand が決まった形。the が必要で、another・others は×。", 2],
+        ["understand は状態の動詞で進行形にしない。understand to も×。", 1]
+      ],
+      d: [
+        ["people は複数なので argue that。argues は主語が1人のとき、argue to は×。", 0],
+        ["people は複数なので say that。says・saying・say to は×。", 0],
+        ["It is true that 〜 の形。truth は名詞、truly は副詞なので×。", 1],
+        ["Of course,＝もちろん。courses・In course・By course は×。", 1],
+        ["文頭で話を切りかえる However,。although は文が2つ必要、despite は名詞のみ。", 2],
+        ["On the other hand が決まった形。the が必要で、another・others は×。", 2],
+        ["I see your point＝言いたいことはわかる。look・watch には「わかる」の意味がない。", 1],
+        ["be 動詞＋形容詞 difficult。difficulty は名詞、語順 too difficult is は×。", 0],
+        ["Even so,＝それでも。Even if・Even though は後ろに文が必要、Even だけも×。", 2],
+        ["may＋動詞の原形。sounds・sounding・to sound は may の後に置けない。", 1],
+        ["Nevertheless,＝それにもかかわらず。Never・Neverless は別の語、of は不要。", 2],
+        ["be 動詞＋形容詞 convincing。convincingly は副詞、does・convince は形が×。", 2]
+      ]
+    },
+    "c3-u06": {
+      pt: [
+        ["increase・decrease・rise・fall は「自分で増える・減る」動き。主語が自分で動くので受け身にせず、様子は副詞で表す。",
+         "① 売り上げが 自分で 上がる→ Sales increased。② どのくらい？→ 動詞の後に副詞 sharply（急に）。③ 動詞の様子は -ly の副詞。"],
+        ["account for は「〜の分を説明する→占める」という意味の決まった形。percent は「100あたり」という単位なので s をつけない。",
+         "① ピザ全体＝利用者全員。② 若者がそのうち半分を食べた→ Young people account for half。③ 「何％の〜」は 〜 percent of 名詞。"],
+        ["最初に何のグラフかを示さないと、読み手は数字の意味がわからない。期間は from A to B で始まりと終わりをはっきりさせる。",
+         "① まず「このグラフは〜を示す」と紹介。② 次に「いつからいつまで」。③ 最後に「どう変わったか」。テレビの天気予報と同じ順番。"]
+      ],
+      s: [
+        ["グラフ（単数）が示す→ shows。show は主語が複数、says to・is showing of は×。", 2],
+        ["動詞の様子は副詞 sharply。sharp は形容詞、increase は受け身にしない。", 0],
+        ["動詞の様子は副詞 slightly。slight は形容詞、decrease は受け身にしない。", 0],
+        ["account for＝〜を占める。for が必要で、of・受け身は×。", 1],
+        ["「〜の何％」は percent of 名詞。percent に s はつけず、of も必要。", 1],
+        ["from A to B で始まりと終わり。since・until・between to は組み合わせが×。", 2]
+      ],
+      d: [
+        ["動詞の様子は副詞 slightly。slight は形容詞、increase は受け身にしない。", 0],
+        ["fall の様子は副詞 sharply。fall は自分で下がる動詞なので受け身にしない。", 0],
+        ["rise の様子は副詞 gradually。rise は受け身にできず、gradual は形容詞。", 0],
+        ["account for＝〜を占める。for が必要で、of や受け身は×。", 1],
+        ["「〜の何％」は percent of 名詞。percents・percentage は×。", 1],
+        ["グラフ（単数）が示す→ shows。show は複数の主語、says to は×。", 2],
+        ["from A to B で始まりと終わり。since・until・between to の組み合わせは×。", 2],
+        ["double＝2倍になる。自分で増える動きなので受け身にせず、過去形 doubled。", 0],
+        ["more than half of＝半分より多くの。a half of・More half・Most than は×。", 1],
+        ["remain＋形容詞 stable＝安定したままだ。stably は副詞、受け身も×。", 0],
+        ["reach は前置詞なしで目的語をとる。reach to は×、受け身にもしない。", 0],
+        ["Compared with 〜＝〜とくらべて。Compare は命令形、Compared だけは with が不足。", 2]
+      ]
+    }
+  };
+  Object.keys(W).forEach(function (id) {
+    var u = P[id], w = W[id]; if (!u) return;
+    u.points.forEach(function (pt, i) { if (w.pt[i]) { pt.why = w.pt[i][0]; pt.easy = w.pt[i][1]; } });
+    u.drills.forEach(function (d, j) { if (w.d[j]) { d.why = w.d[j][0]; d.p = w.d[j][1]; } });
+    u.swhy = w.s.map(function (x) { return { why: x[0], p: x[1] }; });
+  });
+})(window.LX.plus);
