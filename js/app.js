@@ -49,7 +49,9 @@
     else if (g === 1) { c.b = Math.max(0, c.b - 1); c.due = t + 1; }
     else { c.b = 0; c.due = t; }
     c.n = (c.n || 0) + 1; S.srs[id] = c; save(); badge();
+    if (window.LXG) LXG.count(); earn([1, 2, 5][g]);
   }
+  function earn(n) { if (window.LXG) LXG.earn(n); }
   function enroll(id, due) { if (!S.srs[id]) { S.srs[id] = { b: 0, due: due, n: 0 }; } }
 
   /* ---------- 小さな道具 ---------- */
@@ -132,11 +134,6 @@
     if (S.theme) r.setAttribute('data-theme', S.theme); else r.removeAttribute('data-theme');
     r.setAttribute('data-size', S.size);
   }
-  $('#btnTheme').onclick = function () {
-    var dark = S.theme ? S.theme === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
-    S.theme = dark ? 'light' : 'dark'; save(); applyLook();
-  };
-  $('#btnSize').onclick = function () { S.size = (S.size + 1) % 3; save(); applyLook(); toast(['小さい文字', 'ふつうの文字', '大きい文字'][S.size]); };
   $('#brand').onclick = function () { go('#' + S.course); };
   $('#btnReview').onclick = function () { go('#review'); };
   $('#btnTask').onclick = function () { openTask(); };
@@ -155,8 +152,10 @@
   function go(h) { if (location.hash === h) route(); else location.hash = h; }
   function route() {
     if (hasTTS) speechSynthesis.cancel();
+    if (window.LXG) LXG.leave();
     var h = decodeURIComponent(location.hash.slice(1));
     if (h.indexOf('task=') === 0) { takeTask(h.slice(5)); return; }
+    if (window.LXG && LXG.route(h)) { clearInterval(timer); V = { view: 'game' }; document.body.setAttribute('data-view', 'game'); nav(); badge(); return; }
     var p = h.split('/');
     if (UNITS[p[0]]) {
       var u = UNITS[p[0]], st = STEPS.some(function (x) { return x.k === p[1]; }) ? p[1] : firstStep(u);
@@ -203,6 +202,7 @@
       '<div class="acts">' +
       (next ? '<button type="button" class="btn main" data-go="' + next.id + '">▶ ' + (prog(next.id).sec ? '続きから' : 'はじめる') + '：' + esc(next.title) + '</button>' : '<button type="button" class="btn main" data-act="review">🎉 全単元 合格！ 復習しよう</button>') +
       '<button type="button" class="btn' + (due ? ' warm' : '') + '" data-act="review">🔁 今日の復習' + (due ? '（' + due + '文）' : '') + '</button>' +
+      '<button type="button" class="btn gamebtn" data-go="game">🎮 タイムアタック・クラス対戦</button>' +
       '</div>' +
       '<div class="cycle"><h3>おぼえ方（1 単元＝6 ステップ）</h3><ol>' +
       STEPS.map(function (s) { return '<li><span>' + s.ico + '</span><b>' + s.name + '</b><span>' + s.what + '</span></li>'; }).join('') +
@@ -419,6 +419,7 @@
     }
     pr.tries++; pr.best = Math.max(pr.best, sc);
     if (sc >= PASS) {
+      earn(pr.pass ? 50 : 150);
       if (!pr.pass) { pr.pass = 1; pr.at = today(); }
       pr.st.test = 1;
       V.u.sentences.forEach(function (s) { enroll(s.id, t + 1); });
@@ -496,6 +497,7 @@
       case 'read': {
         var a2 = ans(); a2.r = (a2.r || 0) >= 3 ? 0 : (a2.r || 0) + 1;
         if (a2.r >= 3) a2.ok = true;
+        if (a2.r) earn(1);
         renderUnit(); break;
       }
       case 'clear': ans().b = []; renderUnit(); break;
@@ -519,6 +521,7 @@
   function checkOrder() {
     var a = ans(); if (a.b.length < a.t.tiles.length) return;
     a.done = 1; a.ok = a.b.every(function (i, pos) { return a.t.tiles[i] === a.t.tiles[pos]; });
+    if (a.ok) earn(10);
     var s = V.step === 'test' ? V.test[V.page].s : V.u.sentences[V.page];
     if (V.step !== 'test') speak(s.en);
     if (V.step === 'test' && V.page === TEST_N - 1) finishTest();
@@ -527,6 +530,7 @@
     var a = ans(); if (a.done) return;
     var s = V.step === 'test' ? V.test[V.page].s : V.u.sentences[V.page];
     a.pick = a.ch[i]; a.done = 1; a.ok = a.pick === s.key;
+    if (a.ok) earn(10);
     if (V.step !== 'test') speak(s.en);
     if (V.step === 'test' && V.page === TEST_N - 1) finishTest();
     renderUnit();
@@ -630,6 +634,11 @@
   if (hasTTS) { speechSynthesis.getVoices(); speechSynthesis.onvoiceschanged = function () { }; }
   window.addEventListener('hashchange', route);
   if (!location.hash) history.replaceState(null, '', '#' + S.course);
+  window.LXAPP = {
+    S: function () { return S; }, save: save, esc: esc, toast: toast, view: view, applyLook: applyLook,
+    COURSES: COURSES, UNITS: UNITS, SENTS: SENTS, prog: prog, dayNo: dayNo, today: today,
+    tilesOf: tilesOf, blankEn: blankEn, speak: speak
+  };
+  if (window.LXG) LXG.init();
   route();
-  window.LXAPP = { tilesOf: tilesOf, S: function () { return S; } }; // 確認用
 })();
