@@ -834,23 +834,22 @@ dialog::backdrop { background: rgba(0, 0, 0, .35); }
 #view { position: relative; }
 .scene { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
 .unit.play { position: relative; z-index: 1; }
-.unit.play .card { background: color-mix(in srgb, var(--panel) 58%, transparent); }
+.unit.play .card { background: var(--panel); background: color-mix(in srgb, var(--panel) 58%, transparent); }
 .unit.play.boost .card { background: radial-gradient(circle at 50% 130%, rgba(255, 159, 28, .25), transparent 60%), color-mix(in srgb, var(--panel) 58%, transparent); }
 /* 宇宙では カードを 夜の色に（文字は 白） */
 .unit.play.space .card { --panel: #121a2b; --ink: #eef2f7; --muted: #aab6c6; --line: #2f3d56; --bg: #0d1424; --chip: #1c2740; --accent: #8cc5a6; --accent-soft: rgba(140, 197, 166, .22); --warm: #eda26b; --warm-soft: rgba(237, 162, 107, .22); color: var(--ink); background: rgba(10, 16, 30, .55); border-color: #2f3d56; transition: background .8s; }
 .unit.play.space.boost .card { background: radial-gradient(circle at 50% 130%, rgba(255, 159, 28, .25), transparent 60%), rgba(10, 16, 30, .55); }
 /* 景色の上でも 読めるように：文字に 台紙色の ふち、カード類は 不透明 */
 .unit.play .ja, .unit.play .en, .unit.play .lab, .unit.play .result p, .unit.play .result .score, .unit.play .arrive, .unit.play .count small { text-shadow: 0 0 2px var(--panel), 0 0 7px var(--panel); }
-/* 問題文は 背景に うもれないように「ふちどり」＋ うすい 下じき */
-.unit.play .mid .ja, .unit.play .mid .en { -webkit-text-stroke: 4px var(--panel); paint-order: stroke fill; text-shadow: 0 0 3px var(--panel), 0 0 10px var(--panel), 0 0 18px var(--panel); }
-.unit.play .mid .ja.big { -webkit-text-stroke-width: 5px; }
+/* 問題文は 背景に うもれないように 台紙に のせる */
 .unit.play .mid .ja { color: var(--ink); font-weight: 600; }
-.unit.play .mid .ja, .unit.play .mid .en { width: fit-content; max-width: 100%; background: color-mix(in srgb, var(--panel) 62%, transparent); border-radius: 10px; padding: 2px 10px; }
-.unit.play .slots { background: color-mix(in srgb, var(--panel) 70%, transparent); }
+/* どの端末でも 同じに 見えるよう、新しい CSS（文字の ふち・色の まぜ）は 使わず 不透明の 台紙に のせる */
+.unit.play .mid .ja, .unit.play .mid .en { width: fit-content; max-width: 100%; background: var(--panel); border: 1.5px solid var(--line); border-radius: 10px; padding: 4px 12px; box-shadow: 0 2px 8px rgba(0, 0, 0, .18); text-shadow: none; }
+.unit.play .slots { background: var(--panel); background: color-mix(in srgb, var(--panel) 70%, transparent); }
 .unit.play .tl, .unit.play .choice { background: var(--panel); }
 .unit.play .choice.ok { background: color-mix(in srgb, var(--accent-soft) 100%, var(--panel)); }
 .unit.play .choice.ng { background: color-mix(in srgb, var(--warm-soft) 100%, var(--panel)); }
-.unit.play .hud, .unit.play .hud2 { background: color-mix(in srgb, var(--panel) 90%, transparent); border-radius: 10px; padding: 4px 6px; }
+.unit.play .hud, .unit.play .hud2 { background: var(--panel); background: color-mix(in srgb, var(--panel) 90%, transparent); border-radius: 10px; padding: 4px 6px; }
 .unit.play .hud2 { margin-top: 0; }
 .unit.play .cin { gap: clamp(6px, 1.6cqh, 14px); }
 /* 高さの低い画面の 結果：細かい行を省く */
