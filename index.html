@@ -930,7 +930,7 @@ dialog::backdrop { background: rgba(0, 0, 0, .35); }
   .lab > span:not(.pill) { white-space: nowrap; }
   .choice { padding: 6px 8px; }
   .tools .badge { position: absolute; top: -7px; right: -7px; margin: 0; }
-  :root[data-size="2"] { --k: 1.05; }
+  :root[data-size="2"] { --k: 1.12; }
 }
 /* 高さの低いスマホ（縦向き） */
 @media (max-width: 720px) and (max-height: 640px) and (orientation: portrait) {
@@ -943,7 +943,7 @@ dialog::backdrop { background: rgba(0, 0, 0, .35); }
   .mid { gap: 8px; }
   .hero .acts .btn { padding: 5px 8px; }
   .fbar .btn { padding: 5px 12px; }
-  :root[data-size="2"] { --k: 1; }
+  :root[data-size="2"] { --k: 1.08; }
 }
 /* 横向きのスマホ（高さが低い）：上のバーをしまって カードを大きく */
 @media (max-height: 500px) and (orientation: landscape) {
@@ -1107,6 +1107,7 @@ body[data-room] .tools, body[data-room] .cnav { visibility: hidden; pointer-even
 @media (min-width: 760px) and (max-width: 900px) and (orientation: portrait) {
   .grid { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; grid-template-rows: repeat(4, minmax(0, 1fr)) !important; }
 }
+@media (max-height: 500px) and (orientation: landscape) { :root[data-size="2"] { --k: 1.05; } }
 </style>
 </head>
 <body>
