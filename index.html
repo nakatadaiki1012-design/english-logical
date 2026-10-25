@@ -841,6 +841,11 @@ dialog::backdrop { background: rgba(0, 0, 0, .35); }
 .unit.play.space.boost .card { background: radial-gradient(circle at 50% 130%, rgba(255, 159, 28, .25), transparent 60%), rgba(10, 16, 30, .55); }
 /* 景色の上でも 読めるように：文字に 台紙色の ふち、カード類は 不透明 */
 .unit.play .ja, .unit.play .en, .unit.play .lab, .unit.play .result p, .unit.play .result .score, .unit.play .arrive, .unit.play .count small { text-shadow: 0 0 2px var(--panel), 0 0 7px var(--panel); }
+/* 問題文は 背景に うもれないように「ふちどり」＋ うすい 下じき */
+.unit.play .mid .ja, .unit.play .mid .en { -webkit-text-stroke: 4px var(--panel); paint-order: stroke fill; text-shadow: 0 0 3px var(--panel), 0 0 10px var(--panel), 0 0 18px var(--panel); }
+.unit.play .mid .ja.big { -webkit-text-stroke-width: 5px; }
+.unit.play .mid .ja { color: var(--ink); font-weight: 600; }
+.unit.play .mid .ja, .unit.play .mid .en { width: fit-content; max-width: 100%; background: color-mix(in srgb, var(--panel) 62%, transparent); border-radius: 10px; padding: 2px 10px; }
 .unit.play .slots { background: color-mix(in srgb, var(--panel) 70%, transparent); }
 .unit.play .tl, .unit.play .choice { background: var(--panel); }
 .unit.play .choice.ok { background: color-mix(in srgb, var(--accent-soft) 100%, var(--panel)); }
