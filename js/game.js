@@ -1163,7 +1163,18 @@
     var R = rng(seed), src = poolAll(cfg), list = [], qs = [];
     while (list.length < qN(cfg) && src.length) list = list.concat(rshuffle(src, R));
     list.slice(0, qN(cfg)).forEach(function (s) {
-      var opts, type = R() < 0.5 ? 'cloze' : 'pick';
+      var opts, x = R(), type = x < 0.4 ? 'cloze' : x < 0.75 ? 'pick' : 'order';
+      if (type === 'order') { // 並べかえ：英文を 4 つの かたまりに 分けて 正しい 順に タップ
+        var t = A().tilesOf(s), tl = t.tiles, ch = [];
+        if (tl.length >= 4) for (var g = 0; g < 4; g++) ch.push(tl.slice(Math.round(g * tl.length / 4), Math.round((g + 1) * tl.length / 4)).join(' '));
+        var dup = ch.some(function (c, i) { return ch.indexOf(c) !== i; });
+        if (ch.length === 4 && !dup) {
+          var od = rshuffle([0, 1, 2, 3], R); if (od.join('') === '0123') od = [1, 3, 0, 2];
+          qs.push({ s: s, type: 'order', opts: od.map(function (i) { return ch[i]; }), ans: [0, 1, 2, 3].map(function (k) { return od.indexOf(k); }).join(''), end: t.end });
+          return;
+        }
+        type = 'cloze';
+      }
       if (type === 'cloze') opts = [s.key].concat(s.alt);
       else opts = [s.plain].concat(s.alt.map(function (a) { return s.en.replace(/\[[^\]]+\]/, a); }));
       var ord = rshuffle([0, 1, 2, 3], R);
@@ -1177,6 +1188,7 @@
     var s = q.s;
     var parts = s.en.split(/\[[^\]]+\]/);
     if (q.type === 'cloze') return '<p class="qen' + (big ? ' big' : '') + '">' + esc(parts[0]) + '<span class="qblank"></span>' + esc(parts[1] || '') + '</p><p class="qja">' + esc(s.ja) + '</p>';
+    if (q.type === 'order') return '<p class="qlab">🧩 正しい 順に タップ！</p><p class="qen ja' + (big ? ' big' : '') + '">' + esc(s.ja) + '</p>';
     return '<p class="qlab">正しい 英文は どれ？</p><p class="qen ja' + (big ? ' big' : '') + '">' + esc(s.ja) + '</p>';
   }
   function qAnswered(room) { return playersOf(room, room.round).filter(function (p) { return p.a && p.a.q === room.qi; }); }
@@ -1198,7 +1210,7 @@
       : { state: 'q', qi: r.qi + 1, qAt: Math.round(now() + qRead(r.cfg, r.seed, r.qi + 1)) };
     if (o.state === 'board') { // 問題ごとの 正答率を のこす（ぎりぎりの 回答も ふくめて。あとで 復習に 使う）
       var q = quizQs(r.cfg, r.seed)[r.qi], ans = qAnswered(r);
-      o['stat/' + r.qi] = { ok: ans.filter(function (p) { return p.a.c === q.ans; }).length, n: playersOf(r, r.round).length };
+      o['stat/' + r.qi] = { ok: ans.filter(function (p) { return p.a.ok; }).length, n: playersOf(r, r.round).length }; void q;
     }
     H.qbusy = true;
     api('PATCH', 'rooms/' + H.code, o).then(function () { H && (H.qbusy = false); }, function () { H && (H.qbusy = false); toast('つながりません'); });
@@ -1275,16 +1287,19 @@
     } else {
       var rev = r.state === 'reveal', cnt = [0, 0, 0, 0];
       ans.forEach(function (p) { if (p.a.c >= 0 && p.a.c < 4) cnt[p.a.c]++; });
-      var mx = Math.max(1, Math.max.apply(null, cnt));
-      head += rev ? '<span class="qzsub">正解 <b>' + cnt[q.ans] + '</b> 人 / ' + ps.length + ' 人</span></div>'
+      var mx = Math.max(1, Math.max.apply(null, cnt)), okN = ans.filter(function (p) { return p.a.ok; }).length, ord = q.type === 'order';
+      head += rev ? '<span class="qzsub">正解 <b>' + okN + '</b> 人 / ' + ps.length + ' 人</span></div>'
         : '<span class="qzsub">回答 <b id="qzn">' + ans.length + ' / ' + ps.length + '</b></span><span class="qzsec" id="qzs">' + (t < r.qAt ? 'よーい…' : Math.ceil(lim / 1000)) + '</span></div>' +
           '<div class="tbar host"><i id="qzt" style="width:100%"></i></div>';
       body = '<div class="qzq">' + qStem(q, true) + '</div>' +
-        '<div class="qzopts' + (q.type === 'pick' ? ' long' : '') + (rev ? ' rev' : '') + '">' + q.opts.map(function (o, i) {
+        (rev && ord ? '<div class="qzopts rev seq">' + q.ans.split('').map(function (d, k) { // 並べかえの 答え：正しい 順に 1〜4
+          var i = +d; return '<div class="qo ' + QCOL[i][1] + ' ok"><span class="no4">' + (k + 1) + '</span><span class="sh">' + QCOL[i][0] + '</span><span class="tx">' + esc(q.opts[i]) + '</span></div>';
+        }).join('') + '</div>'
+        : '<div class="qzopts' + (q.type === 'pick' ? ' long' : '') + (rev ? ' rev' : '') + '">' + q.opts.map(function (o, i) {
           return '<div class="qo ' + QCOL[i][1] + (rev ? (i === q.ans ? ' ok' : ' no') : '') + '"><span class="sh">' + QCOL[i][0] + '</span><span class="tx">' + esc(o) + '</span>' +
             (rev ? '<span class="ct"><i style="width:' + (cnt[i] / mx * 100).toFixed(0) + '%"></i><b>' + cnt[i] + '</b></span>' + (i === q.ans ? '<span class="ck">✓</span>' : '') : '') + '</div>';
-        }).join('') + '</div>' +
-        (rev ? '<div class="qzwhy">' + (q.type === 'pick' ? '<b>' + esc(q.s.plain) + '</b>' : '') + (q.s.why ? '<span>💡 ' + esc(q.s.why) + '</span>' : '') + '</div>' +
+        }).join('') + '</div>') +
+        (rev ? '<div class="qzwhy">' + (q.type !== 'cloze' ? '<b>' + esc(q.s.plain) + '</b>' : '') + (q.s.why ? '<span>💡 ' + esc(q.s.why) + '</span>' : '') + '</div>' +
           '<div class="qzfoot"><button type="button" class="btn ghost" data-ga="qsay">🔊 正しい英文を 聞く</button><button type="button" class="btn main big" data-ga="qnext">ランキング ▶</button></div>'
           : '<div class="qzfoot"><button type="button" class="btn ghost" data-ga="qnext">⏭ しめきる</button></div>');
       el.innerHTML = '<div class="bh">' + head + '</div>' + body;
@@ -1331,7 +1346,9 @@
         '<div class="qzq">' + qStem(q) + '</div>' +
         '<div class="qzbtns' + (q.type === 'pick' ? ' long' : '') + '">' + q.opts.map(function (o, i) {
           return '<button type="button" class="qb ' + QCOL[i][1] + '" data-qa="' + i + '"' + (open ? '' : ' disabled') + '><span class="sh">' + QCOL[i][0] + '</span><span class="tx">' + esc(o) + '</span></button>';
-        }).join('') + '</div>';
+        }).join('') + '</div>' +
+        (q.type === 'order' ? '<div class="qzseq"><span id="qzsq">タップした 順： </span><button type="button" class="btn ghost" data-ga="qreset">↺ やり直す</button></div>' : '');
+      B.qzSeq = [];
       B.qzT = setInterval(function () { // 時計（よーい → 開始 → 残り時間）
         var t = now(), tf = $('#qzt'), ts = $('#qzs'); if (!tf) { clearInterval(B.qzT); return; }
         if (t < room.qAt) { ts.textContent = 'よーい…'; return; }
@@ -1340,8 +1357,9 @@
         if (!left) { clearInterval(B.qzT); qMiss(room); quizStudent(room); }
       }, 100);
     } else if (room.state === 'q') {
-      mid = '<div class="qzwait"><span class="qb big ' + (mine.c >= 0 ? QCOL[mine.c][1] : 'none') + '"><span class="sh">' + (mine.c >= 0 ? QCOL[mine.c][0] : '⌛') + '</span></span>' +
-        '<p class="h">' + (mine.c >= 0 ? '回答しました！' : '時間切れ…') + '</p><p class="note">先生の 画面で 答え合わせを 待っています</p></div>';
+      var cc = typeof mine.c === 'string' ? -2 : mine.c; // -2：並べかえ
+      mid = '<div class="qzwait"><span class="qb big ' + (cc >= 0 ? QCOL[cc][1] : cc === -2 ? 'seq' : 'none') + '"><span class="sh">' + (cc >= 0 ? QCOL[cc][0] : cc === -2 ? '🧩' : '⌛') + '</span></span>' +
+        '<p class="h">' + (cc !== -1 ? '回答しました！' : '時間切れ…') + '</p><p class="note">先生の 画面で 答え合わせを 待っています</p></div>';
     } else if (room.state === 'reveal') {
       var ok = mine && mine.ok;
       var awk = B.code + '|' + room.round + '|' + room.qi, sv = S(); sv.qzAw = sv.qzAw || [];
@@ -1349,9 +1367,9 @@
         Z.shown = awk; FX(ok ? 'ok' : 'miss'); if (ok && window.LXFX) LXFX.burst(40);
         if (ok && sv.qzAw.indexOf(awk) < 0) { sv.qzAw = sv.qzAw.concat(awk).slice(-60); earn(10); }
       }
-      mid = '<div class="qzres ' + (ok ? 'ok' : 'ng') + '"><b class="mk">' + (ok ? '⭕ 正解！' : mine && mine.c >= 0 ? '❌ ざんねん' : '⌛ 時間切れ') + '</b>' +
+      mid = '<div class="qzres ' + (ok ? 'ok' : 'ng') + '"><b class="mk">' + (ok ? '⭕ 正解！' : mine && mine.c !== -1 ? '❌ ざんねん' : '⌛ 時間切れ') + '</b>' +
         (ok ? '<p class="pt">+' + fmt(mine.p) + ' 点' + (Z.k >= 2 ? '　<span class="fire">🔥 ' + Z.k + ' 連続</span>' : '') + '</p>' : '') +
-        '<p class="ans"><span class="sh ' + QCOL[q.ans][1] + '">' + QCOL[q.ans][0] + '</span> ' + esc(q.type === 'pick' ? q.s.plain : q.opts[q.ans]) + '</p>' +
+        '<p class="ans">' + (q.type === 'order' ? '' : '<span class="sh ' + QCOL[q.ans][1] + '">' + QCOL[q.ans][0] + '</span> ') + esc(q.type === 'cloze' ? q.opts[q.ans] : q.s.plain) + '</p>' +
         (q.s.why ? '<p class="note">💡 ' + esc(q.s.why) + '</p>' : '') +
         '<p class="rk"><small>いま</small><b id="qzrk">' + rk + '</b><small>位 / <span id="qzrn">' + lst.length + '</span> 人</small></p></div>';
     } else { // board
@@ -1379,7 +1397,16 @@
     var room = B && B.room; if (!room || room.state !== 'q' || !B.qz) return;
     var Z = B.qz, t = now() - room.qAt, lim = qT(room.cfg) * 1000;
     if (Z.got[room.qi] || t < 0 || t > lim + 300) return;
-    var q = quizQs(room.cfg, room.seed)[room.qi], ok = i === q.ans, p = ok ? qPts(t, lim, Z.k) : 0;
+    var q = quizQs(room.cfg, room.seed)[room.qi];
+    if (q.type === 'order') { // 4 つを 順に。そろったら 送る
+      var sq = B.qzSeq = B.qzSeq || []; if (sq.indexOf(i) >= 0) return;
+      sq.push(i); FX('tap', sq.length * 4);
+      var bt = document.querySelector('.qb[data-qa="' + i + '"]'); if (bt) { bt.classList.add('picked'); bt.setAttribute('data-n', sq.length); }
+      var lb = $('#qzsq'); if (lb) lb.textContent = 'タップした 順： ' + sq.map(function (k) { return QCOL[k][0]; }).join(' → ');
+      if (sq.length < 4) return;
+      i = sq.join('');
+    }
+    var ok = q.type === 'order' ? i === q.ans : i === q.ans, p = ok ? qPts(t, lim, Z.k) : 0;
     Z.k = ok ? Z.k + 1 : 0; Z.s += p; if (ok) Z.ok++;
     Z.got[room.qi] = { c: i, ok: ok, p: p };
     FX('tap', 0);
@@ -1423,6 +1450,7 @@
         case 'settings': openSettings(); break;
         case 'join': join(); break;
         case 'mkroom': makeRoom(d.ga.split(':')[1]); break;
+        case 'qreset': if (B) { B.qzSeq = []; document.querySelectorAll('.qb.picked').forEach(function (x) { x.classList.remove('picked'); x.removeAttribute('data-n'); }); var lb = $('#qzsq'); if (lb) lb.textContent = 'タップした 順： '; } break;
         case 'qsay': { var rq = H && H.room, qq = rq && quizQs(rq.cfg, rq.seed)[rq.qi]; if (qq) A().speak(qq.s.plain); break; }
         case 'hstart': hostStart(); break;
         case 'qnext': quizNext(); break;
