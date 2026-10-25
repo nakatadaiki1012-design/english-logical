@@ -602,7 +602,7 @@
       '<section class="panel hubp vs"><h3><span class="hico">🏆</span> クラス対戦</h3><p class="note">先生の合図で 全員いっせいにスタート。🚀 ロケット対戦 か、1 問ずつ 4 択で 答える 🎯 クイズ大会</p>' +
       (hasDb ?
         '<div class="fld joinrow"><input type="text" id="jCode" inputmode="numeric" maxlength="4" placeholder="部屋番号"><input type="text" id="jName" maxlength="10" placeholder="ニックネーム" value="' + esc(s.nick || '') + '"><button type="button" class="btn main" data-ga="join">参加 ▶</button></div>' +
-        '<div class="fld teacher"><span class="note">先生</span><button type="button" class="btn" data-ga="mkroom">🏫 部屋をつくる</button></div>'
+        '<div class="fld teacher"><span class="note">先生</span><button type="button" class="btn" data-ga="mkroom:race">🚀 ロケット対戦の 部屋</button><button type="button" class="btn" data-ga="mkroom:quiz">🎯 クイズ大会の 部屋</button></div>'
         : '<p class="body warnbox">まだ使えません。先生が ⚙ 設定で データベースを 1 回登録すると使えるようになります（README「クラス対戦の準備」）。<br>先生から届いた 部屋のリンク・QR を開けば すぐ参加できます。</p>' +
         '<div class="fld"><button type="button" class="btn" data-ga="settings">⚙ 設定を開く</button></div>') +
       '</section></div></div>';
@@ -715,8 +715,9 @@
 
   /* ---------- 先生：部屋 ---------- */
   var H = null;
-  function makeRoom() {
+  function makeRoom(kind) {
     var cfg = { c: S().course || 'c1', m: 'mix', lv: 'std', u: 12, t: 60 };
+    if (kind === 'quiz') { cfg.kind = 'quiz'; cfg.qn = 10; cfg.qt = 20; }
     var tryOne = function (n) {
       var code = String(1000 + Math.floor(Math.random() * 9000));
       return api('GET', 'rooms/' + code).then(function (v) {
@@ -1284,7 +1285,7 @@
             (rev ? '<span class="ct"><i style="width:' + (cnt[i] / mx * 100).toFixed(0) + '%"></i><b>' + cnt[i] + '</b></span>' + (i === q.ans ? '<span class="ck">✓</span>' : '') : '') + '</div>';
         }).join('') + '</div>' +
         (rev ? '<div class="qzwhy">' + (q.type === 'pick' ? '<b>' + esc(q.s.plain) + '</b>' : '') + (q.s.why ? '<span>💡 ' + esc(q.s.why) + '</span>' : '') + '</div>' +
-          '<div class="qzfoot"><button type="button" class="btn main big" data-ga="qnext">ランキング ▶</button></div>'
+          '<div class="qzfoot"><button type="button" class="btn ghost" data-ga="qsay">🔊 正しい英文を 聞く</button><button type="button" class="btn main big" data-ga="qnext">ランキング ▶</button></div>'
           : '<div class="qzfoot"><button type="button" class="btn ghost" data-ga="qnext">⏭ しめきる</button></div>');
       el.innerHTML = '<div class="bh">' + head + '</div>' + body;
       if (rev && fresh) FX('lead'); else if (t >= r.qAt) { el.classList.add('open'); }
@@ -1421,7 +1422,8 @@
         case 'rewards': openRewards(); break;
         case 'settings': openSettings(); break;
         case 'join': join(); break;
-        case 'mkroom': makeRoom(); break;
+        case 'mkroom': makeRoom(d.ga.split(':')[1]); break;
+        case 'qsay': { var rq = H && H.room, qq = rq && quizQs(rq.cfg, rq.seed)[rq.qi]; if (qq) A().speak(qq.s.plain); break; }
         case 'hstart': hostStart(); break;
         case 'qnext': quizNext(); break;
         case 'qstat': quizStat(); break;
