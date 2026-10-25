@@ -229,27 +229,57 @@
       (cfg.src === 'core' ? '・例文だけ' : cfg.src === 'drill' ? '・演習文だけ' : '');
   }
   function words(s) { return s.plain.split(' ').length; }
+  function soloName(cfg) { return rangeName(cfg) + '・' + { order: '並べかえ', cloze: '穴うめ', mix: 'ミックス' }[cfg.m]; }
 
   var G = null;          // 遊んでいるゲーム
   var OFF = 0;           // サーバーとの時計のずれ（ms）
   function now() { return Date.now() + OFF; }
-  function mult() { return 1 + Math.min(4, Math.floor(G.combo / 10)) * 0.5; }
+
+  /* ===== ゲームのルール（寿司打 ＋ ポップタイピング風） =====
+     ひとり：60 秒から。文を完成させると 時間がふえる（並べかえ +1／+2／+3 秒、穴うめ +0.4／+0.8／+1.2 秒。コンボ 10・25 で ふえる）。
+             ミスは −1 秒。40 秒たつと 時計が だんだん速くなる（最大 3 倍）→ 上手でも いつかは 終わる。
+     対戦：時間は 固定（公平のため）。点数・コンボ・フィーバーは 同じ。 */
+  var RULE = { start: 60, calm: 40, ramp: 70, cap: 3, miss: 1000, fever: 40, feverSec: 7 };
+  var PLATES = [[5, 100, 'g', '🟢'], [7, 180, 'y', '🟡'], [9, 300, 'r', '🔴'], [99, 500, 'p', '🟣']];
+  function plateOf(s) { var w = words(s); for (var i = 0; i < PLATES.length; i++) if (w <= PLATES[i][0]) return { price: PLATES[i][1], c: PLATES[i][2], ico: PLATES[i][3], k: i }; }
+  function fever() { return G && G.feverUntil && Date.now() < G.feverUntil; }
+  function mult() { var m = G.combo >= 100 ? 4 : G.combo >= 50 ? 3 : G.combo >= 25 ? 2 : G.combo >= 10 ? 1.5 : 1; return m * (fever() ? 2 : 1); }
+  function speedNow() {
+    if (G.mode !== 'solo') return 1;
+    var el = (Date.now() - G.startAt) / 1000;
+    return Math.min(RULE.cap, 1 + Math.max(0, el - RULE.calm) / RULE.ramp);
+  }
+  function timeLeft() { return G.mode === 'solo' ? G.left : Math.max(0, G.endAt - now()); }
 
   function newGame(cfg, seed, mode, startAt) {
     if (G) clearInterval(G.timer);
     var R = rng(seed), p = pool(cfg);
-    G = { cfg: cfg, R: R, list: rshuffle(p, R), qi: 0, score: 0, combo: 0, maxCombo: 0, ok: 0, miss: 0, words: 0,
-      mode: mode, startAt: startAt, endAt: startAt + cfg.t * 1000, q: null, lock: false, over: false, timer: null };
-    nextQ();
+    G = { cfg: cfg, R: R, list: rshuffle(p, R), sorted: p.slice().sort(function (a, b) { return words(a) - words(b); }), recent: [], queue: [], qi: 0,
+      score: 0, combo: 0, maxCombo: 0, ok: 0, miss: 0, words: 0, plates: [0, 0, 0, 0], pops: 0, meter: 0, feverUntil: 0, feverN: 0, maxSpeed: 1,
+      mode: mode, startAt: startAt, endAt: startAt + cfg.t * 1000, left: (mode === 'solo' ? RULE.start : cfg.t) * 1000, tl: 0,
+      q: null, lock: false, over: false, timer: null };
+    fillQueue(); nextQ();
     return G;
   }
-  function nextQ() {
-    if (G.qi > 0 && G.qi % G.list.length === 0) {
-      var lastS = G.list[G.list.length - 1];
-      G.list = rshuffle(G.list, G.R);
-      if (G.list.length > 1 && G.list[0] === lastS) G.list.push(G.list.shift());
+  function pickS() {
+    if (G.mode !== 'solo') { // 対戦：全員 同じ順
+      if (G.qi > 0 && G.qi % G.list.length === 0) {
+        var lastS = G.list[G.list.length - 1];
+        G.list = rshuffle(G.list, G.R);
+        if (G.list.length > 1 && G.list[0] === lastS) G.list.push(G.list.shift());
+      }
+      return G.list[G.qi++ % G.list.length];
     }
-    var s = G.list[G.qi % G.list.length]; G.qi++;
+    // ひとり：正解するほど 長い文（高い お皿）が 流れてくる
+    var n = G.sorted.length, stage = Math.min(3, Math.floor(G.ok / 6));
+    var lo = Math.floor(n * stage / 5), hi = Math.max(lo + 1, Math.min(n, Math.ceil(n * (stage + 2) / 5))), x;
+    for (var k = 0; k < 10; k++) { x = G.sorted[lo + Math.floor(G.R() * (hi - lo))]; if (G.recent.indexOf(x) < 0) break; }
+    G.recent.push(x); if (G.recent.length > Math.min(8, n - 1)) G.recent.shift();
+    return x;
+  }
+  function fillQueue() { while (G.queue.length < 3) G.queue.push(pickS()); }
+  function nextQ() {
+    var s = G.queue.shift(); fillQueue();
     var type = G.cfg.m === 'mix' ? (G.R() < 0.5 ? 'order' : 'cloze') : G.cfg.m;
     if (type === 'order') {
       var t = A().tilesOf(s), idx = t.tiles.map(function (_, i) { return i; });
@@ -257,6 +287,7 @@
     } else {
       G.q = { s: s, type: type, ch: rshuffle([s.key].concat(s.alt), G.R), pick: -1 };
     }
+    G.q.plate = plateOf(s); G.q.fresh = true;
     G.lock = false;
   }
   function pts(base) {
@@ -264,21 +295,44 @@
     var sc = $('#hscore'); if (sc) { sc.classList.remove('bump'); void sc.offsetWidth; sc.classList.add('bump'); }
     return p;
   }
-  function hit() {
+  function cardMid(dy) { var c = $('.play .card'), r = c && c.getBoundingClientRect(); return r ? [r.left + r.width / 2, r.top + r.height * (dy || 0.35)] : null; }
+  function hit(el) {
     G.combo++; if (G.combo > G.maxCombo) G.maxCombo = G.combo;
-    if (G.combo % 10 === 0) { // 10 コンボごとの お祝い
-      FX('combo');
-      var card = $('.play .card'), r = card && card.getBoundingClientRect();
-      if (r && window.LXFX) { LXFX.pop(G.combo + ' COMBO!' + (mult() > 1 ? ' ×' + mult() : ''), r.left + r.width / 2, r.top + r.height * 0.35, 'big'); LXFX.burst(40, r.left + r.width / 2, r.top + r.height * 0.4); }
+    // ポップコーン：コンボが のびるほど たくさん はじける
+    var n = 1 + Math.min(7, Math.floor(G.combo / 6)); if (fever()) n *= 2;
+    G.pops += n;
+    if (window.LXFX && el) LXFX.popcorn(el, n);
+    if (!fever()) { G.meter++; if (G.meter >= RULE.fever) startFever(); }
+    // コンボの だんかいが 上がったら お祝い
+    if ([10, 25, 50, 100].indexOf(G.combo) >= 0 || (G.combo > 100 && G.combo % 50 === 0)) {
+      FX('combo'); var m = cardMid();
+      if (m && window.LXFX) { LXFX.pop(G.combo + ' COMBO!  ×' + mult(), m[0], m[1], 'big'); LXFX.burst(40, m[0], m[1] + 20); }
     }
   }
-  function miss() { G.combo = 0; G.miss++; FX('miss'); flash('ng'); }
+  function startFever() {
+    G.feverUntil = Date.now() + RULE.feverSec * 1000; G.meter = 0; G.feverN++;
+    FX('fever'); var m = cardMid(0.3);
+    if (m && window.LXFX) { LXFX.pop('🍿 POP FEVER!! ×2', m[0], m[1], 'go fever'); LXFX.popRain(RULE.feverSec); }
+  }
+  function timePop(text, cls) { var t = $('.play .tbar'); if (t && window.LXFX) LXFX.popAt(t, text, cls); }
+  function miss() {
+    G.combo = 0; G.miss++; G.meter = Math.floor(G.meter / 2);
+    if (G.mode === 'solo') { G.left -= RULE.miss; timePop('−1秒', 'tminus'); }
+    FX('miss'); flash('ng');
+  }
   function flash(k) {
     var c = $('.play .card'); if (!c) return;
     c.classList.remove('f-ok', 'f-ng'); void c.offsetWidth; c.classList.add('f-' + k);
   }
   function solved() {
-    G.ok++; G.words += words(G.q.s); G.lock = true;
+    var q = G.q, pl = q.plate;
+    G.ok++; G.words += words(q.s); G.plates[pl.k]++; G.lock = true;
+    var p = pts(pl.price / 2 + (q.type === 'cloze' ? 10 : 0));
+    var m = cardMid(0.25); if (m && window.LXFX) LXFX.pop(pl.ico + ' +' + fmt(p), m[0], m[1], 'plate');
+    if (G.mode === 'solo') { // 時間ボーナス（コンボが のびているほど 多い）
+      var tier = G.combo >= 25 ? 2 : G.combo >= 10 ? 1 : 0, b = (q.type === 'order' ? [1, 2, 3] : [0.4, 0.8, 1.2])[tier];
+      G.left += b * 1000; timePop('+' + b + '秒', 'tplus');
+    }
     FX('ok'); flash('ok');
     pushScore();
     setTimeout(function () { if (G && !G.over) { nextQ(); drawQ(); } }, 280);
@@ -286,17 +340,17 @@
   function tapTile(i, el) {
     var q = G.q; if (G.lock || q.placed.indexOf(i) >= 0) return;
     if (q.tiles[i] === q.tiles[q.ptr]) {
-      q.placed.push(i); q.ptr++; hit(); var p = pts(10); q.bad = -1;
+      q.placed.push(i); q.ptr++; hit(el); var p = pts(10); q.bad = -1;
       FX('tap', G.combo); if (el && window.LXFX) LXFX.popAt(el, '+' + p);
-      if (q.ptr === q.tiles.length) { pts(20); q.done = 1; solved(); }
+      if (q.ptr === q.tiles.length) { q.done = 1; solved(); }
     } else { miss(); q.bad = i; }
     drawQ();
   }
   function pickChoice(i, el) {
     var q = G.q; if (G.lock || q.pick >= 0) return;
-    q.pick = i;
+    q.pick = i; el = el || document.querySelectorAll('.choice')[i];
     if (q.ch[i] === q.s.key) {
-      hit(); var p = pts(30); if (window.LXFX) LXFX.popAt(el || document.querySelectorAll('.choice')[i], '+' + p);
+      hit(el); var p = pts(10); if (window.LXFX) LXFX.popAt(el, '+' + p);
       drawQ(); solved();
     } else {
       miss(); G.lock = true; drawQ();
@@ -306,6 +360,7 @@
 
   /* 画面 */
   function playShell(title) {
+    var solo = G && G.mode === 'solo';
     A().view.innerHTML = '<div class="unit play">' +
       '<div class="hud">' +
       '<button type="button" class="btn ghost" data-ga="quit" title="やめる">✕</button>' +
@@ -314,18 +369,27 @@
       '<div class="hc" id="hcombo"></div>' +
       '<div class="hs"><small>' + esc(title) + '</small><b id="hscore">0</b></div>' +
       '</div>' +
+      '<div class="hud2"><span class="mlab">🍿</span><div class="meter"><i id="hmeter"></i><span id="hmtext"></span></div>' +
+      (solo ? '<span class="spd" id="hspd"></span>' : '') + '<span class="dishes" id="hdish">🍣 0</span></div>' +
       '<section class="card"><div class="cin" id="gq"></div></section></div>';
   }
   function drawHud() {
     if (!G) return;
-    var t = now(), left = Math.max(0, G.endAt - t), all = G.cfg.t * 1000;
+    var t = now(), started = t >= G.startAt, left = timeLeft();
     var f = $('#tfill'), sec = $('#tsec'), sc = $('#hscore'), cb = $('#hcombo');
-    if (f) { f.style.width = (t < G.startAt ? 100 : left / all * 100) + '%'; f.className = left < 10000 && t >= G.startAt ? 'hurry' : ''; }
-    if (sec) sec.textContent = t < G.startAt ? G.cfg.t + '秒' : Math.ceil(left / 1000) + '秒';
+    var full = G.mode === 'solo' ? RULE.start * 1000 : G.cfg.t * 1000;
+    if (f) { f.style.width = (started ? Math.min(100, left / full * 100) : 100) + '%'; f.className = left < 10000 && started ? 'hurry' : ''; }
+    if (sec) sec.textContent = (started ? Math.max(0, Math.ceil(left / 1000)) : Math.round(full / 1000)) + '秒';
     if (sc) sc.textContent = fmt(G.score);
     if (cb) cb.innerHTML = G.combo >= 2 ? '<b>' + G.combo + '</b> コンボ' + (mult() > 1 ? '<i>×' + mult() + '</i>' : '') : '';
-    var card = $('.play .card'); if (card) card.setAttribute('data-combo', G.combo >= 30 ? 3 : G.combo >= 20 ? 2 : G.combo >= 10 ? 1 : 0);
-    var tb = $('.play .tbar'); if (tb) tb.classList.toggle('hurry', t >= G.startAt && left < 10000);
+    var card = $('.play .card'); if (card) card.setAttribute('data-combo', G.combo >= 50 ? 3 : G.combo >= 25 ? 2 : G.combo >= 10 ? 1 : 0);
+    var tb = $('.play .tbar'); if (tb) tb.classList.toggle('hurry', started && left < 10000);
+    var fv = fever(), pl = $('.unit.play'); if (pl) pl.classList.toggle('fever', !!fv);
+    var mt = $('#hmeter'), mx = $('#hmtext');
+    if (mt) mt.style.width = (fv ? (G.feverUntil - Date.now()) / (RULE.feverSec * 1000) * 100 : G.meter / RULE.fever * 100) + '%';
+    if (mx) mx.textContent = fv ? 'POP FEVER!! 点数 ×2' : 'あと ' + (RULE.fever - G.meter) + ' でフィーバー';
+    var sp = $('#hspd'); if (sp) { var v = speedNow(); if (v > G.maxSpeed) G.maxSpeed = v; sp.textContent = started && v > 1.04 ? '⏩ ×' + v.toFixed(1) : ''; sp.className = 'spd' + (v > 2 ? ' fast' : ''); }
+    var dh = $('#hdish'); if (dh) dh.textContent = '🍣 ' + G.ok;
     if (G.mode === 'battle') liveRank();
   }
   /* クラス対戦：プレイ中の 自分の順位 */
@@ -347,14 +411,17 @@
       var n = Math.ceil((G.startAt - t) / 1000);
       if (n !== G.lastN) {
         G.lastN = n; if (n <= 3) FX('beep');
-        el.innerHTML = '<div class="count"><small>' + esc(cfgName(G.cfg)) + '</small><b class="cd">' + (n > 3 ? '…' : n) + '</b><small>正しいカード・答えを どんどんタップ！ ミスするとコンボが切れる</small></div>';
+        el.innerHTML = '<div class="count"><small>' + esc(cfgName(G.cfg)) + '</small><b class="cd">' + (n > 3 ? '…' : n) + '</b><small>' + (G.mode === 'solo' ? '🍣 お皿が 流れてくる！ 正解を続けると 🍿 ポップコーンが はじけて 時間も のびる。ミスは −1 秒' : '正しいカード・答えを どんどんタップ！ ミスするとコンボが切れる') + '</small></div>';
       }
       drawHud(); return;
     }
-    var q = G.q, s = q.s, h;
+    var q = G.q, s = q.s, h, pl = q.plate;
+    var belt = '<div class="belt"><span class="dish cur d-' + pl.c + '">' + pl.ico + ' ' + pl.price + '</span><span class="bl">つぎ ▶</span>' +
+      G.queue.slice(0, 2).map(function (x) { var p2 = plateOf(x); return '<span class="dish d-' + p2.c + '">' + p2.ico + ' ' + esc(Array.from(x.ja).slice(0, 12).join('')) + '…</span>'; }).join('') + '</div>';
+    var fresh = q.fresh; q.fresh = false;
     if (q.type === 'order') {
-      h = '<div class="lab"><span class="pill">🧩 並べかえ</span><span>次に来るカードをタップ</span><span class="r">✅ ' + G.ok + '　✕ ' + G.miss + '</span></div>' +
-        '<div class="mid"><p class="ja big">' + esc(s.ja) + '</p>' +
+      h = belt +
+        '<div class="mid' + (fresh ? ' slidein' : '') + '"><p class="ja big">' + esc(s.ja) + '</p>' +
         '<div class="slots' + (q.done ? ' ok' : '') + '">' + q.placed.map(function (i) { return '<span class="tl">' + esc(q.tiles[i]) + '</span>'; }).join('') +
         (q.done ? '<span class="end">' + esc(q.end) + '</span>' : '') + '</div>' +
         '<div class="pool">' + q.ord.map(function (i) {
@@ -362,8 +429,8 @@
         }).join('') + '</div></div>';
     } else {
       var ok = q.pick >= 0 && q.ch[q.pick] === s.key;
-      h = '<div class="lab"><span class="pill">✏️ 穴うめ</span><span>（　）に入るものをタップ</span><span class="r">✅ ' + G.ok + '　✕ ' + G.miss + '</span></div>' +
-        '<div class="mid"><p class="en">' + A().blankEn(s, q.pick >= 0 ? s.key : '', q.pick >= 0) + '</p><p class="ja">' + esc(s.ja) + '</p></div>' +
+      h = belt +
+        '<div class="mid' + (fresh ? ' slidein' : '') + '"><p class="en">' + A().blankEn(s, q.pick >= 0 ? s.key : '', q.pick >= 0) + '</p><p class="ja">' + esc(s.ja) + '</p></div>' +
         '<div class="choices">' + q.ch.map(function (w, i) {
           var c = q.pick < 0 ? '' : (w === s.key ? ' ok' : (i === q.pick && !ok ? ' ng' : ''));
           return '<button type="button" class="choice' + c + '" data-gp="' + i + '"><span class="kb">' + (i + 1) + '</span>' + esc(w) + '</button>';
@@ -383,9 +450,10 @@
         var c = $('.play .card'), r = c && c.getBoundingClientRect();
         if (r && window.LXFX) LXFX.pop('GO!', r.left + r.width / 2, r.top + r.height * 0.3, 'go');
       }
-      if (t >= G.endAt && !G.over) { G.over = true; clearInterval(G.timer); FX('whistle'); onEnd(); return; }
+      if (G.mode === 'solo') { var rt = Date.now(), dt = G.tl ? rt - G.tl : 0; G.tl = rt; G.left -= dt * speedNow(); }
+      if (timeLeft() <= 0 && !G.over) { G.over = true; G.dur = (Date.now() - G.startAt) / 1000; clearInterval(G.timer); FX('whistle'); onEnd(); return; }
       drawHud();
-    }, 100);
+    }, 50);
     drawQ();
   }
   function ruler(w) { var r = RULER[0][1]; RULER.forEach(function (x) { if (w >= x[0]) r = x[1]; }); return r; }
@@ -399,7 +467,7 @@
   /* ---------- ひとりで タイムアタック ---------- */
   function taCfg() { var s = S(); if (!s.ta) s.ta = { c: s.course || 'c1', m: 'order', p: 0, u: 12, t: 60 }; return s.ta; }
   function startSolo() {
-    var cfg = taCfg(), c2 = { c: cfg.c, m: cfg.m, p: cfg.p === 1 ? 1 : 0, u: 12, t: +cfg.t || 60, us: cfg.p === 2 ? cfg.us || '' : '' };
+    var cfg = taCfg(), c2 = { c: cfg.c, m: cfg.m, p: cfg.p === 1 ? 1 : 0, u: 12, t: 60, us: cfg.p === 2 ? cfg.us || '' : '' };
     if (cfg.p === 2 && !usOf(c2).length) { location.hash = '#game'; toast('出題する単元を えらんでください'); return; }
     if (!pool(c2).length) { c2.p = 0; toast('合格した単元がまだないので、全単元から出します'); }
     newGame(c2, Math.floor(Math.random() * 1e9), 'solo', Date.now() + 3200);
@@ -410,19 +478,32 @@
     var r = rw(), key = (usOf(G.cfg).length ? 'pick' : G.cfg.c) + '-' + G.cfg.m + (G.cfg.t !== 60 ? '-' + G.cfg.t : ''), prev = r.best[key] || 0, rec = G.score > prev;
     if (rec) r.best[key] = G.score;
     var coins = afterGame(); save(); earn(coins); checkBadges();
-    var share = '論理表現ラボ ⏱タイムアタック（' + cfgName(G.cfg) + '）\n' + fmt(G.score) + '点！ ' + G.words + '語を組み立てた（≒ ' + ruler(G.words) + '）\n最大' + G.maxCombo + 'コンボ・段位「' + levelOf(r.coins).name + '」\n' + location.origin + location.pathname;
+    var dur = Math.round(G.dur || 0), mm = Math.floor(dur / 60) + '分' + (dur % 60) + '秒';
+    var share = '論理表現ラボ 🍣タイムアタック（' + soloName(G.cfg) + '）\n' + fmt(G.score) + '点！ お皿' + G.ok + '枚・' + mm + '・🍿' + G.pops + '個\n' + G.words + '語を組み立てた（≒ ' + ruler(G.words) + '）\n最大' + G.maxCombo + 'コンボ・段位「' + levelOf(r.coins).name + '」\n' + location.origin + location.pathname;
     G.share = share;
     if (rec && G.score > 0 && window.LXFX) { setTimeout(function () { FX('fanfare'); LXFX.rain(3); LXFX.burst(80); }, 500); }
     $('#gq').innerHTML = '<div class="result">' +
       (rec && G.score > 0 ? '<div class="bigstamp newrec">新記録</div>' : '') +
       '<div class="score">' + fmt(G.score) + '<small> 点</small></div>' +
+      plateStack() +
+      '<p class="tstats big">🍣 お皿 <b>' + G.ok + '</b> 枚（🟢' + G.plates[0] + ' 🟡' + G.plates[1] + ' 🔴' + G.plates[2] + ' 🟣' + G.plates[3] + '）　⏱ <b>' + mm + '</b>　🍿 <b>' + fmt(G.pops) + '</b> 個</p>' +
       '<p class="phrase">🧩 <b>' + G.words + '</b> 語を組み立てた ≒ <b>' + esc(ruler(G.words)) + '</b></p>' +
-      '<p class="tstats">✅ 正解 ' + G.ok + '　✕ ミス ' + G.miss + '　⚡ 最大 ' + G.maxCombo + ' コンボ　🪙 +' + coins + '</p>' +
-      '<p class="note">' + esc(cfgName(G.cfg)) + ' のベスト：' + fmt(Math.max(prev, G.score)) + ' 点</p>' +
+      '<p class="tstats">⚡ 最大 ' + G.maxCombo + ' コンボ　🍿 フィーバー ' + G.feverN + ' 回　⏩ 最高 ×' + G.maxSpeed.toFixed(1) + '　✕ ミス ' + G.miss + '　🪙 +' + coins + '</p>' +
+      '<p class="note">' + esc(soloName(G.cfg)) + ' のベスト：' + fmt(Math.max(prev, G.score)) + ' 点</p>' +
       '<div class="row" style="justify-content:center"><button type="button" class="btn main" data-ga="again">↺ もう一度</button>' +
       '<button type="button" class="btn warm" data-ga="brag">📣 自慢する</button>' +
       '<button type="button" class="btn ghost" data-go="game">◀ もどる</button></div></div>';
     $('#hcombo').innerHTML = '';
+  }
+  /* 食べた お皿を 色ごとに 積み上げる（寿司打の 皿の山） */
+  function plateStack() {
+    var all = []; [3, 2, 1, 0].forEach(function (k) { for (var i = 0; i < G.plates[k]; i++) all.push(PLATES[k][2]); });
+    if (!all.length) return '';
+    var cols = [], per = 10, maxCols = 8, shown = all.slice(0, per * maxCols);
+    for (var i = 0; i < shown.length; i += per) cols.push(shown.slice(i, i + per));
+    return '<div class="stack">' + cols.map(function (c, ci) {
+      return '<span class="scol" style="--d:' + ci + '">' + c.map(function (x) { return '<i class="d-' + x + '"></i>'; }).join('') + '</span>';
+    }).join('') + (all.length > shown.length ? '<span class="smore">+' + (all.length - shown.length) + '</span>' : '') + '</div>';
   }
   function brag(text) {
     if (navigator.share && /Mobi|Android|iPhone|iPad/.test(navigator.userAgent)) { navigator.share({ text: text }).catch(function () { }); return; }
@@ -437,17 +518,16 @@
     var seg = function (key, opts) {
       return '<div class="seg">' + opts.map(function (o) { return '<button type="button" data-ta="' + key + ':' + o[0] + '" aria-pressed="' + (String(cfg[key]) === String(o[0])) + '">' + o[1] + '</button>'; }).join('') + '</div>';
     };
-    var tt = +cfg.t || 60, best = r.best[(cfg.p === 2 ? 'pick' : cfg.c) + '-' + cfg.m + (tt !== 60 ? '-' + tt : '')] || 0;
+    var tt = 60, best = r.best[(cfg.p === 2 ? 'pick' : cfg.c) + '-' + cfg.m + (tt !== 60 ? '-' + tt : '')] || 0;
     var hasDb = !!base();
     A().view.innerHTML = '<div class="unit">' +
       '<div class="ubar"><button type="button" class="btn ghost" data-act="home">◀ 一覧</button>' +
       '<div class="utitle"><small>やるほど コインがたまって 段位が上がる</small><b>🎮 ゲーム</b></div>' +
       '<button type="button" class="btn ghost rwbtn" data-ga="rewards">🏅 段位・バッジ</button></div>' +
       '<div class="hub">' +
-      '<section class="panel hubp ta"><h3><span class="hico">⏱</span> タイムアタック</h3><p class="note">時間内に 何点とれる？ 正しいカードを 次々タップ。続けて正解すると コンボで点数アップ</p>' +
+      '<section class="panel hubp ta"><h3><span class="hico">🍣</span> タイムアタック</h3><p class="note">流れてくる お皿（問題）を どんどん とろう。正解を続けると 🍿 が はじけて 時間も のびる。だんだん 速くなるよ</p>' +
       '<div class="fld"><span class="fl">コース</span>' + seg('c', [['c1', 'Ⅰ'], ['c2', 'Ⅱ'], ['c3', 'Ⅲ'], ['all', '全部']]) + '</div>' +
       '<div class="fld"><span class="fl">種目</span>' + seg('m', [['order', '並べかえ'], ['cloze', '穴うめ'], ['mix', 'ミックス']]) + '</div>' +
-      '<div class="fld"><span class="fl">時間</span>' + seg('t', [[30, '30秒'], [60, '1分'], [120, '2分'], [180, '3分']]) + '</div>' +
       '<div class="fld"><span class="fl">範囲</span>' + seg('p', [[2, '📚 えらぶ'], [1, '合格した単元'], [0, '全単元']]) + '</div>' +
       (cfg.p === 2 ? '<div class="fld"><span class="fl"></span><button type="button" class="btn rangebtn" data-ga="spick">' + (usOf(cfg).length ? '📚 ' + esc(rangeName(cfg)) + ' ✎' : '📚 単元をえらぶ') + '</button></div>' : '') +
       '<div class="fld go"><button type="button" class="btn main big" data-ga="solo">▶ スタート</button><span class="bestv">ベスト <b>' + fmt(best) + '</b> 点</span></div>' +

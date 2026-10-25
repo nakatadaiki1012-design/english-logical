@@ -739,6 +739,59 @@ dialog::backdrop { background: rgba(0, 0, 0, .35); }
 .shbtn { justify-content: flex-end; }
 
 
+
+/* ===== タイムアタック（寿司打 ＋ ポップタイピング風） ===== */
+.hud2 { display: flex; align-items: center; gap: 8px; flex: none; margin-top: -4px; }
+.mlab { font-size: 16px; }
+.meter { flex: 1; position: relative; height: 16px; border-radius: 8px; background: var(--chip); border: 1.5px solid var(--line); overflow: hidden; }
+.meter i { position: absolute; inset: 0 auto 0 0; background: linear-gradient(90deg, #f6d77a, #f2a541); transition: width .15s; }
+.meter span { position: absolute; inset: 0; display: grid; place-items: center; font-size: 11px; font-weight: 700; color: var(--ink); }
+.spd { font-family: var(--font-en); font-weight: 600; font-size: 14px; color: var(--blue); min-width: 3.4em; text-align: center; }
+.spd.fast { color: var(--warm); animation: hurry .4s ease-in-out infinite alternate; }
+.dishes { font-weight: 700; font-size: 14px; white-space: nowrap; }
+.belt { display: flex; align-items: center; gap: 6px; flex: none; overflow: hidden; white-space: nowrap; padding: 4px 6px; border-radius: 20px; background: repeating-linear-gradient(90deg, var(--chip) 0 14px, var(--bg) 14px 28px); animation: belt 1.2s linear infinite; }
+@keyframes belt { to { background-position: 28px 0; } }
+.dish { flex: none; border-radius: 14px; padding: 1px 10px; font-size: 12.5px; font-weight: 700; background: var(--panel); border: 2px solid var(--dc); color: var(--ink); max-width: 46%; overflow: hidden; text-overflow: ellipsis; }
+.dish.cur { background: var(--dc); color: #fff; font-family: var(--font-en); }
+.bl { flex: none; font-size: 11.5px; color: var(--muted); font-weight: 700; }
+.d-g { --dc: #3f9b6e; } .d-y { --dc: #d9a520; } .d-r { --dc: #d0533a; } .d-p { --dc: #8a56c2; }
+.slidein { animation: slidein .28s cubic-bezier(.2, .9, .3, 1.2); }
+@keyframes slidein { from { transform: translateX(60px); opacity: 0; } }
+.fxpop.tplus { color: var(--accent); font-size: 20px; }
+.fxpop.tminus { color: var(--warm); font-size: 20px; }
+.fxpop.plate { font-size: 24px; color: var(--warm); font-family: var(--font-display); }
+.fxpop.fever { color: #f2a541; text-shadow: 0 0 12px rgba(242, 165, 65, .8), 0 2px 0 #fff; font-size: clamp(34px, 9vw, 80px) !important; }
+.unit.play.fever .card { background: radial-gradient(circle at 50% 120%, rgba(242, 165, 65, .28), transparent 60%), var(--panel); border-color: #f2a541; box-shadow: 0 0 0 3px rgba(242, 165, 65, .45), 0 0 40px rgba(242, 165, 65, .5); animation: hot .5s ease-in-out infinite alternate; }
+.unit.play.fever .meter i { background: linear-gradient(90deg, #ff6b6b, #f6d77a, #6bd38a, #6bb5ff, #c38bff); background-size: 200% 100%; animation: rainbow 1s linear infinite; }
+@keyframes rainbow { to { background-position: 200% 0; } }
+.unit.play.fever .hc { color: #f2a541; }
+.stack { display: flex; align-items: flex-end; gap: 6px; height: clamp(40px, 16cqh, 96px); }
+.scol { display: flex; flex-direction: column-reverse; gap: 1px; animation: stackin .4s calc(var(--d) * .08s) both cubic-bezier(.2, 1.4, .4, 1); }
+@keyframes stackin { from { transform: translateY(-30px); opacity: 0; } }
+.scol i { display: block; width: clamp(22px, 7cqw, 40px); height: clamp(3px, 1.3cqh, 8px); border-radius: 50%; background: var(--dc); box-shadow: inset 0 -2px 0 rgba(0, 0, 0, .18); }
+.smore { font-weight: 700; color: var(--muted); font-size: 13px; }
+.tstats.big { font-size: 15px; color: var(--ink); }
+.tstats b { font-family: var(--font-en); font-size: 1.15em; }
+@media (max-width: 720px) {
+  .hud2 { gap: 6px; }
+  .meter span { font-size: 10px; }
+  .dish { font-size: 11.5px; padding: 0 8px; }
+  .tstats.big { font-size: 13.5px; }
+}
+@container (max-height: 400px) {
+  .belt .dish:not(.cur):nth-of-type(3) { display: none; }
+}
+/* 高さの低い画面の 結果：細かい行を省く */
+@container (max-height: 470px) {
+  .result:has(.stack) { gap: 6px; }
+  .result:has(.stack) .tstats:not(.big), .result:has(.stack) .note { display: none; }
+  .result:has(.stack) .score { font-size: calc(clamp(34px, 13cqh, 80px) * var(--k)); }
+  .result:has(.stack) .bigstamp.newrec { width: 64px; height: 64px; font-size: 15px; position: absolute; right: 8%; top: 6%; }
+}
+@container (max-height: 320px) {
+  .result:has(.stack) .phrase { display: none; }
+  .result:has(.stack) .stack { height: 34px; }
+}
 /* ===== 先生：出題の設定 ===== */
 .hsum { display: flex; flex-direction: column; gap: 2px; border: 1.5px solid var(--line); border-radius: 6px; padding: 6px 10px; background: var(--bg); }
 .hsum p { margin: 0; display: flex; gap: 6px; align-items: baseline; font-size: 13.5px; line-height: 1.5; min-width: 0; }

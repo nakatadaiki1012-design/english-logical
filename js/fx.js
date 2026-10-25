@@ -44,6 +44,13 @@
       for (var i = 0; i < n; i++) noise(i * 0.045, 0.06, 0.05 + 0.25 * i / n, 220 + 80 * Math.random());
       noise(n * 0.045, 0.5, 0.5, 120); tone(98, n * 0.045, 0.6, 'sine', 0.35);
     },
+    pk: function (n) { // ポップコーンが はじける音（数が多いほど にぎやか）
+      for (var i = 0; i < Math.min(5, n || 1); i++) noise(i * 0.035 + Math.random() * 0.02, 0.035, 0.18, 1400 + Math.random() * 1600);
+    },
+    fever: function () { // フィーバー
+      [523, 659, 784, 1046, 1319, 1568].forEach(function (f, i) { tone(f, i * 0.05, 0.18, 'square', 0.06); });
+      [1046, 1319, 1568].forEach(function (f) { tone(f, 0.32, 0.6, 'triangle', 0.07); });
+    },
     fanfare: function () { // ファンファーレ
       var seq = [[523, 0, .12], [523, .14, .12], [523, .28, .12], [659, .42, .35], [587, .8, .12], [659, .94, .12], [784, 1.08, .9]];
       seq.forEach(function (x) { tone(x[0], x[1], x[2] + 0.1, 'square', 0.07); tone(x[0] * 2, x[1], x[2] + 0.1, 'triangle', 0.06); });
@@ -54,7 +61,7 @@
 
   /* ---------- 紙吹雪 ---------- */
   var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var cv = null, cx = null, parts = [], raf = 0, rainUntil = 0;
+  var cv = null, cx = null, parts = [], raf = 0, rainUntil = 0, popUntil = 0;
   var COLORS = ['#e9b730', '#d9603b', '#2f8f6f', '#3f74c4', '#c35fa8', '#f2e6c9', '#7bc6a4'];
   function canvas() {
     if (!cv) {
@@ -76,23 +83,51 @@
       });
     }
   }
+  /* ポップコーン：下から ポンッと はね上がって 落ちる */
+  function spawnPop(n, x, y, up) {
+    for (var i = 0; i < n; i++) {
+      parts.push({ k: 'pop', x: x + (Math.random() - 0.5) * 20, y: y, vx: (Math.random() - 0.5) * 7, vy: -(up || 7) - Math.random() * 6,
+        w: 9 + Math.random() * 7, r: Math.random() * 6, vr: (Math.random() - 0.5) * 0.4, life: 0 });
+    }
+  }
+  function drawPop(p) {
+    var w = p.w; cx.save(); cx.translate(p.x, p.y); cx.rotate(p.r);
+    cx.fillStyle = '#fff6dc'; cx.strokeStyle = '#e2b549'; cx.lineWidth = 1.2;
+    [[0, 0, 0.5], [-0.38, -0.2, 0.36], [0.38, -0.18, 0.36], [0, -0.42, 0.34]].forEach(function (c) {
+      cx.beginPath(); cx.arc(c[0] * w, c[1] * w, c[2] * w, 0, Math.PI * 2); cx.fill(); cx.stroke();
+    });
+    cx.fillStyle = '#f2c14e'; cx.beginPath(); cx.arc(0, w * 0.28, w * 0.18, 0, Math.PI * 2); cx.fill();
+    cx.restore();
+  }
   function loop() {
     cx.clearRect(0, 0, innerWidth, innerHeight);
     if (Date.now() < rainUntil) spawn(reduce ? 1 : 4);
+    if (Date.now() < popUntil && !reduce) { spawnPop(1, Math.random() < 0.5 ? 10 + Math.random() * 60 : innerWidth - 70 + Math.random() * 60, innerHeight + 10, 12); }
     for (var i = parts.length - 1; i >= 0; i--) {
       var p = parts[i];
+      if (p.k === 'pop') {
+        p.vy += 0.38; p.vx *= 0.985; p.x += p.vx; p.y += p.vy; p.r += p.vr; p.life++;
+        if (p.y > innerHeight + 30 && p.vy > 0) { parts.splice(i, 1); continue; }
+        drawPop(p); continue;
+      }
       p.vy += 0.12; p.vx *= 0.99; p.vy = Math.min(p.vy, 6); p.x += p.vx + Math.sin(p.life / 12) * 0.6; p.y += p.vy; p.r += p.vr; p.life++;
       if (p.y > innerHeight + 30) { parts.splice(i, 1); continue; }
       cx.save(); cx.translate(p.x, p.y); cx.rotate(p.r); cx.fillStyle = p.c;
       cx.scale(1, Math.abs(Math.cos(p.life / 8)) + 0.2); cx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h); cx.restore();
     }
-    if (parts.length || Date.now() < rainUntil) raf = requestAnimationFrame(loop);
+    if (parts.length || Date.now() < rainUntil || Date.now() < popUntil) raf = requestAnimationFrame(loop);
     else { raf = 0; cx.clearRect(0, 0, innerWidth, innerHeight); }
   }
   function start() { canvas(); if (!raf) raf = requestAnimationFrame(loop); }
   function burst(n, x, y) { spawn(reduce ? Math.ceil(n / 5) : n, x == null ? innerWidth / 2 : x, y == null ? innerHeight * 0.6 : y, 1.6); start(); }
   function rain(sec) { rainUntil = Math.max(rainUntil, Date.now() + sec * 1000); start(); }
-  function stop() { rainUntil = 0; parts = []; }
+  function stop() { rainUntil = 0; popUntil = 0; parts = []; }
+  function popcorn(el, n) {
+    var r = el && el.getBoundingClientRect ? el.getBoundingClientRect() : null; if (!r) return;
+    spawnPop(reduce ? 1 : Math.min(16, n), r.left + r.width / 2, r.top + r.height / 3, 6 + Math.min(6, n));
+    start(); play('pk', n);
+  }
+  function popRain(sec) { popUntil = Math.max(popUntil, Date.now() + sec * 1000); start(); }
 
   /* ---------- 文字のポップアップ（+30 など） ---------- */
   function pop(text, x, y, cls) {
@@ -102,5 +137,5 @@
   }
   function popAt(el, text, cls) { if (!el) return; var r = el.getBoundingClientRect(); pop(text, r.left + r.width / 2, r.top, cls); }
 
-  window.LXFX = { play: play, burst: burst, rain: rain, stop: stop, pop: pop, popAt: popAt, unlock: ac };
+  window.LXFX = { play: play, burst: burst, rain: rain, stop: stop, pop: pop, popAt: popAt, unlock: ac, popcorn: popcorn, popRain: popRain };
 })();
