@@ -1108,6 +1108,8 @@ body[data-room] .tools, body[data-room] .cnav { visibility: hidden; pointer-even
   .grid { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; grid-template-rows: repeat(4, minmax(0, 1fr)) !important; }
 }
 @media (max-height: 500px) and (orientation: landscape) { :root[data-size="2"] { --k: 1.05; } }
+.firstrun { margin: 0; font-size: 12.5px; font-weight: 700; color: var(--accent); background: var(--accent-soft); border-radius: 6px; padding: 4px 8px; line-height: 1.4; }
+@media (min-width: 721px) { .firstrun { display: none; } } /* 広い 画面は 下の「おぼえ方」が 出る */
 </style>
 </head>
 <body>

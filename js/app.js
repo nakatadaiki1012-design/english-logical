@@ -221,6 +221,9 @@
       '<div class="stat"><b>' + due + '</b><small>今日の復習</small></div>' +
       '</div></div>' +
       '<p class="cdesc">' + esc(c.desc) + '</p>' + tb +
+      // はじめての人だけ：スマホでも 1 単元の 進め方を 1 行で
+      (Object.keys(UNITS).some(function (id) { var st = prog(id).st; return st && Object.keys(st).length; }) ? '' :
+        '<p class="firstrun">はじめての人へ：単元を えらんで ' + STEPS.map(function (x) { return x.ico; }).join('→') + ' の 順に 進もう</p>') +
       '<div class="acts">' +
       (next ? '<button type="button" class="btn main" data-go="' + next.id + '">▶ ' + (prog(next.id).sec ? '続きから' : 'はじめる') + '：' + esc(next.title) + '</button>' : '<button type="button" class="btn main" data-act="review">🎉 全単元 合格！ 復習しよう</button>') +
       '<button type="button" class="btn' + (due ? ' warm' : '') + '" data-act="review">🔁 今日の復習' + (due ? '（' + due + '文）' : '') + '</button>' +
