@@ -1110,6 +1110,7 @@ body[data-room] .tools, body[data-room] .cnav { visibility: hidden; pointer-even
 @media (max-height: 500px) and (orientation: landscape) { :root[data-size="2"] { --k: 1.05; } }
 .firstrun { margin: 0; font-size: 12.5px; font-weight: 700; color: var(--accent); background: var(--accent-soft); border-radius: 6px; padding: 4px 8px; line-height: 1.4; }
 @media (min-width: 721px) { .firstrun { display: none; } } /* 広い 画面は 下の「おぼえ方」が 出る */
+body.offline::after { content: "📶 つながりを 確認中…（Wi-Fi を たしかめてね）"; position: fixed; left: 50%; bottom: 10px; transform: translateX(-50%); z-index: 140; background: #b8432a; color: #fff; font-weight: 700; font-size: 13px; padding: 6px 14px; border-radius: 18px; box-shadow: 0 2px 8px rgba(0,0,0,.3); pointer-events: none; white-space: nowrap; }
 </style>
 </head>
 <body>

@@ -680,20 +680,23 @@
       for (var i = 0; i < keys.length - 1; i++) { if (o[keys[i]] == null || typeof o[keys[i]] !== 'object') o[keys[i]] = {}; o = o[keys[i]]; }
       if (val === null) delete o[keys[keys.length - 1]]; else o[keys[keys.length - 1]] = val;
     }
+    function net(ok) { document.body.classList.toggle('offline', !ok && !closed); } // つながりの 表示
     function startPoll() {
       if (poll || closed) return;
-      poll = setInterval(function () { api('GET', path).then(function (v) { tree = v; cb(tree); }, function () { }); }, 1500);
+      poll = setInterval(function () { api('GET', path).then(function (v) { net(true); tree = v; cb(tree); }, function () { net(false); }); }, 1500);
     }
     try {
       es = new EventSource(base() + '/' + path + '.json');
-      es.addEventListener('put', function (e) { var d = JSON.parse(e.data); setAt(d.path, d.data); cb(tree); });
+      es.addEventListener('put', function (e) { net(true); var d = JSON.parse(e.data); setAt(d.path, d.data); cb(tree); });
+      es.addEventListener('keep-alive', function () { net(true); });
+      es.onopen = function () { net(true); };
       es.addEventListener('patch', function (e) {
-        var d = JSON.parse(e.data), p = d.path.replace(/\/$/, '');
+        net(true); var d = JSON.parse(e.data), p = d.path.replace(/\/$/, '');
         Object.keys(d.data || {}).forEach(function (k) { setAt(p + '/' + k, d.data[k]); }); cb(tree);
       });
-      es.onerror = function () { if (es.readyState === 2) startPoll(); };
+      es.onerror = function () { net(false); if (es.readyState === 2) startPoll(); };
     } catch (e) { startPoll(); }
-    return function () { closed = true; if (es) es.close(); clearInterval(poll); };
+    return function () { closed = true; document.body.classList.remove('offline'); if (es) es.close(); clearInterval(poll); };
   }
   function syncClock(code) {
     var t0 = Date.now(), p = 'rooms/' + code + '/clock/' + pid();
