@@ -208,7 +208,7 @@
   var LVS = [
     { k: 'easy', ico: '🛩', name: 'ショート便', sub: '短い文・はじめての人に', w: [0, 7], x: 1, miss: 1000 },
     { k: 'std', ico: '🚀', name: 'スタンダード便', sub: 'いろいろな長さ・点数 ×1.3', w: [0, 99], x: 1.3, miss: 1000 },
-    { k: 'long', ico: '🌌', name: '長距離便', sub: '長文だけ・1 文の 点数が 大きい・ミス −2秒', w: [9, 99], x: 1, miss: 2000 }];
+    { k: 'long', ico: '🌌', name: '長距離便', sub: '長文だけ・点数 ×1.5・ミス −2秒', w: [9, 99], x: 1.5, miss: 2000 }];
   function lvOf(cfg) { var k = cfg && cfg.lv; return LVS.filter(function (l) { return l.k === k; })[0] || LVS[1]; }
   function lvName(cfg) { var l = lvOf(cfg); return l.ico + ' ' + l.name; }
   var SRCS = [['all', '例文＋演習文'], ['core', '例文だけ（覚えた文）'], ['drill', '演習文だけ（初めての文）']];
@@ -252,7 +252,7 @@
      ひとり：60 秒から。文を完成させると 時間がふえる（並べかえ +1／+2／+3 秒、穴うめ +0.4／+0.8／+1.2 秒。コンボ 10・25 で ふえる）。
              ミスは −1 秒。40 秒たつと 時計が だんだん速くなる（最大 3 倍）→ 上手でも いつかは 終わる。
      対戦：時間は 固定（公平のため）。点数・コンボ・ブーストは 同じ。 */
-  var RULE = { start: 60, calm: 40, ramp: 70, cap: 3, miss: 1000, fever: 25, feverSec: 7 };
+  var RULE = { start: 60, calm: 40, ramp: 70, cap: 3, miss: 1000, fever: 20, feverSec: 7 };
   var FUEL = [[5, 100], [7, 180], [9, 300], [99, 500]]; // 長い文ほど 大きな燃料（たくさん上がる）
   function fuelOf(s) { var w = words(s); for (var i = 0; i < FUEL.length; i++) if (w <= FUEL[i][0]) return { pts: FUEL[i][1], k: i }; }
   /* 高度の めじるし：[この点数で 到達, 高さ(km), 絵, 名前] */
@@ -353,7 +353,7 @@
   }
   function timePop(text, cls) { var t = $('.play .tbar'); if (t && window.LXFX) LXFX.popAt(t, text, cls); }
   function miss() {
-    G.combo = 0; G.miss++; G.meter = Math.max(0, G.meter - 5); // ミスで メーターは 少し へるだけ（ブーストを 見られる人を ふやす）
+    G.combo = 0; G.miss++; G.meter = Math.max(0, G.meter - 2); // ミスで メーターは 少し へるだけ（ブーストを 見られる人を ふやす）
     if (G.mode === 'solo') { var ms = lvOf(G.cfg).miss; G.left -= ms; timePop('−' + ms / 1000 + '秒', 'tminus'); }
     FX('miss'); flash('ng');
   }
