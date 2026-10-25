@@ -44,12 +44,13 @@
       for (var i = 0; i < n; i++) noise(i * 0.045, 0.06, 0.05 + 0.25 * i / n, 220 + 80 * Math.random());
       noise(n * 0.045, 0.5, 0.5, 120); tone(98, n * 0.045, 0.6, 'sine', 0.35);
     },
-    pk: function (n) { // ポップコーンが はじける音（数が多いほど にぎやか）
-      for (var i = 0; i < Math.min(5, n || 1); i++) noise(i * 0.035 + Math.random() * 0.02, 0.035, 0.18, 1400 + Math.random() * 1600);
+    spark: function (n) { // 火花の音（シュッ）
+      for (var i = 0; i < Math.min(3, n || 1); i++) noise(i * 0.04, 0.05, 0.12, 2500 + Math.random() * 2500);
     },
-    fever: function () { // フィーバー
-      [523, 659, 784, 1046, 1319, 1568].forEach(function (f, i) { tone(f, i * 0.05, 0.18, 'square', 0.06); });
-      [1046, 1319, 1568].forEach(function (f) { tone(f, 0.32, 0.6, 'triangle', 0.07); });
+    boost: function () { // ブースト（ゴーッと 上がる）
+      for (var i = 0; i < 14; i++) noise(i * 0.05, 0.09, 0.08 + i * 0.012, 160 + i * 40);
+      [392, 523, 659, 784, 1046].forEach(function (f, i) { tone(f, 0.1 + i * 0.07, 0.22, 'square', 0.06); });
+      tone(1568, 0.5, 0.7, 'triangle', 0.08);
     },
     fanfare: function () { // ファンファーレ
       var seq = [[523, 0, .12], [523, .14, .12], [523, .28, .12], [659, .42, .35], [587, .8, .12], [659, .94, .12], [784, 1.08, .9]];
@@ -61,7 +62,7 @@
 
   /* ---------- 紙吹雪 ---------- */
   var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var cv = null, cx = null, parts = [], raf = 0, rainUntil = 0, popUntil = 0;
+  var cv = null, cx = null, parts = [], raf = 0, rainUntil = 0, boostUntil = 0;
   var COLORS = ['#e9b730', '#d9603b', '#2f8f6f', '#3f74c4', '#c35fa8', '#f2e6c9', '#7bc6a4'];
   function canvas() {
     if (!cv) {
@@ -83,51 +84,58 @@
       });
     }
   }
-  /* ポップコーン：下から ポンッと はね上がって 落ちる */
-  function spawnPop(n, x, y, up) {
+  /* 火花：押したカードから 光の粒が 飛び散って 消える ／ 炎：画面の下から 上へ ／ 星：上から 下へ 流れる（ロケットが 上がっている感じ） */
+  var SPK = ['#ffd166', '#ff9f1c', '#ff6b6b', '#fff3b0'];
+  function spawnSpark(n, x, y) {
     for (var i = 0; i < n; i++) {
-      parts.push({ k: 'pop', x: x + (Math.random() - 0.5) * 20, y: y, vx: (Math.random() - 0.5) * 7, vy: -(up || 7) - Math.random() * 6,
-        w: 9 + Math.random() * 7, r: Math.random() * 6, vr: (Math.random() - 0.5) * 0.4, life: 0 });
+      var a = Math.random() * Math.PI * 2, v = 2 + Math.random() * 5;
+      parts.push({ k: 'spk', x: x, y: y, vx: Math.cos(a) * v, vy: Math.sin(a) * v - 2, w: 2 + Math.random() * 3, c: SPK[i % 4], life: 0, max: 26 + Math.random() * 18 });
     }
   }
-  function drawPop(p) {
-    var w = p.w; cx.save(); cx.translate(p.x, p.y); cx.rotate(p.r);
-    cx.fillStyle = '#fff6dc'; cx.strokeStyle = '#e2b549'; cx.lineWidth = 1.2;
-    [[0, 0, 0.5], [-0.38, -0.2, 0.36], [0.38, -0.18, 0.36], [0, -0.42, 0.34]].forEach(function (c) {
-      cx.beginPath(); cx.arc(c[0] * w, c[1] * w, c[2] * w, 0, Math.PI * 2); cx.fill(); cx.stroke();
-    });
-    cx.fillStyle = '#f2c14e'; cx.beginPath(); cx.arc(0, w * 0.28, w * 0.18, 0, Math.PI * 2); cx.fill();
+  function spawnFlame(x) {
+    // 炎は 画面の いちばん下で ゆらめくだけ（答えのカードに かからない）
+    parts.push({ k: 'fl', x: x, y: innerHeight + 6, vx: (Math.random() - 0.5) * 1.2, vy: -(2.5 + Math.random() * 3), w: 6 + Math.random() * 9, c: SPK[Math.floor(Math.random() * 3)], life: 0, max: 14 + Math.random() * 10 });
+  }
+  function spawnStar() {
+    parts.push({ k: 'st', x: Math.random() * innerWidth, y: -10, vx: 0, vy: 9 + Math.random() * 9, w: 1 + Math.random() * 2, c: '#ffffff', life: 0, max: 200 });
+  }
+  function drawGlow(p) {
+    var f = Math.max(0, 1 - p.life / p.max);
+    cx.save(); cx.globalAlpha = p.k === 'fl' ? f * 0.7 : f; cx.fillStyle = p.c;
+    if (p.k === 'st') { cx.fillRect(p.x, p.y, p.w, p.w * 9); }
+    else { cx.shadowColor = p.c; cx.shadowBlur = p.k === 'fl' ? 18 : 8; cx.beginPath(); cx.arc(p.x, p.y, p.w * (p.k === 'fl' ? f : 1), 0, Math.PI * 2); cx.fill(); }
     cx.restore();
   }
   function loop() {
     cx.clearRect(0, 0, innerWidth, innerHeight);
     if (Date.now() < rainUntil) spawn(reduce ? 1 : 4);
-    if (Date.now() < popUntil && !reduce) { spawnPop(1, Math.random() < 0.5 ? 10 + Math.random() * 60 : innerWidth - 70 + Math.random() * 60, innerHeight + 10, 12); }
+    if (Date.now() < boostUntil && !reduce) { for (var q = 0; q < 2; q++) spawnFlame(innerWidth / 2 + (Math.random() - 0.5) * innerWidth * 0.8); if (Math.random() < 0.6) spawnStar(); }
     for (var i = parts.length - 1; i >= 0; i--) {
       var p = parts[i];
-      if (p.k === 'pop') {
-        p.vy += 0.38; p.vx *= 0.985; p.x += p.vx; p.y += p.vy; p.r += p.vr; p.life++;
-        if (p.y > innerHeight + 30 && p.vy > 0) { parts.splice(i, 1); continue; }
-        drawPop(p); continue;
+      if (p.k === 'spk' || p.k === 'fl' || p.k === 'st') {
+        if (p.k === 'spk') p.vy += 0.15;
+        p.vx *= 0.97; p.x += p.vx; p.y += p.vy; p.life++;
+        if (p.life > p.max || p.y > innerHeight + 40) { parts.splice(i, 1); continue; }
+        drawGlow(p); continue;
       }
       p.vy += 0.12; p.vx *= 0.99; p.vy = Math.min(p.vy, 6); p.x += p.vx + Math.sin(p.life / 12) * 0.6; p.y += p.vy; p.r += p.vr; p.life++;
       if (p.y > innerHeight + 30) { parts.splice(i, 1); continue; }
       cx.save(); cx.translate(p.x, p.y); cx.rotate(p.r); cx.fillStyle = p.c;
       cx.scale(1, Math.abs(Math.cos(p.life / 8)) + 0.2); cx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h); cx.restore();
     }
-    if (parts.length || Date.now() < rainUntil || Date.now() < popUntil) raf = requestAnimationFrame(loop);
+    if (parts.length || Date.now() < rainUntil || Date.now() < boostUntil) raf = requestAnimationFrame(loop);
     else { raf = 0; cx.clearRect(0, 0, innerWidth, innerHeight); }
   }
   function start() { canvas(); if (!raf) raf = requestAnimationFrame(loop); }
   function burst(n, x, y) { spawn(reduce ? Math.ceil(n / 5) : n, x == null ? innerWidth / 2 : x, y == null ? innerHeight * 0.6 : y, 1.6); start(); }
   function rain(sec) { rainUntil = Math.max(rainUntil, Date.now() + sec * 1000); start(); }
-  function stop() { rainUntil = 0; popUntil = 0; parts = []; }
-  function popcorn(el, n) {
+  function stop() { rainUntil = 0; boostUntil = 0; parts = []; }
+  function sparks(el, n) {
     var r = el && el.getBoundingClientRect ? el.getBoundingClientRect() : null; if (!r) return;
-    spawnPop(reduce ? 1 : Math.min(16, n), r.left + r.width / 2, r.top + r.height / 3, 6 + Math.min(6, n));
-    start(); play('pk', n);
+    spawnSpark(reduce ? 2 : Math.min(30, n * 3), r.left + r.width / 2, r.top + r.height / 2);
+    start(); play('spark', n);
   }
-  function popRain(sec) { popUntil = Math.max(popUntil, Date.now() + sec * 1000); start(); }
+  function boost(sec) { boostUntil = Math.max(boostUntil, Date.now() + sec * 1000); start(); }
 
   /* ---------- 文字のポップアップ（+30 など） ---------- */
   function pop(text, x, y, cls) {
@@ -137,5 +145,5 @@
   }
   function popAt(el, text, cls) { if (!el) return; var r = el.getBoundingClientRect(); pop(text, r.left + r.width / 2, r.top, cls); }
 
-  window.LXFX = { play: play, burst: burst, rain: rain, stop: stop, pop: pop, popAt: popAt, unlock: ac, popcorn: popcorn, popRain: popRain };
+  window.LXFX = { play: play, burst: burst, rain: rain, stop: stop, pop: pop, popAt: popAt, unlock: ac, sparks: sparks, boost: boost };
 })();
