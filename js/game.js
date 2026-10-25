@@ -1132,6 +1132,8 @@
   }
   function route(h) {
     var m;
+    // 生徒が 対戦中は 上の ボタンを かくす（うっかり 押して 部屋から ぬけないように。ぬけるのは「◀ ぬける」）
+    if (/^battle\//.test(h)) document.body.setAttribute('data-room', '1'); else document.body.removeAttribute('data-room');
     if (h === 'game') { leaveBattle(); renderHub(); return true; }
     if (h === 'ta') { startSolo(); return true; }
     if ((m = h.match(/^join(?:=(\d*))?(?:&db=(.+))?$/))) { leaveBattle(); openJoin(m[1] || '', m[2] || ''); return true; }

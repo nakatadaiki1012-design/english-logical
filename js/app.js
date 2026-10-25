@@ -171,6 +171,7 @@
   function go(h) { if (location.hash === h) route(); else location.hash = h; }
   function route() {
     if (hasTTS) speechSynthesis.cancel();
+    ['dlg', 'gdlg'].forEach(function (id) { var d = document.getElementById(id); if (d && d.open && !d.querySelector('#hsetdlg')) d.close(); }); // 画面が 変わったら ダイアログは とじる
     if (window.LXG) LXG.leave();
     var h = decodeURIComponent(location.hash.slice(1));
     if (h.indexOf('task=') === 0) { takeTask(h.slice(5)); return; }
@@ -203,6 +204,8 @@
     var nsent = c.units.length * 6, due = dueIds().length;
     var next = UNITS[S.last] && UNITS[S.last].course === c && !prog(S.last).pass ? UNITS[S.last] : c.units.filter(function (u) { return !prog(u.id).pass; })[0];
     var task = S.task && S.task.c === c.id ? S.task : null, taskIds = task ? task.u : [];
+    var tnext = taskIds.filter(function (id) { return UNITS[id] && !prog(id).pass; })[0]; // 課題の 単元が 先
+    if (tnext) next = UNITS[tnext];
     var tb = '';
     if (S.task) {
       var tp = S.task.u.filter(function (id) { return UNITS[id] && prog(id).pass; }).length;
@@ -527,7 +530,7 @@
     if (V.i >= V.q.length) {
       var due = dueIds().length;
       body = '<div class="result">' + (V.total ? '<div class="bigstamp">完了</div><div class="score">' + V.done + '<small> 文</small></div>' : '<p class="h">今日の復習は ありません</p>') +
-        '<p class="body">' + (due ? 'まだ ' + due + ' 文 残っています。' : '「○ 言えた」が続いた文は、次に出るまでの間が のびていきます（1→2→4→7→15→30日）。') + '</p>' +
+        '<p class="body">' + (due ? 'まだ ' + due + ' 文 残っています。' : V.total ? '「○ 言えた」が続いた文は、次に出るまでの間が のびていきます（1→2→4→7→15→30日）。' : '各単元の「⚡ 英作文」で ○△✕ を つけた文や、テストに 合格した 単元の 文が ここに 入ります。') + '</p>' +
         '<div class="row" style="justify-content:center">' +
         (due ? '<button type="button" class="btn main" data-act="review">続ける</button>' : '') +
         '<button type="button" class="btn' + (due ? '' : ' main') + '" data-act="free">🎲 ランダムに 10 文 練習</button>' +
@@ -681,13 +684,13 @@
   }
   var dlg = $('#dlg'), dlgIn = $('#dlgIn');
   function openTask(tab) {
-    tab = tab || (S.task ? 'st' : 'te');
+    tab = tab || 'st'; // 生徒の 画面から（先生は タブで 切りかえ）
     var head = '<div class="dlg-head"><h2>📮 課題</h2><button type="button" class="ibtn x" data-x>✕ とじる</button></div>' +
       '<div class="tabs" role="tablist"><button type="button" role="tab" data-tab="st" aria-selected="' + (tab === 'st') + '">生徒：わたしの課題</button>' +
       '<button type="button" role="tab" data-tab="te" aria-selected="' + (tab === 'te') + '">先生：課題をつくる</button></div>';
     var body;
     if (tab === 'st') {
-      if (!S.task) body = '<p>まだ課題はありません。先生から届いたリンクを開くと、ここに出ます。</p>';
+      if (!S.task) body = '<p>まだ課題はありません。先生から届いたリンクを開くと、ここに出ます。</p><p class="note">先生の方は 上の「先生：課題をつくる」へ</p>';
       else {
         var t = S.task, pc = 0;
         body = (t.m ? '<p>💬 ' + esc(t.m) + '</p>' : '') + '<ul class="tlist">' + t.u.map(function (id) {
