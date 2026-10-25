@@ -1,0 +1,41 @@
+// 追加の演習文（ゲームの 長文コース用）の点検： node js/more/check.js js/more/c1-a.js
+global.window = {};
+const path = require('path');
+const base = path.join(__dirname, '..');
+['data-c1.js', 'data-c2.js', 'data-c3.js', 'plus/c1-a.js', 'plus/c1-b.js', 'plus/c2-a.js', 'plus/c2-b.js', 'plus/c3-a.js', 'plus/c3-b.js'].forEach(f => require(path.join(base, f)));
+const file = path.resolve(process.argv[2]);
+require(file);
+const units = {}; window.LX.courses.forEach(c => c.units.forEach(u => units[u.id] = u));
+const bad = []; const len = s => Array.from(String(s || '')).length;
+const more = window.LX.more || {};
+const ids = Object.keys(more);
+if (!ids.length) bad.push('LX.more が空');
+ids.forEach(id => {
+  const u = units[id], list = more[id];
+  if (!u) return bad.push(id + ' という単元はない');
+  if (!Array.isArray(list) || list.length !== 12) bad.push(id + ' は 12 文（いま ' + (list || []).length + '）');
+  const seen = new Set(u.sentences.concat((window.LX.plus[id] || {}).drills || []).map(s => s.en.replace(/[\[\]]/g, '').toLowerCase()));
+  let long = 0;
+  (list || []).forEach((s, j) => {
+    const sid = id + ' #' + (j + 1);
+    const m = s.en.match(/\[([^\]]+)\]/g);
+    if (!m || m.length !== 1) bad.push(`${sid} [ ] が1か所でない: ${s.en}`);
+    const key = m ? m[0].slice(1, -1) : '';
+    const words = s.en.replace(/[\[\]]/g, '').split(' ');
+    if (words.length < 7 || words.length > 13) bad.push(`${sid} 語数 ${words.length}（7〜13）: ${s.en}`);
+    if (words.length >= 10) long++;
+    if (key.split(' ').length > 3) bad.push(`${sid} [ ] が4語以上: ${s.en}`);
+    if (!/[.?!]$/.test(s.en)) bad.push(`${sid} 文末: ${s.en}`);
+    if (/["\/]|  /.test(s.en)) bad.push(`${sid} " か / か 2連続スペース: ${s.en}`);
+    if (!Array.isArray(s.alt) || s.alt.length !== 3 || new Set(s.alt).size !== 3 || s.alt.includes(key)) bad.push(`${sid} alt: ${s.en}`);
+    if (!s.ja) bad.push(`${sid} ja なし`);
+    if (len(s.tip) > 30 || !s.tip) bad.push(`${sid} tip（30字以内・必須）`);
+    if (!s.why || len(s.why) > 60) bad.push(`${sid} why（60字以内・必須）`);
+    if (![0, 1, 2].includes(s.p)) bad.push(`${sid} p は 0・1・2`);
+    const plain = s.en.replace(/[\[\]]/g, '').toLowerCase();
+    if (seen.has(plain)) bad.push(`${sid} 重複: ${s.en}`); seen.add(plain);
+  });
+  if (long < 8) bad.push(id + ' 10 語以上の文が ' + long + ' 文（8 文以上に）');
+});
+console.log(ids.length + ' 単元', bad.length ? '\n問題 ' + bad.length + ' 件\n' + bad.join('\n') : '問題なし');
+process.exit(bad.length ? 1 : 0);

@@ -5,7 +5,7 @@
 
   /* ---------- 教材の準備 ---------- */
   var COURSES = (window.LX && window.LX.courses || []).slice().sort(function (a, b) { return a.id < b.id ? -1 : 1; });
-  var UNITS = {}, SENTS = {}, PLUS = window.LX && window.LX.plus || {};
+  var UNITS = {}, SENTS = {}, PLUS = window.LX && window.LX.plus || {}, MORE = window.LX && window.LX.more || {};
   function prep(s, u, id) {
     s.id = id; s.unit = u;
     s.plain = s.en.replace(/[\[\]]/g, '');
@@ -17,7 +17,7 @@
       u.course = c; u.no = i + 1; UNITS[u.id] = u;
       var px = PLUS[u.id]; // 追加教材：ひとことで言うと・わかりやすいポイント・演習 12 文
       if (px) { if (px.core) u.core = px.core; if (px.points && px.points.length) u.points = px.points; u.drills = px.drills || []; }
-      u.drills = u.drills || [];
+      u.drills = (u.drills || []).concat(MORE[u.id] || []); // 長めの 演習文（js/more）も 演習・ゲームに 足す
       u.sentences.forEach(function (s, j) {
         prep(s, u, u.id + '-' + (j + 1)); SENTS[s.id] = s;
         var w = px && px.swhy && px.swhy[j]; if (w) { s.why = w.why; s.p = w.p; }
@@ -272,7 +272,7 @@
   function drillPool(u) { return u.drills.length ? u.drills : u.sentences; }
   function newDrill() {
     var flip = Math.random() < 0.5;
-    // 演習文（24 文）から 毎回 ちがう 12 問
+    // 演習文（36 文）から 毎回 ちがう 12 問
     V.dr = shuffle(drillPool(V.u)).slice(0, 12).map(function (s, i) { return { s: s, type: (i % 2 === 0) === flip ? 'order' : 'cloze' }; });
     V.a = {}; V.page = 0;
   }

@@ -304,6 +304,23 @@ dialog::backdrop { background: rgba(0, 0, 0, .35); }
 .hubp .fld input { min-width: 0; }
 .fld.go { margin-top: auto; }
 .fld.teacher { margin-top: auto; border-top: 1px dashed var(--line); padding-top: 8px; }
+/* 3 つの コース（寿司打の お手軽・お勧め・高級 のように えらぶだけで スタート） */
+.lvs { flex: 1; min-height: 0; display: grid; grid-template-rows: repeat(3, minmax(0, 1fr)); gap: 8px; max-height: 330px; }
+.lvb { display: grid; grid-template-columns: auto 1fr auto; grid-template-rows: auto auto; column-gap: 10px; align-items: center; text-align: left;
+  border: 2px solid var(--line); border-radius: 10px; padding: 6px 12px; background: var(--panel); color: var(--ink); cursor: pointer; min-height: 0;
+  transition: transform .12s, box-shadow .12s; box-shadow: 0 3px 0 rgba(0,0,0,.12); font: inherit; }
+.lvb:hover { transform: translateY(-2px); box-shadow: 0 5px 0 rgba(0,0,0,.14); }
+.lvb:active { transform: translateY(2px); box-shadow: 0 1px 0 rgba(0,0,0,.14); }
+.lvb i { grid-row: 1 / 3; font-style: normal; font-size: 30px; line-height: 1; }
+.lvb b { font-family: var(--font-display); font-size: 19px; line-height: 1.2; }
+.lvb small { grid-column: 2; font-size: 12px; color: var(--muted); line-height: 1.3; }
+.lvb .lvbest { grid-column: 3; grid-row: 1 / 3; text-align: right; font-size: 11px; color: var(--muted); line-height: 1.1; }
+.lvb .lvbest em { display: block; font-style: normal; font-family: var(--font-en); font-size: 20px; color: var(--ink); }
+.lvb.lv-easy { border-color: #7bc6a4; background: linear-gradient(100deg, rgba(123,198,164,.18), transparent 70%), var(--panel); }
+.lvb.lv-std { border-color: var(--accent); background: linear-gradient(100deg, var(--accent-soft), transparent 70%), var(--panel); }
+.lvb.lv-long { border-color: #c9a03a; background: linear-gradient(100deg, #1d2547, #2c3566 70%, #3a2f5c); color: #fff; }
+.lvb.lv-long small, .lvb.lv-long .lvbest { color: #d9cfa8; }
+.lvb.lv-long .lvbest em, .lvb.lv-long b { color: #ffe08a; }
 .btn.big { font-size: 17px; padding: 9px 22px; }
 .bestv { color: var(--muted); font-size: 13px; }
 .bestv b { font-family: var(--font-en); color: var(--ink); font-size: 18px; }
@@ -390,6 +407,12 @@ dialog::backdrop { background: rgba(0, 0, 0, .35); }
   .hubp h3 { font-size: 18px; }
   .hubp > .note { display: none; }
   .fld.go, .fld.teacher { margin-top: 0; }
+  .lvs { flex: none; grid-template-rows: none; gap: 6px; }
+  .lvb { padding: 4px 10px; }
+  .lvb i { font-size: 24px; }
+  .lvb b { font-size: 16px; }
+  .lvb small { font-size: 11px; }
+  .lvb .lvbest em { font-size: 17px; }
   .rwbtn { padding: 4px 8px; font-size: 12.5px; }
   .ubar .utitle small { display: none; }
   .hud { gap: 6px; }
@@ -962,6 +985,12 @@ dialog::backdrop { background: rgba(0, 0, 0, .35); }
 <script src="js/plus/c2-b.js"></script>
 <script src="js/plus/c3-a.js"></script>
 <script src="js/plus/c3-b.js"></script>
+<script src="js/more/c1-a.js"></script>
+<script src="js/more/c1-b.js"></script>
+<script src="js/more/c2-a.js"></script>
+<script src="js/more/c2-b.js"></script>
+<script src="js/more/c3-a.js"></script>
+<script src="js/more/c3-b.js"></script>
 <script src="js/fig.js"></script>
 <script src="js/config.js"></script>
 <script src="js/fx.js"></script>

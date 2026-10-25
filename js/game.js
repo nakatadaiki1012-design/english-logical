@@ -127,7 +127,7 @@
   function dlgOpen(html) { gin.innerHTML = html; if (!gdlg.open) gdlg.showModal(); }
   function openRewards() {
     var r = rw(), lv = levelOf(r.coins), pc = lv.next ? (r.coins - lv.from) / (lv.next - lv.from) * 100 : 100;
-    var keys = [['c1', 'Ⅰ'], ['c2', 'Ⅱ'], ['c3', 'Ⅲ'], ['all', '全']], ms = [['order', '並べかえ'], ['cloze', '穴うめ'], ['mix', 'ミックス']];
+    var keys = [['c1', 'Ⅰ'], ['c2', 'Ⅱ'], ['c3', 'Ⅲ'], ['all', '全']], ms = LVS.map(function (l) { return [l.k, l.ico + l.name.replace('便', '')]; });
     dlgOpen('<div class="dlg-head"><h2>🪙 ごほうび</h2><button type="button" class="ibtn x" data-x>✕ とじる</button></div>' +
       '<div class="dlg-body rwbody">' +
       '<div class="lvcard"><small>いまの段位</small><b class="lvname">' + lv.name + '</b>' +
@@ -203,7 +203,14 @@
     return c + (cfg.u && cfg.u < 12 ? '（〜' + cfg.u + '）' : '') + (cfg.p ? '（合格した単元）' : '');
   }
   var TIMES = [[30, '30秒'], [60, '1分'], [90, '1分半'], [120, '2分'], [180, '3分'], [300, '5分']];
-  var MODES = [['order', '🧩 並べかえ'], ['cloze', '✏️ 穴うめ'], ['mix', '🔀 ミックス']];
+  /* 3 つの コース（並べかえ・穴うめは いつも ミックス）。長い文ほど むずかしいが 点数が のびる
+     w：出す文の 語数、x：点数の 倍率、miss：ミスで へる 燃料（ms） */
+  var LVS = [
+    { k: 'easy', ico: '🛩', name: 'ショート便', sub: '短い文・はじめての人に', w: [0, 7], x: 1, miss: 1000 },
+    { k: 'std', ico: '🚀', name: 'スタンダード便', sub: 'いろいろな長さ・点数 ×1.8', w: [0, 99], x: 1.8, miss: 1000 },
+    { k: 'long', ico: '🌌', name: '長距離便', sub: '長文だけ・点数 ×2.5・ミス −2秒', w: [9, 99], x: 2.5, miss: 2000 }];
+  function lvOf(cfg) { var k = cfg && cfg.lv; return LVS.filter(function (l) { return l.k === k; })[0] || LVS[1]; }
+  function lvName(cfg) { var l = lvOf(cfg); return l.ico + ' ' + l.name; }
   var SRCS = [['all', '例文＋演習文'], ['core', '例文だけ（覚えた文）'], ['drill', '演習文だけ（初めての文）']];
   function tName(t) { var x = TIMES.filter(function (o) { return o[0] === +t; })[0]; return x ? x[1] : t + '秒'; }
   function srcOf(u, src) {
@@ -211,6 +218,11 @@
     return src === 'core' ? u.sentences : src === 'drill' ? d : u.sentences.concat(u.drills || []);
   }
   function pool(cfg) {
+    var all = poolAll(cfg), w = lvOf(cfg).w;
+    var fit = all.filter(function (s) { var n = words(s); return n >= w[0] && n <= w[1]; });
+    return fit.length >= 8 ? fit : all; // えらんだ範囲が せまくて 足りないときは 全部の長さから
+  }
+  function poolAll(cfg) {
     var us = usOf(cfg);
     if (us.length) return [].concat.apply([], us.map(function (id) { return srcOf(A().UNITS[id], cfg.src); }));
     var out = [];
@@ -225,11 +237,11 @@
     return out;
   }
   function cfgName(cfg) {
-    return rangeName(cfg) + '・' + { order: '並べかえ', cloze: '穴うめ', mix: 'ミックス' }[cfg.m] + '・' + tName(cfg.t) +
+    return lvName(cfg) + '・' + rangeName(cfg) + '・' + tName(cfg.t) +
       (cfg.src === 'core' ? '・例文だけ' : cfg.src === 'drill' ? '・演習文だけ' : '');
   }
   function words(s) { return s.plain.split(' ').length; }
-  function soloName(cfg) { return rangeName(cfg) + '・' + { order: '並べかえ', cloze: '穴うめ', mix: 'ミックス' }[cfg.m]; }
+  function soloName(cfg) { return lvName(cfg) + '・' + rangeName(cfg); }
 
   var G = null;          // 遊んでいるゲーム
   var OFF = 0;           // サーバーとの時計のずれ（ms）
@@ -303,7 +315,7 @@
   function fillQueue() { while (G.queue.length < 3) G.queue.push(pickS()); }
   function nextQ() {
     var s = G.queue.shift(); fillQueue();
-    var type = G.cfg.m === 'mix' ? (G.R() < 0.5 ? 'order' : 'cloze') : G.cfg.m;
+    var type = G.R() < 0.5 ? 'order' : 'cloze'; // 並べかえ・穴うめは いつも ミックス
     if (type === 'order') {
       var t = A().tilesOf(s), idx = t.tiles.map(function (_, i) { return i; });
       G.q = { s: s, type: type, tiles: t.tiles, end: t.end, ord: rshuffle(idx, G.R), placed: [], ptr: 0, bad: -1 };
@@ -314,7 +326,7 @@
     G.lock = false;
   }
   function pts(base) {
-    var p = Math.round(base * mult()); G.score += p;
+    var p = Math.round(base * mult() * lvOf(G.cfg).x); G.score += p;
     var sc = $('#hscore'); if (sc) { sc.classList.remove('bump'); void sc.offsetWidth; sc.classList.add('bump'); }
     return p;
   }
@@ -339,7 +351,7 @@
   function timePop(text, cls) { var t = $('.play .tbar'); if (t && window.LXFX) LXFX.popAt(t, text, cls); }
   function miss() {
     G.combo = 0; G.miss++; G.meter = Math.floor(G.meter / 2);
-    if (G.mode === 'solo') { G.left -= RULE.miss; timePop('−1秒', 'tminus'); }
+    if (G.mode === 'solo') { var ms = lvOf(G.cfg).miss; G.left -= ms; timePop('−' + ms / 1000 + '秒', 'tminus'); }
     FX('miss'); flash('ng');
   }
   function flash(k) {
@@ -453,7 +465,7 @@
       var n = Math.ceil((G.startAt - t) / 1000);
       if (n !== G.lastN) {
         G.lastN = n; if (n <= 3) FX('beep');
-        el.innerHTML = '<div class="count"><small>' + esc(cfgName(G.cfg)) + '</small><b class="cd">' + (n > 3 ? '…' : n) + '</b><small>' + (G.mode === 'solo' ? '🚀 正しいカードで 燃料を入れて 打ち上げ！ 正解を続けると 🔥ブーストで 加速、燃料（時間）も ふえる。ミスは −1 秒。高く上がるほど 燃料の減りが 速くなる' : '正しいカード・答えを どんどんタップ！ ミスするとコンボが切れる') + '</small></div>';
+        el.innerHTML = '<div class="count"><small>' + esc(G.mode === 'solo' ? soloName(G.cfg) : cfgName(G.cfg)) + '</small><b class="cd">' + (n > 3 ? '…' : n) + '</b><small>' + (G.mode === 'solo' ? '🚀 並べかえと 穴うめが まざって出る。正しいカードで 燃料を入れて 打ち上げ！ 正解を続けると 🔥ブーストで 加速、燃料（時間）も ふえる。ミスは −' + lvOf(G.cfg).miss / 1000 + ' 秒。高く上がるほど 燃料の減りが 速くなる' : '正しいカード・答えを どんどんタップ！ ミスするとコンボが切れる') + '</small></div>';
       }
       drawHud(); return;
     }
@@ -508,17 +520,17 @@
   }
 
   /* ---------- ひとりで タイムアタック ---------- */
-  function taCfg() { var s = S(); if (!s.ta) s.ta = { c: s.course || 'c1', m: 'order', p: 0, u: 12, t: 60 }; return s.ta; }
+  function taCfg() { var s = S(); if (!s.ta) s.ta = { c: s.course || 'c1', lv: 'std' }; if (!s.ta.lv) s.ta.lv = 'std'; return s.ta; }
+  /* ひとりは だれでも 同じ条件（教科書の 全単元・ミックス・燃料 60 秒）→ ベストを くらべて 自慢しやすい */
+  function bestKey(c, lv) { return c + '-' + lv; }
   function startSolo() {
-    var cfg = taCfg(), c2 = { c: cfg.c, m: cfg.m, p: cfg.p === 1 ? 1 : 0, u: 12, t: 60, us: cfg.p === 2 ? cfg.us || '' : '' };
-    if (cfg.p === 2 && !usOf(c2).length) { location.hash = '#game'; toast('出題する単元を えらんでください'); return; }
-    if (!pool(c2).length) { c2.p = 0; toast('合格した単元がまだないので、全単元から出します'); }
+    var cfg = taCfg(), c2 = { c: cfg.c, lv: cfg.lv, m: 'mix', p: 0, u: 12, t: 60, us: '' };
     newGame(c2, Math.floor(Math.random() * 1e9), 'solo', Date.now() + 3200);
     playShell('スコア');
     runClock(endSolo);
   }
   function endSolo() {
-    var r = rw(), key = (usOf(G.cfg).length ? 'pick' : G.cfg.c) + '-' + G.cfg.m + (G.cfg.t !== 60 ? '-' + G.cfg.t : ''), prev = r.best[key] || 0, rec = G.score > prev;
+    var r = rw(), key = bestKey(G.cfg.c, lvOf(G.cfg).k), prev = r.best[key] || 0, rec = G.score > prev;
     if (rec) r.best[key] = G.score;
     var coins = afterGame(); save(); earn(coins); checkBadges();
     var dur = Math.round(G.dur || 0), mm = Math.floor(dur / 60) + '分' + (dur % 60) + '秒';
@@ -560,7 +572,6 @@
     var seg = function (key, opts) {
       return '<div class="seg">' + opts.map(function (o) { return '<button type="button" data-ta="' + key + ':' + o[0] + '" aria-pressed="' + (String(cfg[key]) === String(o[0])) + '">' + o[1] + '</button>'; }).join('') + '</div>';
     };
-    var tt = 60, best = r.best[(cfg.p === 2 ? 'pick' : cfg.c) + '-' + cfg.m + (tt !== 60 ? '-' + tt : '')] || 0;
     var hasDb = !!base();
     A().view.innerHTML = '<div class="unit">' +
       '<div class="ubar"><button type="button" class="btn ghost" data-act="home">◀ 一覧</button>' +
@@ -568,11 +579,12 @@
       '<button type="button" class="btn ghost rwbtn" data-ga="rewards">🏅 段位・バッジ</button></div>' +
       '<div class="hub">' +
       '<section class="panel hubp ta"><h3><span class="hico">🚀</span> 英文ロケット</h3><p class="note">正しいカードで 燃料を入れて 打ち上げ！ 正解を続けると 🔥ブーストで 加速。どこまで 高く 行ける？</p>' +
-      '<div class="fld"><span class="fl">コース</span>' + seg('c', [['c1', 'Ⅰ'], ['c2', 'Ⅱ'], ['c3', 'Ⅲ'], ['all', '全部']]) + '</div>' +
-      '<div class="fld"><span class="fl">種目</span>' + seg('m', [['order', '並べかえ'], ['cloze', '穴うめ'], ['mix', 'ミックス']]) + '</div>' +
-      '<div class="fld"><span class="fl">範囲</span>' + seg('p', [[2, '📚 えらぶ'], [1, '合格した単元'], [0, '全単元']]) + '</div>' +
-      (cfg.p === 2 ? '<div class="fld"><span class="fl"></span><button type="button" class="btn rangebtn" data-ga="spick">' + (usOf(cfg).length ? '📚 ' + esc(rangeName(cfg)) + ' ✎' : '📚 単元をえらぶ') + '</button></div>' : '') +
-      '<div class="fld go"><button type="button" class="btn main big" data-ga="solo">▶ スタート</button><span class="bestv">ベスト <b>' + fmt(best) + '</b> 点</span></div>' +
+      '<div class="fld"><span class="fl">教科書</span>' + seg('c', [['c1', 'Ⅰ'], ['c2', 'Ⅱ'], ['c3', 'Ⅲ'], ['all', '全部']]) + '</div>' +
+      '<div class="lvs">' + LVS.map(function (l) {
+        var b = r.best[bestKey(cfg.c, l.k)] || 0;
+        return '<button type="button" class="lvb lv-' + l.k + '" data-ta="go:' + l.k + '"><i>' + l.ico + '</i><b>' + l.name + '</b><small>' + l.sub + '</small>' +
+          '<span class="lvbest">ベスト <em>' + (b ? fmt(b) : '－') + '</em></span></button>';
+      }).join('') + '</div>' +
       '</section>' +
       '<section class="panel hubp vs"><h3><span class="hico">🏆</span> クラス対戦</h3><p class="note">先生の合図で 全員いっせいにスタート。ランキングが リアルタイムで動く</p>' +
       (hasDb ?
@@ -583,11 +595,10 @@
       '</section></div></div>';
   }
   function hubTa(v) {
-    var kv = v.split(':'), cfg = taCfg(); cfg[kv[0]] = kv[0] === 'p' || kv[0] === 't' ? +kv[1] : kv[1]; save(); renderHub();
-    if (kv[0] === 'p' && cfg.p === 2 && !usOf(cfg).length) soloPick();
-    if (kv[0] === 'c' && cfg.p === 2) { cfg.p = 0; save(); renderHub(); }
+    var kv = v.split(':'), cfg = taCfg();
+    if (kv[0] === 'go') { cfg.lv = kv[1]; save(); location.hash = '#ta'; return; } // コースを えらぶと すぐ スタート
+    cfg[kv[0]] = kv[1]; save(); renderHub();
   }
-  function soloPick() { var cfg = taCfg(); openPicker(cfg.us || '', cfg.c === 'all' ? S().course : cfg.c, function (us) { cfg.us = us; if (!us) cfg.p = 0; save(); renderHub(); }); }
 
   /* ---------- 単元えらび（今日の授業の範囲） ---------- */
   var P = null;
@@ -690,7 +701,7 @@
   /* ---------- 先生：部屋 ---------- */
   var H = null;
   function makeRoom() {
-    var cfg = { c: S().course || 'c1', m: 'order', u: 12, t: 60 };
+    var cfg = { c: S().course || 'c1', m: 'mix', lv: 'std', u: 12, t: 60 };
     var tryOne = function (n) {
       var code = String(1000 + Math.floor(Math.random() * 9000));
       return api('GET', 'rooms/' + code).then(function (v) {
@@ -741,8 +752,8 @@
       '<div class="hsum">' +
       '<p><span>⏱</span><b>' + esc(tName(cfg.t)) + '</b></p>' +
       '<p><span>📚</span><b>' + esc(rangeName(cfg)) + '</b></p>' +
-      '<p><span>🧩</span><b>' + esc((MODES.filter(function (o) { return o[0] === cfg.m; })[0] || ['', ''])[1].replace(/^\S+ /, '')) + '・' + esc((SRCS.filter(function (o) { return o[0] === (cfg.src || 'all'); })[0] || ['', ''])[1].replace(/（.*）/, '')) + '</b></p>' +
-      '<button type="button" class="btn hsetbtn" data-ga="hset"' + (busy ? ' disabled' : '') + '>⚙ 出題の設定（時間・単元・出題方法）</button>' +
+      '<p><span>' + lvOf(cfg).ico + '</span><b>' + esc(lvOf(cfg).name) + '・' + esc((SRCS.filter(function (o) { return o[0] === (cfg.src || 'all'); })[0] || ['', ''])[1].replace(/（.*）/, '')) + '</b></p>' +
+      '<button type="button" class="btn hsetbtn" data-ga="hset"' + (busy ? ' disabled' : '') + '>⚙ 出題の設定（時間・単元・コース）</button>' +
       '</div>' +
       '<div class="hbtns"><span class="ppl">👥 <b>' + n + '</b> 人</span>' +
       '<button type="button" class="btn main big" data-ga="hstart"' + (busy ? ' disabled' : '') + '>' + (r.round ? '▶ 第' + (r.round + 1) + '回戦 スタート' : '▶ スタート') + '</button></div>' +
@@ -774,14 +785,14 @@
     });
   }
   function hostCfg(v) {
-    var kv = v.split(':'), val = kv[0] === 'c' || kv[0] === 'm' || kv[0] === 'src' ? kv[1] : +kv[1], o = {}; o[kv[0]] = val;
+    var kv = v.split(':'), val = kv[0] === 'c' || kv[0] === 'lv' || kv[0] === 'src' ? kv[1] : +kv[1], o = {}; o[kv[0]] = val;
     if (kv[0] === 'c') { o.us = ''; o.u = 12; }
     Object.keys(o).forEach(function (k) { H.room.cfg[k] = o[k]; }); // 先に画面へ反映
     api('PATCH', 'rooms/' + H.code + '/cfg', o).catch(function () { toast('変更できませんでした'); });
     if (gdlg.open && $('#hsetdlg')) openHostSet();
     drawHostL(true);
   }
-  /* ⚙ 出題の設定（先生）：時間・単元・出題方法・出す文 を 1 枚で */
+  /* ⚙ 出題の設定（先生）：時間・単元・コース・出す文 を 1 枚で（並べかえ・穴うめは いつも ミックス） */
   function openHostSet() {
     if (!H || !H.room) return;
     var cfg = H.room.cfg, us = usOf(cfg), n = pool(cfg).length;
@@ -794,7 +805,7 @@
       '<div class="hrow"><span class="hl">📚 範囲</span><div class="hcol">' +
       '<button type="button" class="btn rangebtn' + (us.length ? ' on' : '') + '" data-hs="pick">' + (us.length ? '📚 ' + esc(rangeName(cfg)) + ' ✎' : '📚 今日の単元をえらぶ') + '</button>' +
       '<div class="hsub"><span class="note">または コース全部：</span>' + seg('c', [['c1', 'Ⅰ'], ['c2', 'Ⅱ'], ['c3', 'Ⅲ'], ['all', '全']], us.length ? '' : cfg.c) + '</div></div></div>' +
-      '<div class="hrow"><span class="hl">🧩 出題方法</span>' + seg('m', MODES, cfg.m) + '</div>' +
+      '<div class="hrow"><span class="hl">🚀 コース</span>' + seg('lv', LVS.map(function (l) { return [l.k, l.ico + ' ' + l.name]; }), lvOf(cfg).k) + '</div>' +
       '<div class="hrow"><span class="hl">📖 出す文</span>' + seg('src', SRCS, cfg.src || 'all') + '</div>' +
       '<div class="pkfoot"><span>出題される文：<b>' + n + '</b> 文</span><button type="button" class="btn main" data-x>決定 ▶</button></div>' +
       '</div>');
@@ -1132,7 +1143,6 @@
         case 'tab': H.tab = d.ga.split(':')[1]; drawBoard(); break;
         case 'hpick': hostPick(); break;
         case 'hset': openHostSet(); break;
-        case 'spick': soloPick(); break;
         case 'podium': if (H && H.room) showPodium(H.room); break;
         case 'bleave': leaveBattle(); leave(); location.hash = '#game'; break;
       }
