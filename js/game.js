@@ -212,6 +212,12 @@
   function lvOf(cfg) { var k = cfg && cfg.lv; return LVS.filter(function (l) { return l.k === k; })[0] || LVS[1]; }
   function lvName(cfg) { var l = lvOf(cfg); return l.ico + ' ' + l.name; }
   var SRCS = [['all', '例文＋演習文'], ['core', '例文だけ（覚えた文）'], ['drill', '演習文だけ（初めての文）']];
+  var TOPS = [[3, '上位 3 人'], [5, '5 人'], [10, '10 人'], [0, '全員']];
+  function topN(cfg) { return cfg && cfg.top != null ? +cfg.top : 10; } // 大画面に 映す 人数（0 ＝ 全員）
+  function topName(cfg) { var n = topN(cfg); return n ? '上位 ' + n + ' 人まで 表示' : '全員を 表示'; }
+  /* 順位（同点は 同じ順位）。先生の画面では 上位 n 位までに しぼる */
+  function rankOf(list, id, mode) { var d = rowData(list, mode).filter(function (x) { return x.p.id === id; })[0]; return d ? d.rank : 0; }
+  function cut(list, n, mode) { if (!n) return list; var ds = rowData(list, mode); return ds.filter(function (d) { return d.rank <= n; }).map(function (d) { return d.p; }); }
   function tName(t) { var x = TIMES.filter(function (o) { return o[0] === +t; })[0]; return x ? x[1] : t + '秒'; }
   function srcOf(u, src) {
     var d = u.drills && u.drills.length ? u.drills : u.sentences;
@@ -760,9 +766,10 @@
       '<p class="note joinhow">論理表現ラボ → 🎮 → 🏆 で 番号を入力<br>または QR を読みとる</p>' +
       '<div class="hsum">' +
       '<p><span>⏱</span><b>' + esc(tName(cfg.t)) + '</b></p>' +
+      '<p><span>🏆</span><b>' + esc(topName(cfg)) + '</b></p>' +
       '<p><span>📚</span><b>' + esc(rangeName(cfg)) + '</b></p>' +
       '<p><span>' + lvOf(cfg).ico + '</span><b>' + esc(lvOf(cfg).name) + '・' + esc((SRCS.filter(function (o) { return o[0] === (cfg.src || 'all'); })[0] || ['', ''])[1].replace(/（.*）/, '')) + '</b></p>' +
-      '<button type="button" class="btn hsetbtn" data-ga="hset"' + (busy ? ' disabled' : '') + '>⚙ 出題の設定（時間・単元・コース）</button>' +
+      '<button type="button" class="btn hsetbtn" data-ga="hset"' + (busy ? ' disabled' : '') + '>⚙ 出題の設定（時間・単元・コース・映す人数）</button>' +
       '</div>' +
       '<div class="hbtns"><span class="ppl">👥 <b>' + n + '</b> 人</span>' +
       '<button type="button" class="btn main big" data-ga="hstart"' + (busy ? ' disabled' : '') + '>' + (r.round ? '▶ 第' + (r.round + 1) + '回戦 スタート' : '▶ スタート') + '</button></div>' +
@@ -816,6 +823,7 @@
       '<div class="hsub"><span class="note">または コース全部：</span>' + seg('c', [['c1', 'Ⅰ'], ['c2', 'Ⅱ'], ['c3', 'Ⅲ'], ['all', '全']], us.length ? '' : cfg.c) + '</div></div></div>' +
       '<div class="hrow"><span class="hl">🚀 コース</span>' + seg('lv', LVS.map(function (l) { return [l.k, l.ico + ' ' + l.name]; }), lvOf(cfg).k) + '</div>' +
       '<div class="hrow"><span class="hl">📖 出す文</span>' + seg('src', SRCS, cfg.src || 'all') + '</div>' +
+      '<div class="hrow"><span class="hl">🏆 映す人数</span><div class="hcol">' + seg('top', TOPS, topN(cfg)) + '<span class="note topnote">大画面の ランキングに 出す 人数。自分の 順位は 生徒の 画面に いつも 出ます</span></div></div>' +
       '<div class="pkfoot"><span>出題される文：<b>' + n + '</b> 文</span><button type="button" class="btn main" data-x>決定 ▶</button></div>' +
       '</div>');
   }
@@ -831,14 +839,14 @@
       .catch(function () { toast('スタートできませんでした'); });
   }
   /* ランキング表：広さ（W×H）を測って、入る列数・行数・文字の大きさを決める（40人でもスクロールなし） */
-  function rows(list, mode, W, H) {
+  function rows(list, mode, W, H, hid) {
     var top = Math.max(1, list.reduce(function (m, p) { return Math.max(m, mode === 'best' ? p.b || 0 : p.s || 0); }, 0));
-    var n = list.length, cols = n <= 10 ? 1 : n <= 24 ? 2 : 3, rowsN = n, more = 0, style = '';
+    var n = list.length + (hid ? 1 : 0), cols = n <= 10 ? 1 : n <= 24 ? 2 : 3, rowsN = n, more = 0, style = ''; // hid：「ほか ○ 人」の 行
     if (W && H) {
       cols = Math.max(1, Math.min(cols, Math.floor(W / 230)));
       var maxRows = Math.max(1, Math.floor(H / 24));
       rowsN = Math.ceil(n / cols);
-      if (rowsN > maxRows) { rowsN = maxRows; more = n - (cols * rowsN - 1); list = list.slice(0, cols * rowsN - 1); }
+      if (rowsN > maxRows) { rowsN = maxRows; more = list.length - (cols * rowsN - 1); list = list.slice(0, cols * rowsN - 1); }
       rowsN = Math.max(Math.min(8, maxRows), rowsN);
       var fs = Math.max(11, Math.min(26, H / rowsN * 0.55));
       style = ' style="grid-template-columns:repeat(' + cols + ',minmax(0,1fr));grid-template-rows:repeat(' + rowsN + ',minmax(0,1fr));font-size:' + fs.toFixed(1) + 'px"';
@@ -847,7 +855,7 @@
       rowData(list, mode, top).map(function (d) {
         return '<li data-id="' + esc(d.p.id) + '" class="' + (d.top ? 'top top' + d.rank : '') + (d.p.id === pid() ? ' me' : '') + '"><span class="rn">' + d.medal + '</span><span class="nm">' + nmHTML(d, mode) + '</span>' +
           '<span class="bar"><i style="width:' + d.pct + '%"></i></span><span class="sc">' + fmt(d.v) + '</span></li>';
-      }).join('') + (more ? '<li class="more">…ほか ' + more + ' 人</li>' : '') + '</ol>';
+      }).join('') + (more || hid ? '<li class="more">…ほか ' + ((more || 0) + (hid || 0)) + ' 人' + (hid ? '（順位は 自分の 画面で）' : '') + '</li>' : '') + '</ol>';
   }
   function rowData(list, mode, top) {
     if (!top) top = Math.max(1, list.reduce(function (m, p) { return Math.max(m, mode === 'best' ? p.b || 0 : p.s || 0); }, 0));
@@ -888,12 +896,12 @@
   function hueOf(n) { var h = 0; for (var i = 0; i < n.length; i++) h = (h * 31 + n.charCodeAt(i)) % 360; return h; }
   function drawBoard() {
     var el = $('#board'), r = H && H.room; if (!el || !r) return;
-    var t = now(), head, body, bl, lst = null, lmode = 'now';
+    var t = now(), head, body, bl, lst = null, lmode = 'now', hid = 0;
     var tabs = '<div class="btabs"><button type="button" data-ga="tab:now" aria-selected="' + (H.tab === 'now') + '">今回</button><button type="button" data-ga="tab:best" aria-selected="' + (H.tab === 'best') + '">🏆 ハイスコア</button></div>';
     if (H.tab === 'best') {
       head = '<div class="bhead"><b>🏆 この部屋のハイスコア</b>' + tabs + '</div>';
       bl = playersOf(r).filter(function (p) { return p.b > 0; });
-      if (bl.length) { lst = bl; lmode = 'best'; } else body = '<div class="count"><small>まだ記録がありません</small></div>';
+      if (bl.length) { lst = cut(bl, topN(r.cfg), 'best'); hid = bl.length - lst.length; lmode = 'best'; } else body = '<div class="count"><small>まだ記録がありません</small></div>';
     } else if (r.state === 'lobby' || !r.round) {
       var ps = playersOf(r), seen = H.seen || (H.seen = {});
       if (ps.length > (H.lastN || 0) && H.lastN != null) FX('pop');
@@ -912,6 +920,7 @@
       body = '<div class="count"><b class="cd" data-n="' + cn + '">' + cn + '</b><small>まもなく スタート！</small></div>';
     } else {
       lst = playersOf(r, r.round);
+      var all = lst.length; lst = cut(lst, topN(r.cfg), 'now'); hid = all - lst.length;
       var end = r.state === 'end', left = Math.max(0, r.startAt + r.cfg.t * 1000 - t);
       head = '<div class="bhead"><b>' + (end ? '🎉 第' + r.round + '回戦 結果発表' : '⏱ 残り ' + Math.ceil(left / 1000) + ' 秒') + '</b>' + tabs + '</div>' +
         (end ? '' : '<div class="tbar host"><i style="width:' + (left / (r.cfg.t * 1000) * 100) + '%"' + (left < 10000 ? ' class="hurry"' : '') + '></i></div>');
@@ -920,7 +929,7 @@
     }
     if (r.state === 'play' && t >= r.startAt && H.goR !== r.round) { H.goR = r.round; FX('go'); banner('スタート！', 'go'); }
     if (r.state === 'play' && t >= r.startAt + r.cfg.t * 1000 && H.whR !== r.round) { H.whR = r.round; FX('whistle'); banner('そこまで！', 'stop'); }
-    var key = H.tab + '|' + r.state + '|' + r.round + '|' + (lst ? lst.map(function (p) { return p.id; }).join(',') : body);
+    var key = H.tab + '|' + r.state + '|' + r.round + '|' + hid + '|' + (lst ? lst.map(function (p) { return p.id; }).join(',') : body);
     var bb = el.querySelector('.bbody');
     if (H.bkey === key && bb) {
       var bh = el.querySelector('.bh'); if (bh && bh.innerHTML !== head) bh.innerHTML = head;
@@ -930,7 +939,7 @@
     var old = {};
     if (bb) bb.querySelectorAll('li[data-id]').forEach(function (li) { old[li.dataset.id] = li.getBoundingClientRect(); });
     el.innerHTML = '<div class="bh">' + head + '</div><div class="bbody">' + (lst ? '' : body) + '</div>';
-    if (lst) { bb = el.querySelector('.bbody'); bb.innerHTML = rows(lst, lmode, bb.clientWidth, bb.clientHeight); if (H.bkey && H.bkey.split('|')[1] === r.state) flip(bb, old); }
+    if (lst) { bb = el.querySelector('.bbody'); bb.innerHTML = rows(lst, lmode, bb.clientWidth, bb.clientHeight, hid); if (H.bkey && H.bkey.split('|')[1] === r.state) flip(bb, old); }
     H.bkey = key;
     // トップ交代
     if (r.state === 'play' && H.tab === 'now' && lst && lst[0] && lst[0].s > 0) {
@@ -1040,7 +1049,8 @@
     if (room.state === 'end' && B.played === room.round && !B.awarded[room.round]) {
       B.awarded[room.round] = 1;
       var lst = playersOf(room, room.round), my = lst.map(function (p) { return p.id; }).indexOf(pid());
-      if (my >= 0 && my < 3 && lst[my].s > 0) { rw().top3++; earn(50); }
+      var myRank = rankOf(lst, pid(), 'now');
+      if (my >= 0 && myRank <= 3 && lst[my].s > 0) { rw().top3++; earn(50); }
       save(); checkBadges();
       B.cel = { round: room.round, rank: my + 1, n: lst.length };
       setTimeout(function () {
@@ -1076,12 +1086,15 @@
     else if (B.played && room.round === B.played) {
       var lst = playersOf(room, room.round), my = lst.map(function (p) { return p.id; }).indexOf(pid()), meP = lst[my] || {};
       var fin = room.state === 'end';
-      var rk = my + 1, win = fin && rk === 1 && (meP.s || 0) > 0, med = fin && rk <= 3 && (meP.s || 0) > 0;
+      // 自分の 順位は いつも 見える。表は 先生が えらんだ 人数（最大 5 人）＋ 自分の 行
+      var rk = rankOf(lst, pid(), 'now') || my + 1, show = cut(lst, Math.min(topN(room.cfg) || 5, 5), 'now').slice(0, 5);
+      var mine = show.some(function (p) { return p.id === pid(); }) ? '' : '<ol class="rk mine"><li class="me"><span class="rn">' + rk + '</span><span class="nm">' + esc(meP.n || S().nick || '') + '</span><span class="bar"><i style="width:' + ((meP.s || 0) / Math.max(1, (lst[0] || {}).s || 1) * 100).toFixed(1) + '%"></i></span><span class="sc">' + fmt(meP.s || 0) + '</span></li></ol>';
+      var win = fin && rk === 1 && (meP.s || 0) > 0, med = fin && rk <= 3 && (meP.s || 0) > 0;
       mid = '<p class="note">第' + room.round + '回戦 ' + (fin ? '結果' : '（集計中… みんなが終わるのを待っています）') + '</p>' +
         (win ? '<div class="winner"><span class="crown">👑</span><b>優勝！</b></div>' : med ? '<div class="winner m' + rk + '"><span class="crown">' + ['', '🥇', '🥈', '🥉'][rk] + '</span><b>' + rk + '位！</b></div>' : fin ? '<p class="h">おつかれさま！</p>' : '') +
         '<div class="score' + (win ? ' gold' : '') + '">' + rk + '<small> 位 / ' + lst.length + ' 人</small></div>' +
         '<p class="tstats">' + fmt(meP.s || 0) + ' 点　🧩 ' + (meP.w || 0) + ' 語' + (G && G.coins ? '　🪙 +' + G.coins : '') + '</p>' +
-        rows(lst.slice(0, 5), 'now') +
+        rows(show, 'now') + mine +
         '<p class="note">' + (fin ? '先生が 次のスタートをおすと 始まります' : '') + '</p>';
     } else mid = '<div class="bigstamp wait">参加中</div><p class="h">' + esc(S().nick || '') + ' さん、ようこそ！</p><p class="body">先生が スタートをおすと 3・2・1 で 全員いっせいに始まります</p>' +
       '<div class="chips small">' + playersOf(room).slice(0, 40).map(function (p) { return '<span class="chipn' + (p.id === pid() ? ' me' : '') + '">' + esc(p.n) + '</span>'; }).join('') + '</div>';

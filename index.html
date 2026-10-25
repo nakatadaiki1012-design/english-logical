@@ -382,6 +382,7 @@ dialog::backdrop { background: rgba(0, 0, 0, .35); }
 .rk { flex: 1; min-height: 0; list-style: none; margin: 0; padding: 0; display: grid; grid-auto-flow: column; gap: 3px 18px; }
 .rk li { display: grid; grid-template-columns: 2em minmax(0, 36%) minmax(0, 1fr) 3.8em; align-items: center; gap: 6px; min-height: 0; min-width: 0; line-height: 1.2; overflow: hidden; border-bottom: 1px dashed var(--line); }
 .rk li.more { display: flex; justify-content: center; color: var(--muted); font-size: .8em; }
+.rk.mine { margin-top: 4px; padding-top: 4px; border-top: 1.5px dashed var(--line); flex: none; }
 .rk .rn { text-align: center; font-family: var(--font-en); font-weight: 600; line-height: 1; font-size: .9em; }
 .rk .rn, .rk .nm, .rk .sc { max-height: 100%; }
 .rk .nm { font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -459,7 +460,7 @@ dialog::backdrop { background: rgba(0, 0, 0, .35); }
   .host { grid-template-columns: 220px minmax(0, 1fr); grid-template-rows: none; }
   .hostL { display: flex; }
   .hostL .qr { display: none; }
-  .hostL .hsum p:nth-child(3) { display: none; }
+  .hostL .hsum p:nth-child(2), .hostL .hsum p:nth-child(4) { display: none; }
   .code { font-size: 36px; }
   .hbtns { flex-wrap: wrap; }
   .hbtns .btn.big { font-size: 15px; padding: 6px 10px; }
@@ -871,6 +872,14 @@ dialog::backdrop { background: rgba(0, 0, 0, .35); }
 @media (max-width: 720px) {
   .hrow { grid-template-columns: 1fr; gap: 4px; }
   .hrow .hl { padding-top: 0; }
+  .hset .topnote { display: none; }
+  .hset { gap: 8px; }
+}
+@media (max-width: 720px) and (max-height: 640px) {
+  .hrow { grid-template-columns: 4.6em minmax(0, 1fr); gap: 4px; align-items: center; }
+  .hrow .hl { font-size: 12px; }
+  .hset .seg button { padding: 3px 6px; font-size: 12px; }
+  .hset .hsub .note { display: none; }
 }
 
 /* ===== スマホ・小さい画面 ===== */
