@@ -76,8 +76,9 @@
   function two(n) { return (n < 10 ? '0' : '') + n; }
   function hash(str) { var h = 7; for (var i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) >>> 0; return h; }
   function toast(msg) {
-    var t = document.createElement('div'); t.className = 'toast'; t.textContent = msg; document.body.appendChild(t);
-    setTimeout(function () { t.remove(); }, 1600);
+    // ダイアログが 開いていたら その中に 出す（後ろに かくれないように）。長い 文は 長めに 出す
+    var t = document.createElement('div'); t.className = 'toast'; t.textContent = msg; (document.querySelector('dialog[open]') || document.body).appendChild(t);
+    setTimeout(function () { t.remove(); }, Math.min(4500, 1600 + String(msg).length * 45));
   }
   function whyB(has) { return has ? ' <button type="button" class="whyb" data-act="why">🤔 なぜ？</button>' : ''; }
   function hasWhy(s) { var u = s && s.unit, pt = u && u.points[s.p || 0]; return !!(s && (s.why || (pt && (pt.why || pt.easy)))); }
