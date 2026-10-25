@@ -66,6 +66,13 @@
   var $ = function (s, r) { return (r || document).querySelector(s); };
   function esc(t) { return String(t).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
   function shuffle(a) { a = a.slice(); for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+  /* 並べかえの カード：最初から 正しい 順に ならんで いたら まぜ直す（同じ 語が 2 枚 あっても 見た目で くらべる） */
+  function scramble(tiles) {
+    var idx = tiles.map(function (_, i) { return i; }), o = idx, k = 0;
+    if (tiles.length < 2) return idx;
+    do { o = shuffle(idx); k++; } while (k < 20 && o.every(function (i, pos) { return tiles[i] === tiles[pos]; }));
+    return o;
+  }
   function two(n) { return (n < 10 ? '0' : '') + n; }
   function hash(str) { var h = 7; for (var i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) >>> 0; return h; }
   function toast(msg) {
@@ -408,7 +415,7 @@
   }
 
   function orderHTML(s, a, lab, strict) {
-    if (!a.t) { a.t = tilesOf(s); a.ord = shuffle(a.t.tiles.map(function (_, i) { return i; })); a.b = []; }
+    if (!a.t) { a.t = tilesOf(s); a.ord = scramble(a.t.tiles); a.b = []; }
     var tl = a.t.tiles, built = a.b.map(function (i) { return tl[i]; });
     var state = a.done ? (a.ok ? 'ok' : 'ng') : '';
     var slots = a.b.map(function (i, pos) {
@@ -428,7 +435,8 @@
       '<div class="mid"><p class="ja big">' + esc(s.ja) + '</p>' +
       '<div class="slots ' + state + '">' + slots + (a.b.length ? '<span class="end">' + esc(a.t.end) + '</span>' : '<span class="note">ここに ならぶ</span>') + '</div>' +
       (a.done ? fb : '<div class="pool">' + pool + '</div>') + '</div>' +
-      '<div class="row">' + (!a.done ? '<button type="button" class="btn ghost" data-act="clear">↺ やり直す</button>' +
+      '<div class="row">' + (a.done && !a.ok && !strict ? '<button type="button" class="btn" data-act="oretry">↺ もう一度 ならべる</button>' : '') +
+      (!a.done ? '<button type="button" class="btn ghost" data-act="clear">↺ やり直す</button>' +
         (strict ? '' : '<button type="button" class="btn ghost" data-act="ohint">💡 ヒント（最初の1枚）</button>') : '') +
       (a.done ? '<button type="button" class="say" data-say="' + esc(s.en) + '">🔊 聞く</button>' : '') + '</div>';
   }
@@ -475,7 +483,7 @@
     var pass = sc >= PASS, u = V.u;
     var nxt = u.course.units[u.no] || null;
     return '<div class="result">' +
-      (pass ? '<div class="bigstamp">合格</div>' : '<p class="h">あと少し！</p>') +
+      (pass ? '<div class="bigstamp">合格</div>' : '<p class="h">' + (sc >= PASS - 1 ? 'あと少し！' : sc >= 2 ? 'もう一息！ まちがえた文を 見直そう' : 'ポイントと 音読から もう一度 やってみよう') + '</p>') +
       '<div class="score">' + sc + '<small> / ' + TEST_N + '</small></div>' +
       '<p class="body">' + (pass ? 'この単元の例文は「🔁 復習」に入りました。日をあけて 思い出すと 忘れにくくなります。' : PASS + ' 問以上で合格。まちがえた文を 音読してから もう一度。') + '</p>' +
       (miss.length ? '<ul class="misslist">' + miss.map(function (s) { return '<li>' + esc(s.plain) + '</li>'; }).join('') + '</ul>' : '') +
@@ -575,6 +583,7 @@
         renderUnit(); break;
       }
       case 'clear': ans().b = []; renderUnit(); break;
+      case 'oretry': { var a4 = ans(); a4.b = []; a4.done = 0; a4.ok = false; a4.retry = 1; renderUnit(); break; }
       case 'ohint': {
         var a3 = ans(); a3.b = []; if (!a3.t) break;
         var first = a3.t.tiles[0], idx = a3.ord.filter(function (i) { return a3.t.tiles[i] === first; })[0];
@@ -626,7 +635,7 @@
   function checkOrder() {
     var a = ans(); if (a.b.length < a.t.tiles.length) return;
     a.done = 1; a.ok = a.b.every(function (i, pos) { return a.t.tiles[i] === a.t.tiles[pos]; });
-    if (a.ok) earn(10);
+    if (a.ok && !a.retry) earn(10); // コインは 1 回目で 正解した時だけ
     var s = curS();
     if (V.step !== 'test') speak(s.en);
     if (V.step === 'test' && V.page === TEST_N - 1) finishTest();

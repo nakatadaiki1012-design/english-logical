@@ -324,7 +324,9 @@
     var type = G.R() < 0.5 ? 'order' : 'cloze'; // 並べかえ・穴うめは いつも ミックス
     if (type === 'order') {
       var t = A().tilesOf(s), idx = t.tiles.map(function (_, i) { return i; });
-      G.q = { s: s, type: type, tiles: t.tiles, end: t.end, ord: rshuffle(idx, G.R), placed: [], ptr: 0, bad: -1 };
+      var ord = idx, k = 0; // 最初から 正しい 順に ならんで いたら まぜ直す
+      do { ord = rshuffle(idx, G.R); k++; } while (k < 20 && t.tiles.length > 1 && ord.every(function (i, pos) { return t.tiles[i] === t.tiles[pos]; }));
+      G.q = { s: s, type: type, tiles: t.tiles, end: t.end, ord: ord, placed: [], ptr: 0, bad: -1 };
     } else {
       G.q = { s: s, type: type, ch: rshuffle([s.key].concat(s.alt), G.R), pick: -1 };
     }
@@ -765,7 +767,7 @@
     el.innerHTML =
       '<div class="roomhd"><small>部屋番号</small><div class="code">' + H.code + '</div></div>' +
       '<div class="qr" id="qr">' + qrOld + '</div>' +
-      '<p class="note joinhow">論理表現ラボ → 🎮 → 🏆 で 番号を入力<br>または QR を読みとる</p>' +
+      '<p class="note joinhow">QR を 読みとる か、論理表現ラボ → 🎮 ゲーム → 部屋番号と ニックネーム →「参加 ▶」</p>' +
       '<div class="hsum">' +
       (qz ? '<p><span>🎯</span><b>クイズ大会・' + qN(cfg) + ' 問・1 問 ' + qT(cfg) + ' 秒</b></p>'
         : '<p><span>⏱</span><b>' + esc(tName(cfg.t)) + '</b></p>') +
@@ -775,7 +777,7 @@
       '<button type="button" class="btn hsetbtn" data-ga="hset"' + (busy ? ' disabled' : '') + '>⚙ 出題の設定（遊び方・単元・時間・映す人数）</button>' +
       '</div>' +
       '<div class="hbtns"><span class="ppl">👥 <b>' + n + '</b> 人</span>' +
-      '<button type="button" class="btn main big" data-ga="hstart"' + (busy ? ' disabled' : '') + '>' + (qz ? (r.round ? '▶ もう一度 クイズ' : '▶ クイズ スタート') : r.round ? '▶ 第' + (r.round + 1) + '回戦 スタート' : '▶ スタート') + '</button></div>' +
+      (qz && busy ? '<span class="qzbusy">🎯 クイズ中（第 ' + ((r.qi || 0) + 1) + ' 問 / ' + qN(cfg) + '）</span>' : '<button type="button" class="btn main big" data-ga="hstart"' + (busy ? ' disabled' : '') + '>' + (qz ? (r.round ? '▶ もう一度 クイズ' : '▶ クイズ スタート') : r.round ? '▶ 第' + (r.round + 1) + '回戦 スタート' : '▶ スタート') + '</button>') + '</div>' +
       '<div class="hbtns sm"><button type="button" class="btn ghost" data-ga="hcopy">🔗 参加リンクをコピー</button><button type="button" class="btn ghost" data-ga="hclose">部屋を閉じる</button></div>';
     if (!qrOld) drawQR(joinUrl(H.code));
   }
@@ -923,7 +925,8 @@
         var nw = !seen[p.id]; seen[p.id] = 1;
         return '<span class="chipn' + (nw ? ' new' : '') + '" style="--h:' + hueOf(p.n) + '">' + esc(p.n) + '</span>';
       }).join('') + '</div>'
-        : '<div class="count"><b class="wave">👋</b><small>生徒が 部屋番号 <b class="inl">' + H.code + '</b> で 入ってくると ここに名前が出ます</small></div>';
+        : '<div class="count"><b class="wave">👋</b><small>生徒が 入ってくると ここに 名前が 出ます</small></div>';
+      body = '<div class="howjoin"><span>📱 論理表現ラボ → 🎮 ゲーム → 部屋番号</span><b>' + H.code + '</b><span>→ ニックネーム →「参加 ▶」（左の QR でも OK）</span></div>' + body;
       body += '<p class="note rangeinfo">' + (isQuiz(r.cfg) ? esc(quizName(r.cfg)) : '出題：' + esc(cfgName(r.cfg))) + '</p>';
     } else if (r.state === 'play' && t < r.startAt) {
       var cn = Math.max(1, Math.ceil((r.startAt - t) / 1000));
@@ -1107,7 +1110,7 @@
       var mine = show.some(function (p) { return p.id === pid(); }) ? '' : '<ol class="rk mine"><li class="me"><span class="rn">' + rk + '</span><span class="nm">' + esc(meP.n || S().nick || '') + '</span><span class="bar"><i style="width:' + ((meP.s || 0) / Math.max(1, (lst[0] || {}).s || 1) * 100).toFixed(1) + '%"></i></span><span class="sc">' + fmt(meP.s || 0) + '</span></li></ol>';
       var win = fin && rk === 1 && (meP.s || 0) > 0, med = fin && rk <= 3 && (meP.s || 0) > 0;
       mid = '<p class="note">' + roundName(room) + ' ' + (fin ? '結果' : '（集計中… みんなが終わるのを待っています）') + '</p>' +
-        (win ? '<div class="winner"><span class="crown">👑</span><b>優勝！</b></div>' : med ? '<div class="winner m' + rk + '"><span class="crown">' + ['', '🥇', '🥈', '🥉'][rk] + '</span><b>' + rk + '位！</b></div>' : fin ? '<p class="h">おつかれさま！</p>' : '') +
+        (win ? '<div class="winner"><span class="crown">👑</span><b>優勝！</b></div>' : med ? '<div class="winner m' + rk + '"><span class="crown">' + ['', '🥇', '🥈', '🥉'][rk] + '</span><b>' + (rk === 2 ? '準優勝！' : 'メダル獲得！') + '</b></div>' : fin ? '<p class="h">おつかれさま！</p>' : '') +
         '<div class="score' + (win ? ' gold' : '') + '">' + rk + '<small> 位 / ' + lst.length + ' 人</small></div>' +
         '<p class="tstats">' + fmt(meP.s || 0) + ' 点　' + (isQuiz(room.cfg) ? '⭕ ' + (meP.w || 0) + ' 問 正解' : '🧩 ' + (meP.w || 0) + ' 語') + (G && G.coins ? '　🪙 +' + G.coins : '') + '</p>' +
         rows(show, 'now') + mine + (fin ? quizMissed(room) : '') +
@@ -1369,6 +1372,7 @@
       }
       mid = '<div class="qzres ' + (ok ? 'ok' : 'ng') + '"><b class="mk">' + (ok ? '⭕ 正解！' : mine && mine.c !== -1 ? '❌ ざんねん' : '⌛ 時間切れ') + '</b>' +
         (ok ? '<p class="pt">+' + fmt(mine.p) + ' 点' + (Z.k >= 2 ? '　<span class="fire">🔥 ' + Z.k + ' 連続</span>' : '') + '</p>' : '') +
+        (!ok && mine && mine.c !== -1 && mine.c != null ? '<p class="mine">あなたの 答え：' + (typeof mine.c === 'string' ? mine.c.split('').map(function (k) { return QCOL[+k][0]; }).join(' → ') : QCOL[mine.c][0] + ' ' + esc(q.type === 'pick' ? q.opts[mine.c] : q.opts[mine.c])) + '</p><p class="note">正しい 答え ↓</p>' : '') +
         '<p class="ans">' + (q.type === 'order' ? '' : '<span class="sh ' + QCOL[q.ans][1] + '">' + QCOL[q.ans][0] + '</span> ') + esc(q.type === 'cloze' ? q.opts[q.ans] : q.s.plain) + '</p>' +
         (q.s.why ? '<p class="note">💡 ' + esc(q.s.why) + '</p>' : '') +
         '<p class="rk"><small>いま</small><b id="qzrk">' + rk + '</b><small>位 / <span id="qzrn">' + lst.length + '</span> 人</small></p></div>';
