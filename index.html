@@ -1037,6 +1037,36 @@ dialog::backdrop { background: rgba(0, 0, 0, .35); }
 .qzres .mk { white-space: nowrap; }
 .qblank { display: inline-block; width: 3.2em; height: .9em; border-bottom: 3px solid var(--warm); margin: 0 .25em; vertical-align: baseline; }
 .qzres .fire { color: #ff7a1a; }
+.qstat ol { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.qstat li { display: grid; grid-template-columns: 1.8em minmax(0, 1fr) 7.5em; gap: 8px; align-items: center; padding: 3px 6px; border-radius: 6px; background: var(--bg); }
+.qstat .no { font-family: var(--font-en); font-weight: 700; text-align: center; }
+.qstat .tx { display: flex; flex-direction: column; min-width: 0; }
+.qstat .tx b { font-family: var(--font-en); font-weight: 600; font-size: 13.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.qstat .tx small { color: var(--muted); font-size: 11px; }
+.qstat .pc { position: relative; height: 22px; border-radius: 11px; background: var(--chip); overflow: hidden; }
+.qstat .pc i { position: absolute; inset: 0 auto 0 0; background: var(--accent); }
+.qstat li.mid .pc i { background: var(--gold); } .qstat li.lo .pc i { background: var(--warm); }
+.qstat .pc b { position: absolute; inset: 0; display: grid; place-items: center; font-family: var(--font-en); font-size: 13px; }
+.qstat li.lo { outline: 1.5px solid var(--warm); }
+.qmiss { width: min(560px, 100%); text-align: left; font-size: 13px; display: flex; flex-direction: column; gap: 3px; border-top: 1.5px dashed var(--line); padding-top: 6px; }
+.qmiss p { margin: 0; font-family: var(--font-en); line-height: 1.35; }
+.qmiss p span { display: block; font-family: var(--font-body); color: var(--muted); font-size: 11.5px; }
+.qmiss em { font-style: normal; font-weight: 700; color: var(--warm); }
+.qmiss.ok { text-align: center; font-weight: 700; color: var(--accent); border: 0; }
+.champ .replay { vertical-align: middle; }
+/* クイズの 結果（生徒）：小さい 画面では 大きな メダルを はぶいて「まちがえた 問題」を 見せる */
+@container (max-height: 700px) {
+  .result:has(.qmiss) { gap: 4px; }
+  .result:has(.qmiss) .winner .crown { display: none; }
+  .result:has(.qmiss) .winner b { font-size: 26px; }
+  .result:has(.qmiss) .score { font-size: 44px; }
+  .result:has(.qmiss) > .note:last-child { display: none; }
+}
+@container (max-height: 560px) {
+  .result:has(.qmiss) .h { display: none; }
+  .qmiss p span { display: none; }
+  .result:has(.qmiss) .rk li:nth-child(n+4):not(.me) { display: none; }
+}
 </style>
 </head>
 <body>

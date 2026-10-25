@@ -932,7 +932,9 @@
       var end = r.state === 'end', left = Math.max(0, r.startAt + r.cfg.t * 1000 - t);
       head = '<div class="bhead"><b>' + (end ? '🎉 ' + roundName(r) + ' 結果発表' : '⏱ 残り ' + Math.ceil(left / 1000) + ' 秒') + '</b>' + tabs + '</div>' +
         (end ? '' : '<div class="tbar host"><i style="width:' + (left / (r.cfg.t * 1000) * 100) + '%"' + (left < 10000 ? ' class="hurry"' : '') + '></i></div>');
-      if (end && lst[0] && lst[0].s > 0) head += '<div class="champ">👑 ' + esc(lst[0].n) + ' さん　' + fmt(lst[0].s) + ' 点 <button type="button" class="btn ghost replay" data-ga="podium">🎉 表彰式をもう一度</button></div>';
+      if (end && lst[0] && lst[0].s > 0) head += '<div class="champ">👑 ' + esc(lst[0].n) + ' さん　' + fmt(lst[0].s) + ' 点 <button type="button" class="btn ghost replay" data-ga="podium">🎉 表彰式をもう一度</button>' +
+        (isQuiz(r.cfg) && r.stat ? '<button type="button" class="btn ghost replay" data-ga="qstat">📊 問題ごとの 正答率</button>' : '') +
+        '<button type="button" class="btn ghost replay" data-ga="hcsv">📋 結果をコピー</button></div>';
       if (!lst.length) { lst = null; body = '<div class="count"><small>まだ だれも 答えていません</small></div>'; }
     }
     if (r.state === 'play' && t >= r.startAt && H.goR !== r.round) { H.goR = r.round; FX('go'); banner('スタート！', 'go'); }
@@ -1104,7 +1106,7 @@
         (win ? '<div class="winner"><span class="crown">👑</span><b>優勝！</b></div>' : med ? '<div class="winner m' + rk + '"><span class="crown">' + ['', '🥇', '🥈', '🥉'][rk] + '</span><b>' + rk + '位！</b></div>' : fin ? '<p class="h">おつかれさま！</p>' : '') +
         '<div class="score' + (win ? ' gold' : '') + '">' + rk + '<small> 位 / ' + lst.length + ' 人</small></div>' +
         '<p class="tstats">' + fmt(meP.s || 0) + ' 点　' + (isQuiz(room.cfg) ? '⭕ ' + (meP.w || 0) + ' 問 正解' : '🧩 ' + (meP.w || 0) + ' 語') + (G && G.coins ? '　🪙 +' + G.coins : '') + '</p>' +
-        rows(show, 'now') + mine +
+        rows(show, 'now') + mine + (fin ? quizMissed(room) : '') +
         '<p class="note">' + (fin ? '先生が 次のスタートをおすと 始まります' : '') + '</p>';
     } else mid = '<div class="bigstamp wait">参加中</div><p class="h">' + esc(S().nick || '') + ' さん、ようこそ！</p><p class="body">' + (isQuiz(room.cfg) ? '🎯 クイズ大会：先生の 大画面に 問題が 出たら、手元の 4 色の ボタンで 答えよう。早く 正解するほど 高得点！' : '先生が スタートをおすと 3・2・1 で 全員いっせいに始まります') + '</p>' +
       '<div class="chips small">' + playersOf(room).slice(0, 40).map(function (p) { return '<span class="chipn' + (p.id === pid() ? ' me' : '') + '">' + esc(p.n) + '</span>'; }).join('') + '</div>';
@@ -1181,7 +1183,7 @@
     if (!poolAll(r.cfg).length) { toast('問題がありません'); return; }
     var seed = Math.floor(Math.random() * 1e9);
     H.rk0 = {}; // 前の 順位（ランキングの ↑ 表示用）
-    api('PATCH', 'rooms/' + H.code, { state: 'q', round: (r.round || 0) + 1, seed: seed, qi: 0, qAt: Math.round(now() + qRead(r.cfg, seed, 0) + 2000) })
+    api('PATCH', 'rooms/' + H.code, { state: 'q', round: (r.round || 0) + 1, seed: seed, qi: 0, stat: null, qAt: Math.round(now() + qRead(r.cfg, seed, 0) + 2000) })
       .catch(function () { toast('スタートできませんでした'); });
   }
   function quizNext() {
@@ -1190,8 +1192,32 @@
       : r.state === 'reveal' ? { state: 'board' }
       : r.qi + 1 >= qN(r.cfg) ? { state: 'end' }
       : { state: 'q', qi: r.qi + 1, qAt: Math.round(now() + qRead(r.cfg, r.seed, r.qi + 1)) };
+    if (o.state === 'reveal') { // 問題ごとの 正答率を のこす（あとで 復習に 使う）
+      var q = quizQs(r.cfg, r.seed)[r.qi], ans = qAnswered(r);
+      o['stat/' + r.qi] = { ok: ans.filter(function (p) { return p.a.c === q.ans; }).length, n: playersOf(r, r.round).length };
+    }
     H.qbusy = true;
     api('PATCH', 'rooms/' + H.code, o).then(function () { H && (H.qbusy = false); }, function () { H && (H.qbusy = false); toast('つながりません'); });
+  }
+  /* 📊 問題ごとの 正答率（低い順に 色で わかる）→ 授業の 復習に */
+  function quizStat() {
+    var r = H && H.room; if (!r || !r.stat) return;
+    var qs = quizQs(r.cfg, r.seed), st = r.stat;
+    var list = qs.map(function (q, i) { var x = st[i]; return x && x.n ? { i: i, q: q, pc: Math.round(x.ok / x.n * 100), x: x } : null; }).filter(Boolean);
+    dlgOpen('<div class="dlg-head"><h2>📊 問題ごとの 正答率</h2><button type="button" class="ibtn x" data-x>✕ とじる</button></div>' +
+      '<div class="dlg-body qstat"><p class="note">正答率が 低い 問題は、授業で もう一度 ふれると 効果的です（赤：50% 未満）</p><ol>' +
+      list.map(function (d) {
+        return '<li class="' + (d.pc < 50 ? 'lo' : d.pc < 80 ? 'mid' : 'hi') + '"><span class="no">' + (d.i + 1) + '</span><span class="tx"><b>' + esc(d.q.s.en.replace(/\[([^\]]+)\]/, '［$1］')) + '</b><small>' + esc(d.q.s.unit.course.short + '-' + (d.q.s.unit.no < 10 ? '0' : '') + d.q.s.unit.no + ' ' + d.q.s.unit.title) + '</small></span>' +
+          '<span class="pc"><i style="width:' + d.pc + '%"></i><b>' + d.pc + '%</b></span></li>';
+      }).join('') + '</ol></div>');
+  }
+  /* 📋 結果を コピー（表計算に そのまま 貼れる タブ区切り） */
+  function copyResult() {
+    var r = H && H.room; if (!r) return;
+    var lst = playersOf(r, r.round), qz = isQuiz(r.cfg);
+    var txt = ['順位\t名前\t点数\t' + (qz ? '正解数' : '語数')].concat(rowData(lst, 'now').map(function (d) { return d.rank + '\t' + d.p.n + '\t' + (d.p.s || 0) + '\t' + (d.p.w || 0); })).join('\n');
+    if (navigator.clipboard) navigator.clipboard.writeText(txt).then(function () { toast('結果をコピーしました（Excel・スプレッドシートに 貼れます）'); }, function () { toast('コピーできませんでした'); });
+    else toast('コピーできませんでした');
   }
   function quizTick() { // 時間切れ・全員 回答で 自動で 答え合わせへ
     var r = H.room; if (r.state !== 'q') return;
@@ -1307,6 +1333,15 @@
     }
     A().view.innerHTML = head + mid + '</div></section></div>';
   }
+  /* 生徒：クイズの おわりに「まちがえた 問題」と 正しい 英文（最大 3 つ） */
+  function quizMissed(room) {
+    if (!isQuiz(room.cfg) || !B || !B.qz || B.qz.round !== room.round) return '';
+    var qs = quizQs(room.cfg, room.seed), miss = Object.keys(B.qz.got).filter(function (i) { return !B.qz.got[i].ok && qs[i]; });
+    if (!miss.length) return '<p class="qmiss ok">🎉 全問 正解！</p>';
+    return '<div class="qmiss"><b>📝 まちがえた 問題（' + miss.length + '）</b>' + miss.slice(0, 3).map(function (i) {
+      var s = qs[i].s; return '<p><span>' + esc(s.ja) + '</span>' + esc(s.en.split('[')[0]) + '<em>' + esc(s.key) + '</em>' + esc(s.en.split(']')[1] || '') + '</p>';
+    }).join('') + (miss.length > 3 ? '<small>ほか ' + (miss.length - 3) + ' 問</small>' : '') + '</div>';
+  }
   function quizAnswer(i) {
     var room = B && B.room; if (!room || room.state !== 'q' || !B.qz) return;
     var Z = B.qz, t = now() - room.qAt, lim = qT(room.cfg) * 1000;
@@ -1356,6 +1391,8 @@
         case 'mkroom': makeRoom(); break;
         case 'hstart': hostStart(); break;
         case 'qnext': quizNext(); break;
+        case 'qstat': quizStat(); break;
+        case 'hcsv': copyResult(); break;
         case 'hcopy': {
           var u = joinUrl(H.code);
           if (navigator.clipboard) navigator.clipboard.writeText(u).then(function () { toast('参加リンクをコピーしました'); }, function () { toast(u); }); else toast(u);
