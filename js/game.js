@@ -1476,6 +1476,13 @@
     A().view.addEventListener('keydown', function (e) {
       if (e.key === 'Enter' && (e.target.id === 'jName' || e.target.id === 'jCode')) join();
     });
+    document.addEventListener('keydown', function (e) { // 先生：プレゼン用 リモコン（PageDown）・→・スペースで クイズを 次へ
+      if (!H || !H.room || !isQuiz(H.room.cfg) || gdlg.open || $('#show') || /INPUT|TEXTAREA|SELECT|BUTTON/.test(e.target.tagName || '')) return;
+      if (/^(q|reveal|board)$/.test(H.room.state) && (e.key === 'PageDown' || e.key === 'ArrowRight' || e.key === ' ' || e.key === 'Enter')) {
+        if (H.room.state === 'q' && now() < H.room.qAt) return; // 問題を 読む 時間は とばさない
+        e.preventDefault(); quizNext();
+      }
+    });
     document.addEventListener('keydown', function (e) {
       if (!G && B && B.qz && /^[1-4]$/.test(e.key) && $('.qb:not([disabled])')) { quizAnswer(+e.key - 1); return; }
       if (!G || G.over || /INPUT|TEXTAREA|SELECT/.test(e.target.tagName || '')) return;
