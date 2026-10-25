@@ -974,6 +974,67 @@ dialog::backdrop { background: rgba(0, 0, 0, .35); }
 @media (max-height: 660px) and (min-width: 721px) {
   .cycle { display: none; }
 }
+/* ===== 🎯 クイズ大会 ===== */
+.qa0 { --qc: #e21b3c; } .qa1 { --qc: #1368ce; } .qa2 { --qc: #d89e00; } .qa3 { --qc: #26890c; }
+.board.quiz { gap: 10px; }
+.qzsub { font-weight: 700; font-size: clamp(13px, 2.6cqh, 20px); color: var(--muted); }
+.qzsub b { font-family: var(--font-en); color: var(--ink); font-size: 1.3em; }
+.qzsec { margin-left: auto; min-width: 2.2em; height: 2.2em; border-radius: 50%; display: grid; place-items: center; background: var(--ink); color: var(--panel);
+  font-family: var(--font-en); font-weight: 700; font-size: clamp(18px, 5cqh, 40px); padding: 0 .2em; }
+.qzq { flex: none; text-align: center; display: flex; flex-direction: column; gap: 4px; align-items: center; }
+.qzq .qen { margin: 0; font-family: var(--font-en); font-size: clamp(18px, 4.6cqh, 34px); line-height: 1.3; }
+.qzq .qen.big { font-size: clamp(22px, 7cqh, 60px); }
+.qzq .qen.ja { font-family: var(--font-body); font-weight: 700; }
+.qzq .qja { margin: 0; color: var(--muted); font-size: clamp(14px, 3.4cqh, 28px); }
+.qzq .qlab { margin: 0; color: var(--muted); font-weight: 700; font-size: clamp(12px, 2.6cqh, 20px); }
+.qzopts { flex: 1; min-height: 0; display: grid; grid-template-columns: 1fr 1fr; grid-auto-rows: minmax(0, 1fr); gap: 10px; }
+.qo { position: relative; display: flex; align-items: center; gap: 12px; padding: 8px 16px; border-radius: 10px; background: var(--qc); color: #fff; min-height: 0; overflow: hidden;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, .25); transition: opacity .3s, transform .3s; }
+.qo .sh { font-size: clamp(22px, 7cqh, 56px); line-height: 1; flex: none; }
+.qo .tx { font-family: var(--font-en); font-weight: 600; font-size: clamp(16px, 5cqh, 42px); line-height: 1.2; min-width: 0; }
+.qzopts.long .qo .tx { font-size: clamp(13px, 3.2cqh, 28px); }
+.board.quiz:not(.open) .qzopts:not(.rev) .qo { opacity: 0; transform: scale(.9); }
+.board.quiz.open .qzopts .qo { animation: pop .35s backwards; }
+.board.quiz.open .qzopts .qo:nth-child(2) { animation-delay: .06s; } .board.quiz.open .qzopts .qo:nth-child(3) { animation-delay: .12s; } .board.quiz.open .qzopts .qo:nth-child(4) { animation-delay: .18s; }
+.qzopts.rev .qo.no { opacity: .3; }
+.qzopts.rev .qo.ok { outline: 5px solid var(--ink); outline-offset: 2px; transform: scale(1.02); }
+.qo .ct { margin-left: auto; flex: none; display: flex; align-items: center; gap: 8px; width: 30%; }
+.qo .ct i { display: block; height: 14px; border-radius: 7px; background: rgba(255, 255, 255, .85); min-width: 4px; }
+.qo .ct b { font-family: var(--font-en); font-size: clamp(16px, 4.4cqh, 36px); }
+.qo .ck { position: absolute; top: 4px; right: 10px; font-size: clamp(16px, 4cqh, 30px); font-weight: 700; }
+.qzwhy { flex: none; text-align: center; display: flex; flex-direction: column; gap: 2px; font-size: clamp(13px, 3cqh, 22px); }
+.qzwhy b { font-family: var(--font-en); font-size: 1.2em; }
+.qzfoot { flex: none; display: flex; justify-content: flex-end; }
+.qzrk { flex: 1; }
+/* 生徒 */
+.qzs .cin { gap: 10px; }
+.qzs .tbar { flex: none; }
+.qzs .qzq .qen { font-size: clamp(16px, 4cqh, 24px); }
+.qzbtns { flex: 1; min-height: 0; display: grid; grid-template-columns: 1fr 1fr; grid-auto-rows: minmax(0, 1fr); gap: 10px; }
+.qzbtns.long { grid-template-columns: 1fr; }
+.qb { display: flex; align-items: center; justify-content: center; gap: 8px; flex-direction: column; border: 0; border-radius: 12px; background: var(--qc); color: #fff; font: inherit; cursor: pointer;
+  box-shadow: 0 5px 0 rgba(0, 0, 0, .28); padding: 6px 10px; min-height: 0; transition: transform .08s, opacity .2s; }
+.qzbtns.long .qb { flex-direction: row; justify-content: flex-start; }
+.qb:active { transform: translateY(3px); box-shadow: 0 2px 0 rgba(0, 0, 0, .28); }
+.qb[disabled] { opacity: .45; cursor: default; }
+.qb .sh { font-size: clamp(26px, 9cqh, 60px); line-height: 1; }
+.qb .tx { font-family: var(--font-en); font-weight: 600; font-size: clamp(14px, 3.6cqh, 22px); line-height: 1.2; text-align: center; }
+.qzbtns.long .qb .tx { text-align: left; font-size: clamp(13px, 3cqh, 18px); }
+.qzwait, .qzres { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; text-align: center; }
+.qb.big { width: 34cqmin; height: 34cqmin; max-width: 160px; max-height: 160px; cursor: default; animation: pop .4s; }
+.qb.big.none { background: var(--muted); }
+.qb.big .sh { font-size: 70px; }
+.qzres .mk { font-family: var(--font-display); font-size: clamp(28px, 8cqh, 56px); animation: pop .4s cubic-bezier(.2, 1.6, .5, 1); }
+.qzres.ok .mk { color: var(--accent); } .qzres.ng .mk { color: var(--warm); }
+.qzres .pt { font-family: var(--font-en); font-weight: 700; font-size: clamp(20px, 6cqh, 34px); margin: 0; }
+.qzres .ans { font-family: var(--font-en); font-size: clamp(15px, 4cqh, 22px); margin: 0; }
+.qzres .ans .sh { display: inline-grid; place-items: center; width: 1.6em; height: 1.6em; border-radius: 6px; background: var(--qc); color: #fff; }
+.qzres .rk { margin: 0; font-size: 16px; display: flex; align-items: baseline; justify-content: center; gap: 6px; white-space: nowrap; }
+.qzres .rk b { font-family: var(--font-en); font-size: 2em; line-height: 1; }
+.qzres .rk.big b { font-size: clamp(48px, 16cqh, 96px); }
+.qzres .mk { white-space: nowrap; }
+.qblank { display: inline-block; width: 3.2em; height: .9em; border-bottom: 3px solid var(--warm); margin: 0 .25em; vertical-align: baseline; }
+.qzres .fire { color: #ff7a1a; }
 </style>
 </head>
 <body>

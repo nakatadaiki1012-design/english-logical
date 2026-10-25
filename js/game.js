@@ -737,7 +737,7 @@
         if (!room) { toast('この部屋は閉じられました'); location.hash = '#game'; return; }
         // room は 同じ入れ物が 書きかえられて届くので、前の状態は 文字で覚えておく
         var first = !H.room, prev = H.st; H.room = room; H.st = room.state + '|' + room.round;
-        if (!first && prev === 'play|' + room.round && room.state === 'end') setTimeout(function () { if (H && H.room) showPodium(H.room); }, 300);
+        if (!first && prev && prev !== H.st && prev.split('|')[1] === String(room.round) && room.state === 'end') setTimeout(function () { if (H && H.room) showPodium(H.room); }, 300);
         if (first) drawHostL();
         else drawHostL(true);
         drawBoard();
@@ -749,12 +749,13 @@
           H.ending = true; api('PATCH', 'rooms/' + code, { state: 'end' }).then(function () { H && (H.ending = false); });
         }
         if (r.state === 'play') drawBoard();
+        if (isQuiz(r.cfg)) quizTick();
       }, 250);
     });
   }
   function drawHostL(soft) {
     var r = H.room, el = $('#hostL'); if (!el) return;
-    var cfg = r.cfg, busy = r.state === 'play';
+    var cfg = r.cfg, qz = isQuiz(cfg), busy = r.state === 'play' || (qz && /^(q|reveal|board)$/.test(r.state));
     var seg = function (key, opts) {
       return '<div class="seg">' + opts.map(function (o) { return '<button type="button" data-hc="' + key + ':' + o[0] + '" aria-pressed="' + (String(cfg[key]) === String(o[0])) + '"' + (busy ? ' disabled' : '') + '>' + o[1] + '</button>'; }).join('') + '</div>';
     };
@@ -765,14 +766,15 @@
       '<div class="qr" id="qr">' + qrOld + '</div>' +
       '<p class="note joinhow">論理表現ラボ → 🎮 → 🏆 で 番号を入力<br>または QR を読みとる</p>' +
       '<div class="hsum">' +
-      '<p><span>⏱</span><b>' + esc(tName(cfg.t)) + '</b></p>' +
+      (qz ? '<p><span>🎯</span><b>クイズ大会・' + qN(cfg) + ' 問・1 問 ' + qT(cfg) + ' 秒</b></p>'
+        : '<p><span>⏱</span><b>' + esc(tName(cfg.t)) + '</b></p>') +
       '<p><span>🏆</span><b>' + esc(topName(cfg)) + '</b></p>' +
       '<p><span>📚</span><b>' + esc(rangeName(cfg)) + '</b></p>' +
-      '<p><span>' + lvOf(cfg).ico + '</span><b>' + esc(lvOf(cfg).name) + '・' + esc((SRCS.filter(function (o) { return o[0] === (cfg.src || 'all'); })[0] || ['', ''])[1].replace(/（.*）/, '')) + '</b></p>' +
-      '<button type="button" class="btn hsetbtn" data-ga="hset"' + (busy ? ' disabled' : '') + '>⚙ 出題の設定（時間・単元・コース・映す人数）</button>' +
+      (qz ? '<p><span>📖</span><b>' : '<p><span>' + lvOf(cfg).ico + '</span><b>' + esc(lvOf(cfg).name) + '・') + esc((SRCS.filter(function (o) { return o[0] === (cfg.src || 'all'); })[0] || ['', ''])[1].replace(/（.*）/, '')) + '</b></p>' +
+      '<button type="button" class="btn hsetbtn" data-ga="hset"' + (busy ? ' disabled' : '') + '>⚙ 出題の設定（遊び方・単元・時間・映す人数）</button>' +
       '</div>' +
       '<div class="hbtns"><span class="ppl">👥 <b>' + n + '</b> 人</span>' +
-      '<button type="button" class="btn main big" data-ga="hstart"' + (busy ? ' disabled' : '') + '>' + (r.round ? '▶ 第' + (r.round + 1) + '回戦 スタート' : '▶ スタート') + '</button></div>' +
+      '<button type="button" class="btn main big" data-ga="hstart"' + (busy ? ' disabled' : '') + '>' + (qz ? (r.round ? '▶ もう一度 クイズ' : '▶ クイズ スタート') : r.round ? '▶ 第' + (r.round + 1) + '回戦 スタート' : '▶ スタート') + '</button></div>' +
       '<div class="hbtns sm"><button type="button" class="btn ghost" data-ga="hcopy">🔗 参加リンクをコピー</button><button type="button" class="btn ghost" data-ga="hclose">部屋を閉じる</button></div>';
     if (!qrOld) drawQR(joinUrl(H.code));
   }
@@ -801,7 +803,7 @@
     });
   }
   function hostCfg(v) {
-    var kv = v.split(':'), val = kv[0] === 'c' || kv[0] === 'lv' || kv[0] === 'src' ? kv[1] : +kv[1], o = {}; o[kv[0]] = val;
+    var kv = v.split(':'), val = kv[0] === 'c' || kv[0] === 'lv' || kv[0] === 'src' || kv[0] === 'kind' ? kv[1] : +kv[1], o = {}; o[kv[0]] = val;
     if (kv[0] === 'c') { o.us = ''; o.u = 12; }
     Object.keys(o).forEach(function (k) { H.room.cfg[k] = o[k]; }); // 先に画面へ反映
     api('PATCH', 'rooms/' + H.code + '/cfg', o).catch(function () { toast('変更できませんでした'); });
@@ -811,17 +813,20 @@
   /* ⚙ 出題の設定（先生）：時間・単元・コース・出す文 を 1 枚で（並べかえ・穴うめは いつも ミックス） */
   function openHostSet() {
     if (!H || !H.room) return;
-    var cfg = H.room.cfg, us = usOf(cfg), n = pool(cfg).length;
+    var cfg = H.room.cfg, us = usOf(cfg), qz = isQuiz(cfg), n = (qz ? poolAll(cfg) : pool(cfg)).length;
     var seg = function (key, opts, cur) {
       return '<div class="seg">' + opts.map(function (o) { return '<button type="button" data-hs="' + key + ':' + o[0] + '" aria-pressed="' + (String(cur) === String(o[0])) + '">' + o[1] + '</button>'; }).join('') + '</div>';
     };
     dlgOpen('<div class="dlg-head" id="hsetdlg"><h2>⚙ 出題の設定</h2><button type="button" class="ibtn x" data-x>✕ とじる</button></div>' +
       '<div class="dlg-body hset">' +
-      '<div class="hrow"><span class="hl">⏱ 時間</span>' + seg('t', TIMES, cfg.t) + '</div>' +
+      '<div class="hrow"><span class="hl">🎮 遊び方</span>' + seg('kind', KINDS, qz ? 'quiz' : 'race') + '</div>' +
+      (qz ? '<div class="hrow"><span class="hl">❓ 問題数</span>' + seg('qn', QNS, qN(cfg)) + '</div>' +
+        '<div class="hrow"><span class="hl">⏱ 1 問の 時間</span>' + seg('qt', QTS, qT(cfg)) + '</div>'
+        : '<div class="hrow"><span class="hl">⏱ 時間</span>' + seg('t', TIMES, cfg.t) + '</div>') +
       '<div class="hrow"><span class="hl">📚 範囲</span><div class="hcol">' +
       '<button type="button" class="btn rangebtn' + (us.length ? ' on' : '') + '" data-hs="pick">' + (us.length ? '📚 ' + esc(rangeName(cfg)) + ' ✎' : '📚 今日の単元をえらぶ') + '</button>' +
       '<div class="hsub"><span class="note">または コース全部：</span>' + seg('c', [['c1', 'Ⅰ'], ['c2', 'Ⅱ'], ['c3', 'Ⅲ'], ['all', '全']], us.length ? '' : cfg.c) + '</div></div></div>' +
-      '<div class="hrow"><span class="hl">🚀 コース</span>' + seg('lv', LVS.map(function (l) { return [l.k, l.ico + ' ' + l.name]; }), lvOf(cfg).k) + '</div>' +
+      (qz ? '' : '<div class="hrow"><span class="hl">🚀 コース</span>' + seg('lv', LVS.map(function (l) { return [l.k, l.ico + ' ' + l.name]; }), lvOf(cfg).k) + '</div>') +
       '<div class="hrow"><span class="hl">📖 出す文</span>' + seg('src', SRCS, cfg.src || 'all') + '</div>' +
       '<div class="hrow"><span class="hl">🏆 映す人数</span><div class="hcol">' + seg('top', TOPS, topN(cfg)) + '<span class="note topnote">大画面の ランキングに 出す 人数。自分の 順位は 生徒の 画面に いつも 出ます</span></div></div>' +
       '<div class="pkfoot"><span>出題される文：<b>' + n + '</b> 文</span><button type="button" class="btn main" data-x>決定 ▶</button></div>' +
@@ -834,6 +839,7 @@
   }
   function hostStart() {
     var r = H.room; if (!r || r.state === 'play') return;
+    if (isQuiz(r.cfg)) { if (!/^(q|reveal|board)$/.test(r.state)) quizStart(); return; }
     if (!pool(r.cfg).length) { toast('問題がありません'); return; }
     api('PATCH', 'rooms/' + H.code, { state: 'play', round: (r.round || 0) + 1, seed: Math.floor(Math.random() * 1e9), startAt: Math.round(now() + 5000) })
       .catch(function () { toast('スタートできませんでした'); });
@@ -896,6 +902,8 @@
   function hueOf(n) { var h = 0; for (var i = 0; i < n.length; i++) h = (h * 31 + n.charCodeAt(i)) % 360; return h; }
   function drawBoard() {
     var el = $('#board'), r = H && H.room; if (!el || !r) return;
+    if (isQuiz(r.cfg) && /^(q|reveal|board)$/.test(r.state) && H.tab === 'now') { H.bkey = ''; drawQuizBoard(el, r); return; }
+    el.classList.remove('quiz', 'open'); H.qkey = '';
     var t = now(), head, body, bl, lst = null, lmode = 'now', hid = 0;
     var tabs = '<div class="btabs"><button type="button" data-ga="tab:now" aria-selected="' + (H.tab === 'now') + '">今回</button><button type="button" data-ga="tab:best" aria-selected="' + (H.tab === 'best') + '">🏆 ハイスコア</button></div>';
     if (H.tab === 'best') {
@@ -912,7 +920,7 @@
         return '<span class="chipn' + (nw ? ' new' : '') + '" style="--h:' + hueOf(p.n) + '">' + esc(p.n) + '</span>';
       }).join('') + '</div>'
         : '<div class="count"><b class="wave">👋</b><small>生徒が 部屋番号 <b class="inl">' + H.code + '</b> で 入ってくると ここに名前が出ます</small></div>';
-      body += '<p class="note rangeinfo">出題：' + esc(cfgName(r.cfg)) + '</p>';
+      body += '<p class="note rangeinfo">' + (isQuiz(r.cfg) ? esc(quizName(r.cfg)) : '出題：' + esc(cfgName(r.cfg))) + '</p>';
     } else if (r.state === 'play' && t < r.startAt) {
       var cn = Math.max(1, Math.ceil((r.startAt - t) / 1000));
       if (cn !== H.cdN) { H.cdN = cn; if (cn <= 3) FX('beep'); }
@@ -922,7 +930,7 @@
       lst = playersOf(r, r.round);
       var all = lst.length; lst = cut(lst, topN(r.cfg), 'now'); hid = all - lst.length;
       var end = r.state === 'end', left = Math.max(0, r.startAt + r.cfg.t * 1000 - t);
-      head = '<div class="bhead"><b>' + (end ? '🎉 第' + r.round + '回戦 結果発表' : '⏱ 残り ' + Math.ceil(left / 1000) + ' 秒') + '</b>' + tabs + '</div>' +
+      head = '<div class="bhead"><b>' + (end ? '🎉 ' + roundName(r) + ' 結果発表' : '⏱ 残り ' + Math.ceil(left / 1000) + ' 秒') + '</b>' + tabs + '</div>' +
         (end ? '' : '<div class="tbar host"><i style="width:' + (left / (r.cfg.t * 1000) * 100) + '%"' + (left < 10000 ? ' class="hurry"' : '') + '></i></div>');
       if (end && lst[0] && lst[0].s > 0) head += '<div class="champ">👑 ' + esc(lst[0].n) + ' さん　' + fmt(lst[0].s) + ' 点 <button type="button" class="btn ghost replay" data-ga="podium">🎉 表彰式をもう一度</button></div>';
       if (!lst.length) { lst = null; body = '<div class="count"><small>まだ だれも 答えていません</small></div>'; }
@@ -962,7 +970,7 @@
     };
     var d = document.createElement('div'); d.className = 'show'; d.id = 'show';
     d.innerHTML = '<div class="rays"></div><div class="showin">' +
-      '<p class="stitle">🎉 第' + room.round + '回戦 結果発表</p><p class="drum">ドゥルルルル…</p>' +
+      '<p class="stitle">🎉 ' + roundName(room) + ' 結果発表</p><p class="drum">ドゥルルルル…</p>' +
       '<div class="podium">' + pd(lst[1], 2) + pd(lst[0], 1) + pd(lst[2], 3) + '</div>' +
       '<div class="sbtns"><button type="button" class="btn" data-sh="close">ランキングを見る ▶</button></div></div>';
     document.body.appendChild(d);
@@ -1038,6 +1046,8 @@
     B.room = room;
     var me = room.players && room.players[pid()];
     if (!me) { location.hash = '#join=' + B.code; return; }
+    if (isQuiz(room.cfg) && /^(q|reveal|board)$/.test(room.state) && room.round) { quizStudent(room); return; }
+    clearInterval(B.qzT);
     if (room.state === 'play' && room.round !== B.played && now() < room.startAt + room.cfg.t * 1000 - 3000) {
       B.played = room.round;
       newGame(room.cfg, room.seed, 'battle', room.startAt);
@@ -1090,10 +1100,10 @@
       var rk = rankOf(lst, pid(), 'now') || my + 1, show = cut(lst, Math.min(topN(room.cfg) || 5, 5), 'now').slice(0, 5);
       var mine = show.some(function (p) { return p.id === pid(); }) ? '' : '<ol class="rk mine"><li class="me"><span class="rn">' + rk + '</span><span class="nm">' + esc(meP.n || S().nick || '') + '</span><span class="bar"><i style="width:' + ((meP.s || 0) / Math.max(1, (lst[0] || {}).s || 1) * 100).toFixed(1) + '%"></i></span><span class="sc">' + fmt(meP.s || 0) + '</span></li></ol>';
       var win = fin && rk === 1 && (meP.s || 0) > 0, med = fin && rk <= 3 && (meP.s || 0) > 0;
-      mid = '<p class="note">第' + room.round + '回戦 ' + (fin ? '結果' : '（集計中… みんなが終わるのを待っています）') + '</p>' +
+      mid = '<p class="note">' + roundName(room) + ' ' + (fin ? '結果' : '（集計中… みんなが終わるのを待っています）') + '</p>' +
         (win ? '<div class="winner"><span class="crown">👑</span><b>優勝！</b></div>' : med ? '<div class="winner m' + rk + '"><span class="crown">' + ['', '🥇', '🥈', '🥉'][rk] + '</span><b>' + rk + '位！</b></div>' : fin ? '<p class="h">おつかれさま！</p>' : '') +
         '<div class="score' + (win ? ' gold' : '') + '">' + rk + '<small> 位 / ' + lst.length + ' 人</small></div>' +
-        '<p class="tstats">' + fmt(meP.s || 0) + ' 点　🧩 ' + (meP.w || 0) + ' 語' + (G && G.coins ? '　🪙 +' + G.coins : '') + '</p>' +
+        '<p class="tstats">' + fmt(meP.s || 0) + ' 点　' + (isQuiz(room.cfg) ? '⭕ ' + (meP.w || 0) + ' 問 正解' : '🧩 ' + (meP.w || 0) + ' 語') + (G && G.coins ? '　🪙 +' + G.coins : '') + '</p>' +
         rows(show, 'now') + mine +
         '<p class="note">' + (fin ? '先生が 次のスタートをおすと 始まります' : '') + '</p>';
     } else mid = '<div class="bigstamp wait">参加中</div><p class="h">' + esc(S().nick || '') + ' さん、ようこそ！</p><p class="body">先生が スタートをおすと 3・2・1 で 全員いっせいに始まります</p>' +
@@ -1120,7 +1130,181 @@
     leaveBattle();
     return false;
   }
-  function leaveBattle() { if (B) { if (B.stop) B.stop(); clearTimeout(B.push); B = null; } }
+  function leaveBattle() { if (B) { if (B.stop) B.stop(); clearTimeout(B.push); clearInterval(B.qzT); B = null; } }
+
+  /* =========================================================
+     🎯 クイズ大会（カフートのような 先生ペースの 早押し 4 択）
+     先生の 大画面に 1 問ずつ 出る → 生徒は 手元で 4 色の ボタン → 正解と 人数の グラフ → ランキング → 次の問題
+     rooms/{code} = { cfg: { kind: 'quiz', qn, qt, … }, state: lobby|q|reveal|board|end, round, seed, qi, qAt }
+     players/{pid} = { n, s（合計点）, k（連続正解）, r（回）, a: { q（問題番号）, c（えらんだ番号）, ok, p（点） } }
+     ========================================================= */
+  var QNS = [[5, '5 問'], [10, '10 問'], [15, '15 問'], [20, '20 問']];
+  var QTS = [[10, '10 秒'], [20, '20 秒'], [30, '30 秒']];
+  var KINDS = [['race', '🚀 ロケット対戦'], ['quiz', '🎯 クイズ大会']];
+  var QCOL = [['▲', 'qa0'], ['◆', 'qa1'], ['●', 'qa2'], ['■', 'qa3']]; // 赤・青・黄・緑
+  var QREAD = 3000; // 問題を 読む 時間（このあと ボタンが 押せる）
+  function isQuiz(cfg) { return cfg && cfg.kind === 'quiz'; }
+  function roundName(room) { return isQuiz(room.cfg) ? '🎯 クイズ大会' + (room.round > 1 ? '（' + room.round + ' 回目）' : '') : '第' + room.round + '回戦'; }
+  function qN(cfg) { return +cfg.qn || 10; }
+  function qT(cfg) { return +cfg.qt || 20; }
+  function quizName(cfg) { return '🎯 クイズ大会・' + rangeName(cfg) + '・' + qN(cfg) + ' 問・1 問 ' + qT(cfg) + ' 秒'; }
+  /* 問題は 部屋の seed から 全員が 同じものを 作る（通信は 番号だけ） */
+  var QC = {};
+  function quizQs(cfg, seed) {
+    var key = seed + '|' + JSON.stringify(cfg);
+    if (QC.key === key) return QC.qs;
+    var R = rng(seed), src = poolAll(cfg), list = [], qs = [];
+    while (list.length < qN(cfg) && src.length) list = list.concat(rshuffle(src, R));
+    list.slice(0, qN(cfg)).forEach(function (s) {
+      var opts, type = R() < 0.5 ? 'cloze' : 'pick';
+      if (type === 'cloze') opts = [s.key].concat(s.alt);
+      else opts = [s.plain].concat(s.alt.map(function (a) { return s.en.replace(/\[[^\]]+\]/, a); }));
+      var ord = rshuffle([0, 1, 2, 3], R);
+      qs.push({ s: s, type: type, opts: ord.map(function (i) { return opts[i]; }), ans: ord.indexOf(0) });
+    });
+    QC = { key: key, qs: qs };
+    return qs;
+  }
+  function qPts(ms, limit, streak) { return Math.round(1000 * (1 - Math.min(1, ms / limit) / 2)) + Math.min(5, streak) * 100; }
+  function qStem(q, big) { // 問題文（大画面・手元 共通）
+    var s = q.s;
+    var parts = s.en.split(/\[[^\]]+\]/);
+    if (q.type === 'cloze') return '<p class="qen' + (big ? ' big' : '') + '">' + esc(parts[0]) + '<span class="qblank"></span>' + esc(parts[1] || '') + '</p><p class="qja">' + esc(s.ja) + '</p>';
+    return '<p class="qlab">正しい 英文は どれ？</p><p class="qen ja' + (big ? ' big' : '') + '">' + esc(s.ja) + '</p>';
+  }
+  function qAnswered(room) { return playersOf(room, room.round).filter(function (p) { return p.a && p.a.q === room.qi; }); }
+
+  /* ----- 先生 ----- */
+  function quizStart() {
+    var r = H.room;
+    if (!poolAll(r.cfg).length) { toast('問題がありません'); return; }
+    api('PATCH', 'rooms/' + H.code, { state: 'q', round: (r.round || 0) + 1, seed: Math.floor(Math.random() * 1e9), qi: 0, qAt: Math.round(now() + QREAD + 2000) })
+      .catch(function () { toast('スタートできませんでした'); });
+  }
+  function quizNext() {
+    var r = H.room; if (!r || H.qbusy) return;
+    var o = r.state === 'q' ? { state: 'reveal' }
+      : r.state === 'reveal' ? { state: 'board' }
+      : r.qi + 1 >= qN(r.cfg) ? { state: 'end' }
+      : { state: 'q', qi: r.qi + 1, qAt: Math.round(now() + QREAD) };
+    H.qbusy = true;
+    api('PATCH', 'rooms/' + H.code, o).then(function () { H && (H.qbusy = false); }, function () { H && (H.qbusy = false); toast('つながりません'); });
+  }
+  function quizTick() { // 時間切れ・全員 回答で 自動で 答え合わせへ
+    var r = H.room; if (r.state !== 'q') return;
+    var n = playersOf(r, r.round).length, done = qAnswered(r).length;
+    if (now() > r.qAt + qT(r.cfg) * 1000 + 600 || (n && done >= n && now() > r.qAt)) quizNext();
+    else drawBoard();
+  }
+  function drawQuizBoard(el, r) {
+    var q = quizQs(r.cfg, r.seed)[r.qi], t = now(), key = r.state + '|' + r.round + '|' + r.qi;
+    if (!q) return;
+    var ps = playersOf(r, r.round), ans = qAnswered(r), lim = qT(r.cfg) * 1000;
+    if (H.qkey === key && r.state === 'q') { // 時計と 回答数だけ 書きかえ
+      var left = Math.max(0, r.qAt + lim - t), tf = $('#qzt'), tn = $('#qzs'), an = $('#qzn');
+      if (tf) tf.style.width = (t < r.qAt ? 100 : left / lim * 100).toFixed(1) + '%';
+      if (tn) tn.textContent = t < r.qAt ? 'よーい…' : Math.ceil(left / 1000);
+      if (an) an.textContent = ans.length + ' / ' + ps.length;
+      if (t >= r.qAt && H.qgo !== key) { H.qgo = key; FX('go'); el.classList.add('open'); }
+      return;
+    }
+    if (H.qkey === key && r.state === 'reveal') return; // 答え合わせは 1 回 描けば よい
+    var fresh = H.qkey !== key;
+    var head = '<div class="bhead"><b>🎯 第 ' + (r.qi + 1) + ' 問 <small>/ ' + qN(r.cfg) + '</small></b>';
+    var body;
+    if (r.state === 'board') {
+      var all = ps.length, lst = cut(ps, topN(r.cfg), 'now');
+      head += '<span class="qzsub">ランキング</span></div>';
+      body = '<div class="bbody qzrk"></div><div class="qzfoot"><button type="button" class="btn main big" data-ga="qnext">' + (r.qi + 1 >= qN(r.cfg) ? '🏆 結果発表 ▶' : '▶ 次の問題') + '</button></div>';
+      el.innerHTML = '<div class="bh">' + head + '</div>' + body;
+      var bb = el.querySelector('.bbody');
+      bb.innerHTML = lst.length ? rows(lst, 'now', bb.clientWidth, bb.clientHeight, all - lst.length) : '<div class="count"><small>まだ だれも 答えていません</small></div>';
+    } else {
+      var rev = r.state === 'reveal', cnt = [0, 0, 0, 0];
+      ans.forEach(function (p) { if (p.a.c >= 0 && p.a.c < 4) cnt[p.a.c]++; });
+      var mx = Math.max(1, Math.max.apply(null, cnt));
+      head += rev ? '<span class="qzsub">正解 <b>' + cnt[q.ans] + '</b> 人 / ' + ps.length + ' 人</span></div>'
+        : '<span class="qzsub">回答 <b id="qzn">' + ans.length + ' / ' + ps.length + '</b></span><span class="qzsec" id="qzs">' + (t < r.qAt ? 'よーい…' : Math.ceil(lim / 1000)) + '</span></div>' +
+          '<div class="tbar host"><i id="qzt" style="width:100%"></i></div>';
+      body = '<div class="qzq">' + qStem(q, true) + '</div>' +
+        '<div class="qzopts' + (q.type === 'pick' ? ' long' : '') + (rev ? ' rev' : '') + '">' + q.opts.map(function (o, i) {
+          return '<div class="qo ' + QCOL[i][1] + (rev ? (i === q.ans ? ' ok' : ' no') : '') + '"><span class="sh">' + QCOL[i][0] + '</span><span class="tx">' + esc(o) + '</span>' +
+            (rev ? '<span class="ct"><i style="width:' + (cnt[i] / mx * 100).toFixed(0) + '%"></i><b>' + cnt[i] + '</b></span>' + (i === q.ans ? '<span class="ck">✓</span>' : '') : '') + '</div>';
+        }).join('') + '</div>' +
+        (rev ? '<div class="qzwhy">' + (q.type === 'pick' ? '<b>' + esc(q.s.plain) + '</b>' : '') + (q.s.why ? '<span>💡 ' + esc(q.s.why) + '</span>' : '') + '</div>' +
+          '<div class="qzfoot"><button type="button" class="btn main big" data-ga="qnext">ランキング ▶</button></div>'
+          : '<div class="qzfoot"><button type="button" class="btn ghost" data-ga="qnext">⏭ しめきる</button></div>');
+      el.innerHTML = '<div class="bh">' + head + '</div>' + body;
+      if (rev && fresh) FX('lead'); else if (t >= r.qAt) { el.classList.add('open'); }
+    }
+    el.classList.toggle('quiz', true); if (r.state !== 'q') el.classList.remove('open');
+    H.qkey = key;
+  }
+
+  /* ----- 生徒 ----- */
+  function quizStudent(room) {
+    var Z = B.qz;
+    if (!Z || Z.round !== room.round) {
+      var me0 = room.players && room.players[pid()] || {};
+      Z = B.qz = { round: room.round, s: 0, k: 0, got: {}, ok: 0 };
+      B.played = room.round;
+      if (me0.r === room.round) { // 読みこみ直し：つづきから
+        Z.s = me0.s || 0; Z.k = me0.k || 0; Z.ok = me0.w || 0;
+        if (me0.a && me0.a.q === room.qi) Z.got[room.qi] = { c: me0.a.c, ok: !!me0.a.ok, p: me0.a.p || 0 };
+      } else { // 新しい 大会
+        api('PATCH', 'rooms/' + B.code + '/players/' + pid(), { s: 0, k: 0, r: room.round, a: null, w: 0, d: 0 }).catch(function () { });
+        var rb = rw(); rb.battles = Math.max(rb.battles, 1);
+      }
+    }
+    if (room.state !== 'q' && !Z.got[room.qi]) { Z.got[room.qi] = { c: -1, ok: false, p: 0 }; Z.k = 0; } // 答えなかった
+    clearInterval(B.qzT);
+    var q = quizQs(room.cfg, room.seed)[room.qi]; if (!q) return;
+    var mine = Z.got[room.qi], lim = qT(room.cfg) * 1000;
+    var lst = playersOf(room, room.round), rk = rankOf(lst, pid(), 'now') || lst.length;
+    var head = '<div class="unit qzs"><div class="ubar"><button type="button" class="btn ghost" data-ga="bleave">◀ ぬける</button><div class="utitle"><small>🎯 クイズ大会・部屋 ' + B.code + '</small><b>第 ' + (room.qi + 1) + ' 問 / ' + qN(room.cfg) + '</b></div><span class="ppl">' + fmt(Z.s) + ' 点</span></div><section class="card"><div class="cin">';
+    var mid;
+    if (room.state === 'q' && !mine) {
+      var open = now() >= room.qAt;
+      mid = '<div class="tbar"><i id="qzt" style="width:100%"></i><span id="qzs"></span></div>' +
+        '<div class="qzq">' + qStem(q) + '</div>' +
+        '<div class="qzbtns' + (q.type === 'pick' ? ' long' : '') + '">' + q.opts.map(function (o, i) {
+          return '<button type="button" class="qb ' + QCOL[i][1] + '" data-qa="' + i + '"' + (open ? '' : ' disabled') + '><span class="sh">' + QCOL[i][0] + '</span><span class="tx">' + esc(o) + '</span></button>';
+        }).join('') + '</div>';
+      B.qzT = setInterval(function () { // 時計（よーい → 開始 → 残り時間）
+        var t = now(), tf = $('#qzt'), ts = $('#qzs'); if (!tf) { clearInterval(B.qzT); return; }
+        if (t < room.qAt) { ts.textContent = 'よーい…'; return; }
+        if (!B.qzOpen || B.qzOpen !== room.qi + '|' + room.round) { B.qzOpen = room.qi + '|' + room.round; FX('go'); document.querySelectorAll('.qb').forEach(function (b) { b.disabled = false; }); }
+        var left = Math.max(0, room.qAt + lim - t); tf.style.width = (left / lim * 100).toFixed(1) + '%'; ts.textContent = Math.ceil(left / 1000) + ' 秒';
+        if (!left) { clearInterval(B.qzT); Z.got[room.qi] = { c: -1, ok: false, p: 0 }; Z.k = 0; quizStudent(room); }
+      }, 100);
+    } else if (room.state === 'q') {
+      mid = '<div class="qzwait"><span class="qb big ' + (mine.c >= 0 ? QCOL[mine.c][1] : 'none') + '"><span class="sh">' + (mine.c >= 0 ? QCOL[mine.c][0] : '⌛') + '</span></span>' +
+        '<p class="h">' + (mine.c >= 0 ? '回答しました！' : '時間切れ…') + '</p><p class="note">先生の 画面で 答え合わせを 待っています</p></div>';
+    } else if (room.state === 'reveal') {
+      var ok = mine && mine.ok;
+      if (Z.shown !== room.qi + '|' + room.round) { Z.shown = room.qi + '|' + room.round; FX(ok ? 'ok' : 'miss'); if (ok && window.LXFX) LXFX.burst(40); if (ok) earn(10); }
+      mid = '<div class="qzres ' + (ok ? 'ok' : 'ng') + '"><b class="mk">' + (ok ? '⭕ 正解！' : mine && mine.c >= 0 ? '❌ ざんねん' : '⌛ 時間切れ') + '</b>' +
+        (ok ? '<p class="pt">+' + fmt(mine.p) + ' 点' + (Z.k >= 2 ? '　<span class="fire">🔥 ' + Z.k + ' 連続</span>' : '') + '</p>' : '') +
+        '<p class="ans"><span class="sh ' + QCOL[q.ans][1] + '">' + QCOL[q.ans][0] + '</span> ' + esc(q.type === 'pick' ? q.s.plain : q.opts[q.ans]) + '</p>' +
+        (q.s.why ? '<p class="note">💡 ' + esc(q.s.why) + '</p>' : '') +
+        '<p class="rk"><small>いま</small><b>' + rk + '</b><small>位 / ' + lst.length + ' 人</small></p></div>';
+    } else { // board
+      mid = '<div class="qzres"><p class="rk big"><small>いま</small><b>' + rk + '</b><small>位 / ' + lst.length + ' 人</small></p><p class="pt">' + fmt(Z.s) + ' 点</p><p class="note">次の 問題を 待っています</p></div>';
+    }
+    A().view.innerHTML = head + mid + '</div></section></div>';
+  }
+  function quizAnswer(i) {
+    var room = B && B.room; if (!room || room.state !== 'q' || !B.qz) return;
+    var Z = B.qz, t = now() - room.qAt, lim = qT(room.cfg) * 1000;
+    if (Z.got[room.qi] || t < 0 || t > lim + 300) return;
+    var q = quizQs(room.cfg, room.seed)[room.qi], ok = i === q.ans, p = ok ? qPts(t, lim, Z.k) : 0;
+    Z.k = ok ? Z.k + 1 : 0; Z.s += p; if (ok) Z.ok++;
+    Z.got[room.qi] = { c: i, ok: ok, p: p };
+    FX('tap', 0);
+    var me = room.players && room.players[pid()] || {};
+    api('PATCH', 'rooms/' + B.code + '/players/' + pid(), { s: Z.s, k: Z.k, r: room.round, b: Math.max(me.b || 0, Z.s), w: Z.ok, a: { q: room.qi, c: i, ok: ok ? 1 : 0, p: p } }).catch(function () { toast('送れませんでした'); });
+    quizStudent(room);
+  }
 
   /* ---------- 操作 ---------- */
   function init() {
@@ -1142,6 +1326,7 @@
       var d = b.dataset;
       if (d.gt != null && G) { tapTile(+d.gt, b); return; }
       if (d.gp != null && G) { pickChoice(+d.gp, b); return; }
+      if (d.qa != null && B) { quizAnswer(+d.qa); return; }
       if (d.ta) { hubTa(d.ta); return; }
       if (d.hc) { hostCfg(d.hc); return; }
       switch (d.ga && d.ga.split(':')[0]) {
@@ -1155,6 +1340,7 @@
         case 'join': join(); break;
         case 'mkroom': makeRoom(); break;
         case 'hstart': hostStart(); break;
+        case 'qnext': quizNext(); break;
         case 'hcopy': {
           var u = joinUrl(H.code);
           if (navigator.clipboard) navigator.clipboard.writeText(u).then(function () { toast('参加リンクをコピーしました'); }, function () { toast(u); }); else toast(u);
@@ -1176,11 +1362,12 @@
       if (e.key === 'Enter' && (e.target.id === 'jName' || e.target.id === 'jCode')) join();
     });
     document.addEventListener('keydown', function (e) {
+      if (!G && B && B.qz && /^[1-4]$/.test(e.key) && $('.qb:not([disabled])')) { quizAnswer(+e.key - 1); return; }
       if (!G || G.over || /INPUT|TEXTAREA|SELECT/.test(e.target.tagName || '')) return;
       if (G.q && G.q.type === 'cloze' && /^[1-4]$/.test(e.key) && now() >= G.startAt) pickChoice(+e.key - 1);
     });
     chip();
   }
 
-  window.LXG = { route: route, leave: function () { leave(); }, earn: earn, init: init, count: function () { rw().cnt++; }, _g: function () { return G; } };
+  window.LXG = { route: route, leave: function () { leave(); }, earn: earn, init: init, count: function () { rw().cnt++; }, _g: function () { return G; }, _qz: function () { return B && B.room ? quizQs(B.room.cfg, B.room.seed)[B.room.qi] : null; } };
 })();
