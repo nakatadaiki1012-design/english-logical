@@ -207,8 +207,8 @@
      w：出す文の 語数、x：点数の 倍率、miss：ミスで へる 燃料（ms） */
   var LVS = [
     { k: 'easy', ico: '🛩', name: 'ショート便', sub: '短い文・はじめての人に', w: [0, 7], x: 1, miss: 1000 },
-    { k: 'std', ico: '🚀', name: 'スタンダード便', sub: 'いろいろな長さ・点数 ×1.8', w: [0, 99], x: 1.8, miss: 1000 },
-    { k: 'long', ico: '🌌', name: '長距離便', sub: '長文だけ・点数 ×2.5・ミス −2秒', w: [9, 99], x: 2.5, miss: 2000 }];
+    { k: 'std', ico: '🚀', name: 'スタンダード便', sub: 'いろいろな長さ・点数 ×1.3', w: [0, 99], x: 1.3, miss: 1000 },
+    { k: 'long', ico: '🌌', name: '長距離便', sub: '長文だけ・1 文の 点数が 大きい・ミス −2秒', w: [9, 99], x: 1, miss: 2000 }];
   function lvOf(cfg) { var k = cfg && cfg.lv; return LVS.filter(function (l) { return l.k === k; })[0] || LVS[1]; }
   function lvName(cfg) { var l = lvOf(cfg); return l.ico + ' ' + l.name; }
   var SRCS = [['all', '例文＋演習文'], ['core', '例文だけ（覚えた文）'], ['drill', '演習文だけ（初めての文）']];
@@ -252,7 +252,7 @@
      ひとり：60 秒から。文を完成させると 時間がふえる（並べかえ +1／+2／+3 秒、穴うめ +0.4／+0.8／+1.2 秒。コンボ 10・25 で ふえる）。
              ミスは −1 秒。40 秒たつと 時計が だんだん速くなる（最大 3 倍）→ 上手でも いつかは 終わる。
      対戦：時間は 固定（公平のため）。点数・コンボ・ブーストは 同じ。 */
-  var RULE = { start: 60, calm: 40, ramp: 70, cap: 3, miss: 1000, fever: 40, feverSec: 7 };
+  var RULE = { start: 60, calm: 40, ramp: 70, cap: 3, miss: 1000, fever: 25, feverSec: 7 };
   var FUEL = [[5, 100], [7, 180], [9, 300], [99, 500]]; // 長い文ほど 大きな燃料（たくさん上がる）
   function fuelOf(s) { var w = words(s); for (var i = 0; i < FUEL.length; i++) if (w <= FUEL[i][0]) return { pts: FUEL[i][1], k: i }; }
   /* 高度の めじるし：[この点数で 到達, 高さ(km), 絵, 名前] */
@@ -338,6 +338,9 @@
     if (window.LXFX && el) LXFX.sparks(el, n);
     if (!fever()) { G.meter++; if (G.meter >= RULE.fever) startFever(); }
     // コンボの だんかいが 上がったら お祝い
+    if (G.combo === 5) { // はじめての人にも 早めに 小さな お祝い
+      FX('lead'); var m5 = cardMid(); if (m5 && window.LXFX) LXFX.pop('5 COMBO!', m5[0], m5[1], 'big');
+    }
     if ([10, 25, 50, 100].indexOf(G.combo) >= 0 || (G.combo > 100 && G.combo % 50 === 0)) {
       FX('combo'); var m = cardMid();
       if (m && window.LXFX) { LXFX.pop(G.combo + ' COMBO!  ×' + mult(), m[0], m[1], 'big'); LXFX.burst(40, m[0], m[1] + 20); }
@@ -350,7 +353,7 @@
   }
   function timePop(text, cls) { var t = $('.play .tbar'); if (t && window.LXFX) LXFX.popAt(t, text, cls); }
   function miss() {
-    G.combo = 0; G.miss++; G.meter = Math.floor(G.meter / 2);
+    G.combo = 0; G.miss++; G.meter = Math.max(0, G.meter - 5); // ミスで メーターは 少し へるだけ（ブーストを 見られる人を ふやす）
     if (G.mode === 'solo') { var ms = lvOf(G.cfg).miss; G.left -= ms; timePop('−' + ms / 1000 + '秒', 'tminus'); }
     FX('miss'); flash('ng');
   }
@@ -553,7 +556,9 @@
   }
   /* 到達した場所と、通りすぎた めじるし */
   function arrival(al) {
-    return '<div class="arrive"><span class="ae">' + al.here[2] + '</span><div class="at"><small>到達した場所</small><b>' + esc(al.here[3]) + '</b><span>' + fmtKm(al.km) + '</span></div></div>' +
+    // 「あと少しで 次へ」が 見えると もう一度 やりたくなる
+    var togo = al.next && G ? '<em class="togo">あと <i>' + fmt(al.next[0] - G.score) + '</i> 点で ' + al.next[2] + ' ' + esc(al.next[3]) + '</em>' : '';
+    return '<div class="arrive"><span class="ae">' + al.here[2] + '</span><div class="at"><small>到達した場所</small><b>' + esc(al.here[3]) + '</b><span>' + fmtKm(al.km) + '</span>' + togo + '</div></div>' +
       '<div class="ladder">' + SKY.slice(1).map(function (x, k) {
         var i = k + 1, st = i <= al.i ? 'ok' : i === al.i + 1 ? 'nx' : '';
         return i > al.i + 2 ? '' : '<span class="lm ' + st + '" title="' + esc(x[3]) + '">' + x[2] + (st === 'ok' ? '<i>✓</i>' : '') + '</span>';
