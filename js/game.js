@@ -561,7 +561,8 @@
     return '<div class="arrive"><span class="ae">' + al.here[2] + '</span><div class="at"><small>到達した場所</small><b>' + esc(al.here[3]) + '</b><span>' + fmtKm(al.km) + '</span>' + togo + '</div></div>' +
       '<div class="ladder">' + SKY.slice(1).map(function (x, k) {
         var i = k + 1, st = i <= al.i ? 'ok' : i === al.i + 1 ? 'nx' : '';
-        return i > al.i + 2 ? '' : '<span class="lm ' + st + '" title="' + esc(x[3]) + '">' + x[2] + (st === 'ok' ? '<i>✓</i>' : '') + '</span>';
+        return i > al.i + 2 || i < al.i - 6 ? '' : // 通りすぎた めじるしは 近い 7 つだけ（1 行に おさめる）
+          '<span class="lm ' + st + '" title="' + esc(x[3]) + '">' + x[2] + (st === 'ok' ? '<i>✓</i>' : '') + '</span>';
       }).join('') + '</div>';
   }
   function brag(text) {
