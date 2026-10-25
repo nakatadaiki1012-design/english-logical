@@ -139,7 +139,7 @@
       '</div>' +
       '<div class="badges">' + BADGES.map(function (b) {
         var on = r.badges[b.id];
-        return '<div class="bd' + (on ? '' : ' off') + '" title="' + esc(b.how) + '"><i>' + (on ? b.ico : '🔒') + '</i><b>' + esc(b.name) + '</b><small>' + esc(on ? on : b.how) + '</small></div>';
+        return '<div class="bd' + (on ? '' : ' off') + '" title="' + esc(b.how) + '" data-how="' + esc(b.ico + ' ' + b.name + '：' + b.how) + '"><i>' + (on ? b.ico : '🔒') + '</i><b>' + esc(b.name) + '</b><small>' + esc(on ? on : b.how) + '</small></div>';
       }).join('') + '</div>' +
       '<p class="note rwnote">コインのもらい方：正解 +10・英作文 ○ +5・音読 ✓ +1・テスト合格 +50（はじめての合格は +150）・タイムアタックは 20 点で +1</p>' +
       '</div>');
@@ -1439,6 +1439,7 @@
       else if (b.dataset.pk) pickerClick(b.dataset.pk);
       else if (b.dataset.hs) hostSetClick(b.dataset.hs);
     });
+    gdlg.addEventListener('click', function (e) { var bd = e.target.closest('.bd[data-how]'); if (bd) toast(bd.dataset.how); }); // バッジを タップで 取り方（スマホは title が 見えない）
     A().view.addEventListener('click', function (e) {
       var b = e.target.closest('button'); if (!b || b.disabled) return;
       var d = b.dataset;
