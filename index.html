@@ -453,7 +453,7 @@ dialog::backdrop { background: rgba(0, 0, 0, .35); }
 .play .card { transition: box-shadow .3s, border-color .3s; }
 .play .card[data-combo="1"] { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft), 0 0 22px var(--accent-soft); }
 .play .card[data-combo="2"] { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(233, 183, 48, .35), 0 0 30px rgba(233, 183, 48, .35); }
-.play .card[data-combo="3"] { border-color: var(--warm); box-shadow: 0 0 0 3px var(--warm-soft), 0 0 40px rgba(217, 96, 59, .45); animation: hot 1s ease-in-out infinite alternate; }
+.play .card[data-combo="3"] { border-color: var(--warm); box-shadow: 0 0 0 3px var(--warm-soft), 0 0 40px rgba(217, 96, 59, .45); }
 @keyframes hot { to { box-shadow: 0 0 0 5px var(--warm-soft), 0 0 60px rgba(217, 96, 59, .6); } }
 .card.f-ok { animation: fok .35s; }
 .card.f-ng { animation: shake .3s; }
@@ -762,12 +762,15 @@ dialog::backdrop { background: rgba(0, 0, 0, .35); }
 .track i { position: absolute; inset: 0 auto 0 0; border-radius: 3px; background: #ffd166; transition: width .4s; }
 .rkt { position: absolute; top: 50%; transform: translate(-50%, -55%) rotate(45deg); font-size: 18px; transition: left .4s cubic-bezier(.2, 1.4, .4, 1); filter: drop-shadow(0 0 4px rgba(255, 209, 102, .9)); }
 .slidein { animation: risein .28s cubic-bezier(.2, .9, .3, 1.2); }
-@keyframes risein { from { transform: translateY(40px); opacity: 0; } }
+@keyframes risein { from { transform: scale(.94); opacity: 0; } }
 .fxpop.tplus { color: var(--accent); font-size: 20px; }
 .fxpop.tminus { color: var(--warm); font-size: 20px; }
 .fxpop.up { font-size: 24px; color: var(--warm); font-family: var(--font-display); }
 .fxpop.boost { color: #ff9f1c; text-shadow: 0 0 14px rgba(255, 159, 28, .85), 0 2px 0 #fff; font-size: clamp(34px, 9vw, 80px) !important; }
-.unit.play.boost .card { background: radial-gradient(circle at 50% 130%, rgba(255, 159, 28, .3), transparent 60%), var(--panel); border-color: #ff9f1c; box-shadow: 0 0 0 3px rgba(255, 159, 28, .45), 0 0 40px rgba(255, 107, 107, .45); animation: hot .45s ease-in-out infinite alternate; }
+.unit.play.boost .card { background: radial-gradient(circle at 50% 130%, rgba(255, 159, 28, .3), transparent 60%), var(--panel); border-color: #ff9f1c; }
+/* ブーストの光：影を 毎回 描きなおさず、光の層の 明るさだけ 変える（軽い） */
+.unit.play.boost .card::after { content: ""; position: absolute; inset: -1px; border-radius: inherit; pointer-events: none; box-shadow: 0 0 0 3px rgba(255, 159, 28, .5), 0 0 44px rgba(255, 107, 107, .5); animation: glowop .45s ease-in-out infinite alternate; }
+@keyframes glowop { from { opacity: .45; } to { opacity: 1; } }
 .unit.play.boost .meter i { background: linear-gradient(90deg, #ff6b6b, #ffd166, #ff9f1c, #ff6b6b); background-size: 200% 100%; animation: rainbow .8s linear infinite; }
 @keyframes rainbow { to { background-position: 200% 0; } }
 .unit.play.boost .hc { color: #ff9f1c; }
@@ -803,15 +806,18 @@ dialog::backdrop { background: rgba(0, 0, 0, .35); }
 #view { position: relative; }
 .scene { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
 .unit.play { position: relative; z-index: 1; }
-.unit.play .card { background: color-mix(in srgb, var(--panel) 58%, transparent); -webkit-backdrop-filter: blur(1.5px); backdrop-filter: blur(1.5px); }
+.unit.play .card { background: color-mix(in srgb, var(--panel) 58%, transparent); }
 .unit.play.boost .card { background: radial-gradient(circle at 50% 130%, rgba(255, 159, 28, .25), transparent 60%), color-mix(in srgb, var(--panel) 58%, transparent); }
+/* 宇宙では カードを 夜の色に（文字は 白） */
+.unit.play.space .card { --panel: #121a2b; --ink: #eef2f7; --muted: #aab6c6; --line: #2f3d56; --bg: #0d1424; --chip: #1c2740; --accent: #8cc5a6; --accent-soft: rgba(140, 197, 166, .22); --warm: #eda26b; --warm-soft: rgba(237, 162, 107, .22); color: var(--ink); background: rgba(10, 16, 30, .55); border-color: #2f3d56; transition: background .8s; }
+.unit.play.space.boost .card { background: radial-gradient(circle at 50% 130%, rgba(255, 159, 28, .25), transparent 60%), rgba(10, 16, 30, .55); }
 /* 景色の上でも 読めるように：文字に 台紙色の ふち、カード類は 不透明 */
-.unit.play .ja, .unit.play .en, .unit.play .lab, .unit.play .result p, .unit.play .result .score, .unit.play .arrive, .unit.play .count small { text-shadow: 0 0 3px var(--panel), 0 0 6px var(--panel), 0 0 10px var(--panel); }
+.unit.play .ja, .unit.play .en, .unit.play .lab, .unit.play .result p, .unit.play .result .score, .unit.play .arrive, .unit.play .count small { text-shadow: 0 0 2px var(--panel), 0 0 7px var(--panel); }
 .unit.play .slots { background: color-mix(in srgb, var(--panel) 70%, transparent); }
 .unit.play .tl, .unit.play .choice { background: var(--panel); }
 .unit.play .choice.ok { background: color-mix(in srgb, var(--accent-soft) 100%, var(--panel)); }
 .unit.play .choice.ng { background: color-mix(in srgb, var(--warm-soft) 100%, var(--panel)); }
-.unit.play .hud, .unit.play .hud2 { background: color-mix(in srgb, var(--panel) 88%, transparent); border-radius: 10px; padding: 4px 6px; -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px); }
+.unit.play .hud, .unit.play .hud2 { background: color-mix(in srgb, var(--panel) 90%, transparent); border-radius: 10px; padding: 4px 6px; }
 .unit.play .hud2 { margin-top: 0; }
 .unit.play .cin { gap: clamp(6px, 1.6cqh, 14px); }
 /* 高さの低い画面の 結果：細かい行を省く */

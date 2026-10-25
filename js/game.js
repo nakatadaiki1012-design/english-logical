@@ -398,23 +398,33 @@
       return { level: al.i + (al.next ? al.pct / 100 : 0), combo: G.combo, boost: fever(), started: now() >= G.startAt && !G.over };
     });
   }
+  /* 表示の 書きかえは 変わった時だけ（軽くする） */
+  var HC = {};
+  function setText(el, key, v) { if (el && HC[key] !== v) { HC[key] = v; el.textContent = v; } }
+  function setHTML(el, key, v) { if (el && HC[key] !== v) { HC[key] = v; el.innerHTML = v; } }
+  function setStyle(el, key, prop, v) { if (el && HC[key] !== v) { HC[key] = v; el.style[prop] = v; } }
+  function setAttr(el, key, name, v) { if (el && HC[key] !== v) { HC[key] = v; el.setAttribute(name, v); } }
+  function setCls(el, key, cls, on) { on = !!on; if (el && HC[key] !== on) { HC[key] = on; el.classList.toggle(cls, on); } }
   function drawHud() {
     if (!G) return;
+    if (HC.g !== G) HC = { g: G }; // 新しい ゲームでは 覚えを リセット
     var t = now(), started = t >= G.startAt, left = timeLeft();
-    var f = $('#tfill'), sec = $('#tsec'), sc = $('#hscore'), cb = $('#hcombo');
     var full = G.mode === 'solo' ? RULE.start * 1000 : G.cfg.t * 1000;
-    if (f) { f.style.width = (started ? Math.min(100, left / full * 100) : 100) + '%'; f.className = left < 10000 && started ? 'hurry' : ''; }
-    if (sec) sec.textContent = '⛽ ' + (started ? Math.max(0, Math.ceil(left / 1000)) : Math.round(full / 1000)) + '秒';
-    if (sc) sc.textContent = fmt(G.score);
-    if (cb) cb.innerHTML = G.combo >= 2 ? '<b>' + G.combo + '</b> コンボ' + (mult() > 1 ? '<i>×' + mult() + '</i>' : '') : '';
-    var card = $('.play .card'); if (card) card.setAttribute('data-combo', G.combo >= 50 ? 3 : G.combo >= 25 ? 2 : G.combo >= 10 ? 1 : 0);
-    var tb = $('.play .tbar'); if (tb) tb.classList.toggle('hurry', started && left < 10000);
-    var fv = fever(), pl = $('.unit.play'); if (pl) pl.classList.toggle('boost', !!fv);
-    var mt = $('#hmeter'), mx = $('#hmtext');
-    if (mt) mt.style.width = (fv ? (G.feverUntil - Date.now()) / (RULE.feverSec * 1000) * 100 : G.meter / RULE.fever * 100) + '%';
-    if (mx) mx.textContent = fv ? '🚀 BOOST!! 点数 ×2' : 'あと ' + (RULE.fever - G.meter) + ' で ブースト';
-    var sp = $('#hspd'); if (sp) { var v = speedNow(); if (v > G.maxSpeed) G.maxSpeed = v; sp.textContent = started && v > 1.04 ? '⏩ ×' + v.toFixed(1) : ''; sp.className = 'spd' + (v > 2 ? ' fast' : ''); }
-    var ah = $('#halt'); if (ah) { var al = altOf(G.score); ah.textContent = al.here[2] + ' ' + fmtKm(al.km); }
+    setStyle($('#tfill'), 'tf', 'width', (started ? Math.min(100, left / full * 100) : 100).toFixed(1) + '%');
+    setText($('#tsec'), 'ts', '⛽ ' + (started ? Math.max(0, Math.ceil(left / 1000)) : Math.round(full / 1000)) + '秒');
+    setText($('#hscore'), 'sc', fmt(G.score));
+    setHTML($('#hcombo'), 'cb', G.combo >= 2 ? '<b>' + G.combo + '</b> コンボ' + (mult() > 1 ? '<i>×' + mult() + '</i>' : '') : '');
+    setAttr($('.play .card'), 'cmb', 'data-combo', String(G.combo >= 50 ? 3 : G.combo >= 25 ? 2 : G.combo >= 10 ? 1 : 0));
+    var hurry = started && left < 10000;
+    setCls($('#tfill'), 'tfh', 'hurry', hurry); setCls($('.play .tbar'), 'tbh', 'hurry', hurry);
+    var fv = fever(), pl = $('.unit.play');
+    setCls(pl, 'bst', 'boost', fv);
+    setCls(pl, 'spc', 'space', altOf(G.score).i >= 6); // 宇宙に出たら カードを 夜の色に
+    setStyle($('#hmeter'), 'mt', 'width', (fv ? (G.feverUntil - Date.now()) / (RULE.feverSec * 1000) * 100 : G.meter / RULE.fever * 100).toFixed(0) + '%');
+    setText($('#hmtext'), 'mx', fv ? '🚀 BOOST!! 点数 ×2' : 'あと ' + (RULE.fever - G.meter) + ' で ブースト');
+    var sp = $('#hspd');
+    if (sp) { var v = speedNow(); if (v > G.maxSpeed) G.maxSpeed = v; setText(sp, 'sp', started && v > 1.04 ? '⏩ ×' + v.toFixed(1) : ''); setCls(sp, 'spf', 'fast', v > 2); }
+    var al = altOf(G.score); setText($('#halt'), 'al', al.here[2] + ' ' + fmtKm(al.km));
     if (G.mode === 'battle') liveRank();
   }
   /* クラス対戦：プレイ中の 自分の順位 */
