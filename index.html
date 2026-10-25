@@ -302,6 +302,8 @@ dialog::backdrop { background: rgba(0, 0, 0, .35); }
 .hubp h3 { font-family: var(--font-display); font-size: 24px; margin: 0; }
 .hubp .fld { flex-wrap: nowrap; }
 .hubp .fld input { min-width: 0; }
+.hubp .fld.rng { flex-wrap: wrap; row-gap: 6px; }
+.hubp .fld.rng .rangebtn { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .fld.go { margin-top: auto; }
 .fld.teacher { margin-top: auto; border-top: 1px dashed var(--line); padding-top: 8px; }
 /* 3 つの コース（寿司打の お手軽・お勧め・高級 のように えらぶだけで スタート） */

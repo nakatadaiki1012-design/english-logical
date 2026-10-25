@@ -521,16 +521,16 @@
 
   /* ---------- ひとりで タイムアタック ---------- */
   function taCfg() { var s = S(); if (!s.ta) s.ta = { c: s.course || 'c1', lv: 'std' }; if (!s.ta.lv) s.ta.lv = 'std'; return s.ta; }
-  /* ひとりは だれでも 同じ条件（教科書の 全単元・ミックス・燃料 60 秒）→ ベストを くらべて 自慢しやすい */
-  function bestKey(c, lv) { return c + '-' + lv; }
+  /* 範囲は「教科書まるごと」か「えらんだ単元」。並べかえ・穴うめは いつも ミックス。ベストは 範囲 × コースごと */
+  function bestKey(cfg, lv) { var us = usOf(cfg); return (us.length ? 'u:' + us.join(',') : cfg.c) + '-' + lv; }
   function startSolo() {
-    var cfg = taCfg(), c2 = { c: cfg.c, lv: cfg.lv, m: 'mix', p: 0, u: 12, t: 60, us: '' };
+    var cfg = taCfg(), c2 = { c: cfg.c, lv: cfg.lv, m: 'mix', p: 0, u: 12, t: 60, us: cfg.us || '' };
     newGame(c2, Math.floor(Math.random() * 1e9), 'solo', Date.now() + 3200);
     playShell('スコア');
     runClock(endSolo);
   }
   function endSolo() {
-    var r = rw(), key = bestKey(G.cfg.c, lvOf(G.cfg).k), prev = r.best[key] || 0, rec = G.score > prev;
+    var r = rw(), key = bestKey(G.cfg, lvOf(G.cfg).k), prev = r.best[key] || 0, rec = G.score > prev;
     if (rec) r.best[key] = G.score;
     var coins = afterGame(); save(); earn(coins); checkBadges();
     var dur = Math.round(G.dur || 0), mm = Math.floor(dur / 60) + '分' + (dur % 60) + '秒';
@@ -568,9 +568,9 @@
 
   /* ---------- ゲームのトップ ---------- */
   function renderHub() {
-    var cfg = taCfg(), r = rw(), s = S();
+    var cfg = taCfg(), r = rw(), s = S(), us = usOf(cfg);
     var seg = function (key, opts) {
-      return '<div class="seg">' + opts.map(function (o) { return '<button type="button" data-ta="' + key + ':' + o[0] + '" aria-pressed="' + (String(cfg[key]) === String(o[0])) + '">' + o[1] + '</button>'; }).join('') + '</div>';
+      return '<div class="seg">' + opts.map(function (o) { return '<button type="button" data-ta="' + key + ':' + o[0] + '" aria-pressed="' + (String(cfg[key]) === String(o[0]) && !us.length) + '">' + o[1] + '</button>'; }).join('') + '</div>';
     };
     var hasDb = !!base();
     A().view.innerHTML = '<div class="unit">' +
@@ -579,9 +579,10 @@
       '<button type="button" class="btn ghost rwbtn" data-ga="rewards">🏅 段位・バッジ</button></div>' +
       '<div class="hub">' +
       '<section class="panel hubp ta"><h3><span class="hico">🚀</span> 英文ロケット</h3><p class="note">正しいカードで 燃料を入れて 打ち上げ！ 正解を続けると 🔥ブーストで 加速。どこまで 高く 行ける？</p>' +
-      '<div class="fld"><span class="fl">教科書</span>' + seg('c', [['c1', 'Ⅰ'], ['c2', 'Ⅱ'], ['c3', 'Ⅲ'], ['all', '全部']]) + '</div>' +
+      '<div class="fld rng"><span class="fl">範囲</span>' + seg('c', [['c1', 'Ⅰ'], ['c2', 'Ⅱ'], ['c3', 'Ⅲ'], ['all', '全部']]) +
+      '<button type="button" class="btn rangebtn' + (us.length ? ' on' : '') + '" data-ga="spick">' + (us.length ? '📚 ' + esc(rangeName(cfg)) + ' ✎' : '📚 単元をえらぶ') + '</button></div>' +
       '<div class="lvs">' + LVS.map(function (l) {
-        var b = r.best[bestKey(cfg.c, l.k)] || 0;
+        var b = r.best[bestKey(cfg, l.k)] || 0;
         return '<button type="button" class="lvb lv-' + l.k + '" data-ta="go:' + l.k + '"><i>' + l.ico + '</i><b>' + l.name + '</b><small>' + l.sub + '</small>' +
           '<span class="lvbest">ベスト <em>' + (b ? fmt(b) : '－') + '</em></span></button>';
       }).join('') + '</div>' +
@@ -597,8 +598,10 @@
   function hubTa(v) {
     var kv = v.split(':'), cfg = taCfg();
     if (kv[0] === 'go') { cfg.lv = kv[1]; save(); location.hash = '#ta'; return; } // コースを えらぶと すぐ スタート
-    cfg[kv[0]] = kv[1]; save(); renderHub();
+    cfg[kv[0]] = kv[1]; if (kv[0] === 'c') cfg.us = ''; // 教科書を おしたら まるごとに もどす
+    save(); renderHub();
   }
+  function soloPick() { var cfg = taCfg(); openPicker(cfg.us || '', cfg.c === 'all' ? S().course : cfg.c, function (us) { cfg.us = us; save(); renderHub(); }); }
 
   /* ---------- 単元えらび（今日の授業の範囲） ---------- */
   var P = null;
@@ -1125,6 +1128,7 @@
       switch (d.ga && d.ga.split(':')[0]) {
         case 'solo': if (location.hash === '#ta') startSolo(); else location.hash = '#ta'; break;
         case 'again': startSolo(); break;
+        case 'spick': soloPick(); break;
         case 'brag': brag(G && G.share || ''); break;
         case 'quit': leave(); leaveBattle(); if (location.hash === '#game') renderHub(); else location.hash = '#game'; break;
         case 'rewards': openRewards(); break;
