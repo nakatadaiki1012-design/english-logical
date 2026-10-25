@@ -797,16 +797,19 @@
     var cfg = H.room.cfg;
     openPicker(cfg.us || '', cfg.c === 'all' ? S().course : cfg.c, function (us) {
       if (!H) return;
-      H.room.cfg.us = us;
-      api('PATCH', 'rooms/' + H.code + '/cfg', { us: us }).catch(function () { toast('変更できませんでした'); });
+      var old = H.room.cfg.us; H.room.cfg.us = us;
+      api('PATCH', 'rooms/' + H.code + '/cfg', { us: us }).catch(function () { if (H && H.room) { H.room.cfg.us = old; drawHostL(true); } toast('変更できませんでした。電波を たしかめて もう一度'); });
       if (back) setTimeout(openHostSet, 0);
     });
   }
   function hostCfg(v) {
     var kv = v.split(':'), val = kv[0] === 'c' || kv[0] === 'lv' || kv[0] === 'src' || kv[0] === 'kind' ? kv[1] : +kv[1], o = {}; o[kv[0]] = val;
     if (kv[0] === 'c') { o.us = ''; o.u = 12; }
-    Object.keys(o).forEach(function (k) { H.room.cfg[k] = o[k]; }); // 先に画面へ反映
-    api('PATCH', 'rooms/' + H.code + '/cfg', o).catch(function () { toast('変更できませんでした'); });
+    var old = {}; Object.keys(o).forEach(function (k) { old[k] = H.room.cfg[k]; H.room.cfg[k] = o[k]; }); // 先に画面へ反映
+    api('PATCH', 'rooms/' + H.code + '/cfg', o).catch(function () { // 失敗したら もとに もどす（先生と 生徒の 問題が ずれないように）
+      if (!H || !H.room) return; Object.keys(old).forEach(function (k) { H.room.cfg[k] = old[k]; });
+      toast('変更できませんでした。電波を たしかめて もう一度'); drawHostL(true); if (gdlg.open && $('#hsetdlg')) openHostSet();
+    });
     if (gdlg.open && $('#hsetdlg')) openHostSet();
     drawHostL(true);
   }
@@ -849,8 +852,8 @@
     var top = Math.max(1, list.reduce(function (m, p) { return Math.max(m, mode === 'best' ? p.b || 0 : p.s || 0); }, 0));
     var n = list.length + (hid ? 1 : 0), cols = n <= 10 ? 1 : n <= 24 ? 2 : 3, rowsN = n, more = 0, style = ''; // hid：「ほか ○ 人」の 行
     if (W && H) {
-      cols = Math.max(1, Math.min(cols, Math.floor(W / 230)));
-      var maxRows = Math.max(1, Math.floor(H / 24));
+      var maxRows = Math.max(1, Math.floor(H / 24)), roomy = Math.max(1, Math.floor(H / 44));
+      cols = Math.max(1, Math.min(3, Math.floor(W / 230), Math.ceil(n / roomy))); // 1 列で ゆったり 入るなら 1 列（上から 順に 読める）
       rowsN = Math.ceil(n / cols);
       if (rowsN > maxRows) { rowsN = maxRows; more = list.length - (cols * rowsN - 1); list = list.slice(0, cols * rowsN - 1); }
       rowsN = Math.max(Math.min(8, maxRows), rowsN);
@@ -876,7 +879,7 @@
   /* 順位が同じときは 数字と棒だけ書きかえる（棒がなめらかにのびる） */
   function patchRows(bb, list, mode) {
     rowData(list, mode).forEach(function (d) {
-      var li = bb.querySelector('li[data-id="' + d.p.id + '"]'); if (!li) return;
+      var li = bb.querySelector('li[data-id="' + (window.CSS && CSS.escape ? CSS.escape(d.p.id) : d.p.id) + '"]'); if (!li) return;
       var sc = li.querySelector('.sc'), t = fmt(d.v);
       if (sc.textContent !== t) { sc.textContent = t; li.classList.remove('up'); void li.offsetWidth; li.classList.add('up'); }
       li.querySelector('.bar i').style.width = d.pct + '%';
@@ -1192,7 +1195,7 @@
       : r.state === 'reveal' ? { state: 'board' }
       : r.qi + 1 >= qN(r.cfg) ? { state: 'end' }
       : { state: 'q', qi: r.qi + 1, qAt: Math.round(now() + qRead(r.cfg, r.seed, r.qi + 1)) };
-    if (o.state === 'reveal') { // 問題ごとの 正答率を のこす（あとで 復習に 使う）
+    if (o.state === 'board') { // 問題ごとの 正答率を のこす（ぎりぎりの 回答も ふくめて。あとで 復習に 使う）
       var q = quizQs(r.cfg, r.seed)[r.qi], ans = qAnswered(r);
       o['stat/' + r.qi] = { ok: ans.filter(function (p) { return p.a.c === q.ans; }).length, n: playersOf(r, r.round).length };
     }
@@ -1215,7 +1218,7 @@
   function copyResult() {
     var r = H && H.room; if (!r) return;
     var lst = playersOf(r, r.round), qz = isQuiz(r.cfg);
-    var txt = ['順位\t名前\t点数\t' + (qz ? '正解数' : '語数')].concat(rowData(lst, 'now').map(function (d) { return d.rank + '\t' + d.p.n + '\t' + (d.p.s || 0) + '\t' + (d.p.w || 0); })).join('\n');
+    var txt = ['順位\t名前\t点数\t' + (qz ? '正解数' : '語数')].concat(rowData(lst, 'now').map(function (d) { var n = String(d.p.n).replace(/[\t\r\n]/g, ' '); if (/^[=+\-@]/.test(n)) n = "'" + n; return d.rank + '\t' + n + '\t' + (d.p.s || 0) + '\t' + (d.p.w || 0); })).join('\n');
     if (navigator.clipboard) navigator.clipboard.writeText(txt).then(function () { toast('結果をコピーしました（Excel・スプレッドシートに 貼れます）'); }, function () { toast('コピーできませんでした'); });
     else toast('コピーできませんでした');
   }
@@ -1224,6 +1227,16 @@
     var n = playersOf(r, r.round).length, done = qAnswered(r).length;
     if (now() > r.qAt + qT(r.cfg) * 1000 + 600 || (n && done >= n && now() > r.qAt)) quizNext();
     else drawBoard();
+  }
+  /* 前の 問題からの 順位の 上がり下がり（▲2） */
+  function markMoves(bb, ps, fresh) {
+    var now0 = {}; rowData(ps, 'now').forEach(function (d) { now0[d.p.id] = d.rank; });
+    H.rk0 = H.rk0 || {};
+    if (fresh) { H.rkShow = H.rk0; H.rk0 = now0; }
+    bb.querySelectorAll('li[data-id]').forEach(function (li) {
+      var a = H.rkShow && H.rkShow[li.dataset.id], b = now0[li.dataset.id];
+      if (a && b && a !== b) li.querySelector('.nm').insertAdjacentHTML('beforeend', ' <i class="' + (b < a ? 'rup' : 'rdn') + '">' + (b < a ? '▲' : '▼') + Math.abs(a - b) + '</i>');
+    });
   }
   function drawQuizBoard(el, r) {
     var q = quizQs(r.cfg, r.seed)[r.qi], t = now(), key = r.state + '|' + r.round + '|' + r.qi;
@@ -1240,7 +1253,13 @@
       if (t >= r.qAt && H.qgo !== key) { H.qgo = key; FX('go'); el.classList.add('open'); }
       return;
     }
-    if (H.qkey === key && r.state === 'reveal') return; // 答え合わせは 1 回 描けば よい
+    if (H.qkey === key && r.state === 'reveal' && H.qrevN === ans.length) return; // 答え合わせは 回答数が 変わった時だけ
+    H.qrevN = ans.length;
+    if (H.qkey === key && r.state === 'board' && el.querySelector('.qzrk')) { // ボタンは そのまま、表だけ
+      var bb0 = el.querySelector('.qzrk'), lst0 = cut(ps, topN(r.cfg), 'now');
+      bb0.innerHTML = rows(lst0, 'now', bb0.clientWidth, bb0.clientHeight, ps.length - lst0.length); markMoves(bb0, ps, false);
+      return;
+    }
     var fresh = H.qkey !== key;
     var head = '<div class="bhead"><b>🎯 第 ' + (r.qi + 1) + ' 問 <small>/ ' + qN(r.cfg) + '</small></b>';
     var body;
@@ -1251,14 +1270,7 @@
       el.innerHTML = '<div class="bh">' + head + '</div>' + body;
       var bb = el.querySelector('.bbody');
       bb.innerHTML = lst.length ? rows(lst, 'now', bb.clientWidth, bb.clientHeight, all - lst.length) : '<div class="count"><small>まだ だれも 答えていません</small></div>';
-      // 前の 問題からの 順位の 上がり下がり（▲2）
-      var now0 = {}; rowData(ps, 'now').forEach(function (d) { now0[d.p.id] = d.rank; });
-      H.rk0 = H.rk0 || {};
-      if (fresh) { H.rkShow = H.rk0; H.rk0 = now0; }
-      bb.querySelectorAll('li[data-id]').forEach(function (li) {
-        var a = H.rkShow && H.rkShow[li.dataset.id], b = now0[li.dataset.id];
-        if (a && b && a !== b) li.querySelector('.nm').insertAdjacentHTML('beforeend', ' <i class="' + (b < a ? 'rup' : 'rdn') + '">' + (b < a ? '▲' : '▼') + Math.abs(a - b) + '</i>');
-      });
+      markMoves(bb, ps, fresh);
     } else {
       var rev = r.state === 'reveal', cnt = [0, 0, 0, 0];
       ans.forEach(function (p) { if (p.a.c >= 0 && p.a.c < 4) cnt[p.a.c]++; });
@@ -1286,21 +1298,30 @@
     var Z = B.qz;
     if (!Z || Z.round !== room.round) {
       var me0 = room.players && room.players[pid()] || {};
+      if (G) { clearInterval(G.timer); G = null; } // 前の ロケット対戦の 後始末
       Z = B.qz = { round: room.round, s: 0, k: 0, got: {}, ok: 0 };
-      B.played = room.round;
-      if (me0.r === room.round) { // 読みこみ直し：つづきから
+      B.played = room.round; B.qzKey = '';
+      if (me0.r === room.round) { // 読みこみ直し：つづきから（1 問ごとの ○✕ も もどす）
         Z.s = me0.s || 0; Z.k = me0.k || 0; Z.ok = me0.w || 0;
+        var hh = me0.h || {}; Object.keys(hh).forEach(function (i) { if (hh[i] != null) Z.got[i] = { c: -1, ok: !!hh[i], p: 0 }; });
         if (me0.a && me0.a.q === room.qi) Z.got[room.qi] = { c: me0.a.c, ok: !!me0.a.ok, p: me0.a.p || 0 };
       } else { // 新しい 大会
-        api('PATCH', 'rooms/' + B.code + '/players/' + pid(), { s: 0, k: 0, r: room.round, a: null, w: 0, d: 0 }).catch(function () { });
+        api('PATCH', 'rooms/' + B.code + '/players/' + pid(), { s: 0, k: 0, r: room.round, a: null, h: null, w: 0, d: 0 }).catch(function () { });
         var rb = rw(); rb.battles = Math.max(rb.battles, 1);
       }
     }
-    if (room.state !== 'q' && !Z.got[room.qi]) { Z.got[room.qi] = { c: -1, ok: false, p: 0 }; Z.k = 0; } // 答えなかった
-    clearInterval(B.qzT);
+    if (room.state !== 'q' && !Z.got[room.qi]) qMiss(room); // 答えなかった
     var q = quizQs(room.cfg, room.seed)[room.qi]; if (!q) return;
     var mine = Z.got[room.qi], lim = qT(room.cfg) * 1000;
     var lst = playersOf(room, room.round), rk = rankOf(lst, pid(), 'now') || lst.length;
+    // 1. 画面は 場面が 変わった時だけ 作りなおす（ほかの人の 回答で 作りなおすと、押している ボタンが 消えて タップが 失われる）
+    var key = room.state + '|' + room.round + '|' + room.qi + '|' + !!mine;
+    if (B.qzKey === key && $('.qzs')) {
+      var e1 = $('#qzrk'), e2 = $('#qzrn'); if (e1) e1.textContent = rk; if (e2) e2.textContent = lst.length;
+      return;
+    }
+    B.qzKey = key;
+    clearInterval(B.qzT);
     var head = '<div class="unit qzs"><div class="ubar"><button type="button" class="btn ghost" data-ga="bleave">◀ ぬける</button><div class="utitle"><small>🎯 クイズ大会・部屋 ' + B.code + '</small><b>第 ' + (room.qi + 1) + ' 問 / ' + qN(room.cfg) + '</b></div><span class="ppl">' + fmt(Z.s) + ' 点</span></div><section class="card"><div class="cin">';
     var mid;
     if (room.state === 'q' && !mine) {
@@ -1315,21 +1336,25 @@
         if (t < room.qAt) { ts.textContent = 'よーい…'; return; }
         if (!B.qzOpen || B.qzOpen !== room.qi + '|' + room.round) { B.qzOpen = room.qi + '|' + room.round; FX('go'); document.querySelectorAll('.qb').forEach(function (b) { b.disabled = false; }); }
         var left = Math.max(0, room.qAt + lim - t); tf.style.width = (left / lim * 100).toFixed(1) + '%'; ts.textContent = Math.ceil(left / 1000) + ' 秒';
-        if (!left) { clearInterval(B.qzT); Z.got[room.qi] = { c: -1, ok: false, p: 0 }; Z.k = 0; quizStudent(room); }
+        if (!left) { clearInterval(B.qzT); qMiss(room); quizStudent(room); }
       }, 100);
     } else if (room.state === 'q') {
       mid = '<div class="qzwait"><span class="qb big ' + (mine.c >= 0 ? QCOL[mine.c][1] : 'none') + '"><span class="sh">' + (mine.c >= 0 ? QCOL[mine.c][0] : '⌛') + '</span></span>' +
         '<p class="h">' + (mine.c >= 0 ? '回答しました！' : '時間切れ…') + '</p><p class="note">先生の 画面で 答え合わせを 待っています</p></div>';
     } else if (room.state === 'reveal') {
       var ok = mine && mine.ok;
-      if (Z.shown !== room.qi + '|' + room.round) { Z.shown = room.qi + '|' + room.round; FX(ok ? 'ok' : 'miss'); if (ok && window.LXFX) LXFX.burst(40); if (ok) earn(10); }
+      var awk = B.code + '|' + room.round + '|' + room.qi, sv = S(); sv.qzAw = sv.qzAw || [];
+      if (Z.shown !== awk) {
+        Z.shown = awk; FX(ok ? 'ok' : 'miss'); if (ok && window.LXFX) LXFX.burst(40);
+        if (ok && sv.qzAw.indexOf(awk) < 0) { sv.qzAw = sv.qzAw.concat(awk).slice(-60); earn(10); }
+      }
       mid = '<div class="qzres ' + (ok ? 'ok' : 'ng') + '"><b class="mk">' + (ok ? '⭕ 正解！' : mine && mine.c >= 0 ? '❌ ざんねん' : '⌛ 時間切れ') + '</b>' +
         (ok ? '<p class="pt">+' + fmt(mine.p) + ' 点' + (Z.k >= 2 ? '　<span class="fire">🔥 ' + Z.k + ' 連続</span>' : '') + '</p>' : '') +
         '<p class="ans"><span class="sh ' + QCOL[q.ans][1] + '">' + QCOL[q.ans][0] + '</span> ' + esc(q.type === 'pick' ? q.s.plain : q.opts[q.ans]) + '</p>' +
         (q.s.why ? '<p class="note">💡 ' + esc(q.s.why) + '</p>' : '') +
-        '<p class="rk"><small>いま</small><b>' + rk + '</b><small>位 / ' + lst.length + ' 人</small></p></div>';
+        '<p class="rk"><small>いま</small><b id="qzrk">' + rk + '</b><small>位 / <span id="qzrn">' + lst.length + '</span> 人</small></p></div>';
     } else { // board
-      mid = '<div class="qzres"><p class="rk big"><small>いま</small><b>' + rk + '</b><small>位 / ' + lst.length + ' 人</small></p><p class="pt">' + fmt(Z.s) + ' 点</p><p class="note">次の 問題を 待っています</p></div>';
+      mid = '<div class="qzres"><p class="rk big"><small>いま</small><b id="qzrk">' + rk + '</b><small>位 / <span id="qzrn">' + lst.length + '</span> 人</small></p><p class="pt">' + fmt(Z.s) + ' 点</p><p class="note">次の 問題を 待っています</p></div>';
     }
     A().view.innerHTML = head + mid + '</div></section></div>';
   }
@@ -1337,10 +1362,17 @@
   function quizMissed(room) {
     if (!isQuiz(room.cfg) || !B || !B.qz || B.qz.round !== room.round) return '';
     var qs = quizQs(room.cfg, room.seed), miss = Object.keys(B.qz.got).filter(function (i) { return !B.qz.got[i].ok && qs[i]; });
-    if (!miss.length) return '<p class="qmiss ok">🎉 全問 正解！</p>';
+    if (!miss.length) return B.qz.ok >= qN(room.cfg) ? '<p class="qmiss ok">🎉 全問 正解！</p>' : '';
     return '<div class="qmiss"><b>📝 まちがえた 問題（' + miss.length + '）</b>' + miss.slice(0, 3).map(function (i) {
       var s = qs[i].s; return '<p><span>' + esc(s.ja) + '</span>' + esc(s.en.split('[')[0]) + '<em>' + esc(s.key) + '</em>' + esc(s.en.split(']')[1] || '') + '</p>';
     }).join('') + (miss.length > 3 ? '<small>ほか ' + (miss.length - 3) + ' 問</small>' : '') + '</div>';
+  }
+  /* 答えなかった（時間切れ）：連続正解を 0 に して 記録にも のこす */
+  function qMiss(room) {
+    var Z = B.qz; if (!Z || Z.got[room.qi]) return;
+    Z.got[room.qi] = { c: -1, ok: false, p: 0 }; Z.k = 0;
+    var o = { k: 0, a: { q: room.qi, c: -1, ok: 0, p: 0 } }; o['h/' + room.qi] = 0;
+    api('PATCH', 'rooms/' + B.code + '/players/' + pid(), o).catch(function () { });
   }
   function quizAnswer(i) {
     var room = B && B.room; if (!room || room.state !== 'q' || !B.qz) return;
@@ -1352,6 +1384,7 @@
     FX('tap', 0);
     var me = room.players && room.players[pid()] || {};
     var body = { s: Z.s, k: Z.k, r: room.round, b: Math.max(me.b || 0, Z.s), w: Z.ok, a: { q: room.qi, c: i, ok: ok ? 1 : 0, p: p } }, path = 'rooms/' + B.code + '/players/' + pid();
+    body['h/' + room.qi] = ok ? 1 : 0;
     api('PATCH', path, body).catch(function () { setTimeout(function () { api('PATCH', path, body).catch(function () { toast('答えを 送れませんでした。電波を たしかめてね'); }); }, 800); });
     quizStudent(room);
   }
