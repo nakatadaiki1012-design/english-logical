@@ -604,7 +604,8 @@
       '<section class="panel hubp vs"><h3><span class="hico">🏆</span> クラス対戦</h3><p class="note">先生の合図で 全員いっせいにスタート。🚀 ロケット対戦 か、1 問ずつ 4 択で 答える 🎯 クイズ大会</p>' +
       (hasDb ?
         '<div class="fld joinrow"><input type="text" id="jCode" inputmode="numeric" maxlength="4" placeholder="部屋番号"><input type="text" id="jName" maxlength="10" placeholder="ニックネーム" value="' + esc(s.nick || '') + '"><button type="button" class="btn main" data-ga="join">参加 ▶</button></div>' +
-        '<div class="fld teacher"><span class="note">先生</span><button type="button" class="btn" data-ga="mkroom:race">🚀 ロケット対戦の 部屋</button><button type="button" class="btn" data-ga="mkroom:quiz">🎯 クイズ大会の 部屋</button></div>'
+        '<div class="fld teacher"><span class="note">先生</span><button type="button" class="btn" data-ga="mkroom:race">🚀 ロケット対戦の 部屋</button><button type="button" class="btn" data-ga="mkroom:quiz">🎯 クイズ大会の 部屋</button>' +
+          (s.hostRooms && s.hostRooms.length ? '<button type="button" class="btn ghost" data-ga="hback:' + esc(s.hostRooms[s.hostRooms.length - 1]) + '">↩ 部屋 ' + esc(s.hostRooms[s.hostRooms.length - 1]) + ' に もどる</button>' : '') + '</div>'
         : '<p class="body warnbox">まだ使えません。先生が ⚙ 設定で データベースを 1 回登録すると使えるようになります（README「クラス対戦の準備」）。<br>先生から届いた 部屋のリンク・QR を開けば すぐ参加できます。</p>' +
         '<div class="fld"><button type="button" class="btn" data-ga="settings">⚙ 設定を開く</button></div>') +
       '</section></div></div>';
@@ -740,7 +741,7 @@
       if (!H || H.code !== code) return;
       H.stop = listen('rooms/' + code, function (room) {
         if (!H) return;
-        if (!room) { toast('この部屋は閉じられました'); location.hash = '#game'; return; }
+        if (!room) { var sv = S(); sv.hostRooms = (sv.hostRooms || []).filter(function (c) { return c !== code; }); save(); toast('この部屋は閉じられました'); location.hash = '#game'; return; }
         // room は 同じ入れ物が 書きかえられて届くので、前の状態は 文字で覚えておく
         var first = !H.room, prev = H.st; H.room = room; H.st = room.state + '|' + room.round;
         if (!first && prev && prev !== H.st && prev.split('|')[1] === String(room.round) && room.state === 'end') setTimeout(function () { if (H && H.room) showPodium(H.room); }, 300);
@@ -1466,6 +1467,7 @@
         case 'settings': openSettings(); break;
         case 'join': join(); break;
         case 'mkroom': makeRoom(d.ga.split(':')[1]); break;
+        case 'hback': location.hash = '#host/' + d.ga.split(':')[1]; break;
         case 'qreset': if (B) { B.qzSeq = []; document.querySelectorAll('.qb.picked').forEach(function (x) { x.classList.remove('picked'); x.removeAttribute('data-n'); }); var lb = $('#qzsq'); if (lb) lb.textContent = 'タップした 順： '; } break;
         case 'qsay': { b.blur(); var rq = H && H.room, qq = rq && quizQs(rq.cfg, rq.seed)[rq.qi]; if (qq) A().speak(qq.s.plain); break; }
         case 'hstart': hostStart(); break;
@@ -1478,7 +1480,7 @@
           break;
         }
         case 'hclose':
-          if (confirm('部屋 ' + H.code + ' を閉じますか？（ランキングも消えます）')) { var c = H.code; leave(); api('DELETE', 'rooms/' + c).then(function () { location.hash = '#game'; }, function () { location.hash = '#game'; }); }
+          if (confirm('部屋 ' + H.code + ' を閉じますか？（ランキングも消えます）')) { var c = H.code, sv = S(); sv.hostRooms = (sv.hostRooms || []).filter(function (x) { return x !== c; }); save(); leave(); api('DELETE', 'rooms/' + c).then(function () { location.hash = '#game'; }, function () { location.hash = '#game'; }); }
           break;
         case 'tab': H.tab = d.ga.split(':')[1]; drawBoard(); break;
         case 'hpick': hostPick(); break;

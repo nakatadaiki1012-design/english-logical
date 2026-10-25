@@ -1113,6 +1113,11 @@ body[data-room] .brand { pointer-events: none; }
 @media (min-width: 721px) { .firstrun { display: none; } } /* 広い 画面は 下の「おぼえ方」が 出る */
 body.offline::after { content: "📶 つながりを 確認中…（Wi-Fi を たしかめてね）"; position: fixed; left: 50%; bottom: 10px; transform: translateX(-50%); z-index: 140; background: #b8432a; color: #fff; font-weight: 700; font-size: 13px; padding: 6px 14px; border-radius: 18px; box-shadow: 0 2px 8px rgba(0,0,0,.3); pointer-events: none; white-space: nowrap; }
 @media (max-width: 340px) { .tools .tx { display: none; } .tools .ibtn { min-width: 32px; padding: 2px 5px; } } /* とても 小さい スマホ */
+@media (max-width: 720px) and (max-height: 640px) {
+  .fld.teacher { gap: 4px; padding-top: 4px; }
+  .fld.teacher > .note { display: none; }
+  .fld.teacher .btn { padding: 3px 6px; font-size: 12px; }
+}
 </style>
 </head>
 <body>
