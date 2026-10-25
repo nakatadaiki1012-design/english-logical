@@ -923,8 +923,8 @@
       head = '<div class="bhead"><b>' + (ps.length ? '👥 <span class="bign">' + ps.length + '</span> 人 参加中！' : '参加者を待っています') + '</b>' + tabs + '</div>';
       body = ps.length ? '<div class="chips">' + ps.map(function (p) {
         var nw = !seen[p.id]; seen[p.id] = 1;
-        return '<span class="chipn' + (nw ? ' new' : '') + '" style="--h:' + hueOf(p.n) + '">' + esc(p.n) + '</span>';
-      }).join('') + '</div>'
+        return '<button type="button" class="chipn' + (nw ? ' new' : '') + '" style="--h:' + hueOf(p.n) + '" data-kick="' + esc(p.id) + '" title="タップで この人を 部屋から はずす">' + esc(p.n) + '</button>';
+      }).join('') + '</div><p class="note kicknote">ふさわしくない 名前は タップで 部屋から はずせます</p>'
         : '<div class="count"><b class="wave">👋</b><small>生徒が 入ってくると ここに 名前が 出ます</small></div>';
       body = '<div class="howjoin"><span>📱 論理表現ラボ → 🎮 ゲーム → 部屋番号</span><b>' + H.code + '</b><span>→ ニックネーム →「参加 ▶」（左の QR でも OK）</span></div>' + body;
       body += '<p class="note rangeinfo">' + (isQuiz(r.cfg) ? esc(quizName(r.cfg)) : '出題：' + esc(cfgName(r.cfg))) + '</p>';
@@ -1054,7 +1054,8 @@
     if (!room) { toast('先生が部屋を閉じました'); location.hash = '#game'; return; }
     B.room = room;
     var me = room.players && room.players[pid()];
-    if (!me) { location.hash = '#join=' + B.code; return; }
+    if (!me) { if (B.played || B.seen) toast('部屋から はずれました。ニックネームを 入れ直して 参加してね'); location.hash = '#join=' + B.code; return; }
+    B.seen = 1;
     if (isQuiz(room.cfg) && /^(q|reveal|board)$/.test(room.state) && room.round) { quizStudent(room); return; }
     clearInterval(B.qzT);
     if (room.state === 'play' && room.round !== B.played && now() < room.startAt + room.cfg.t * 1000 - 3000) {
@@ -1444,6 +1445,11 @@
       if (d.qa != null && B) { quizAnswer(+d.qa); return; }
       if (d.ta) { hubTa(d.ta); return; }
       if (d.hc) { hostCfg(d.hc); return; }
+      if (d.kick && H) { // 先生：名前を タップで 部屋から はずす（ふさわしくない ニックネーム対策）
+        var kp = H.room && H.room.players && H.room.players[d.kick];
+        if (kp && confirm('「' + kp.n + '」さんを 部屋から はずしますか？（その生徒は 名前を 入れ直して 入れます）')) api('DELETE', 'rooms/' + H.code + '/players/' + d.kick).catch(function () { toast('はずせませんでした'); });
+        return;
+      }
       switch (d.ga && d.ga.split(':')[0]) {
         case 'solo': if (location.hash === '#ta') startSolo(); else location.hash = '#ta'; break;
         case 'again': startSolo(); break;
