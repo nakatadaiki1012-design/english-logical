@@ -391,6 +391,12 @@
       '<div class="hud2"><span class="mlab">🔥</span><div class="meter"><i id="hmeter"></i><span id="hmtext"></span></div>' +
       (solo ? '<span class="spd" id="hspd" title="燃料の減り"></span>' : '') + '<span class="altv" id="halt">🛫 0 m</span></div>' +
       '<section class="card"><div class="cin" id="gq"></div></section></div>';
+    // 背景：上へ 流れていく景色（カードの うしろ）
+    if (window.LXSCENE) LXSCENE.start(A().view, function () {
+      if (!G) return null;
+      var al = altOf(G.score);
+      return { level: al.i + (al.next ? al.pct / 100 : 0), combo: G.combo, boost: fever(), started: now() >= G.startAt && !G.over };
+    });
   }
   function drawHud() {
     if (!G) return;
@@ -1049,6 +1055,7 @@
      画面の切りかえ（app.js から よばれる）
      ========================================================= */
   function leave() {
+    if (window.LXSCENE) LXSCENE.stop();
     if ($('#show')) closeShow();
     if (G) { clearInterval(G.timer); G = null; }
     if (H) { clearInterval(H.timer); if (H.stop) H.stop(); H = null; }

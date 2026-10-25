@@ -798,6 +798,22 @@ dialog::backdrop { background: rgba(0, 0, 0, .35); }
 @container (max-height: 400px) {
   .sky .nxt { display: none; }
 }
+
+/* 背景の景色（英文ロケット）：カードの うしろ。カードと表示は 透ける台紙の上で 読みやすく */
+#view { position: relative; }
+.scene { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+.unit.play { position: relative; z-index: 1; }
+.unit.play .card { background: color-mix(in srgb, var(--panel) 58%, transparent); -webkit-backdrop-filter: blur(1.5px); backdrop-filter: blur(1.5px); }
+.unit.play.boost .card { background: radial-gradient(circle at 50% 130%, rgba(255, 159, 28, .25), transparent 60%), color-mix(in srgb, var(--panel) 58%, transparent); }
+/* 景色の上でも 読めるように：文字に 台紙色の ふち、カード類は 不透明 */
+.unit.play .ja, .unit.play .en, .unit.play .lab, .unit.play .result p, .unit.play .result .score, .unit.play .arrive, .unit.play .count small { text-shadow: 0 0 3px var(--panel), 0 0 6px var(--panel), 0 0 10px var(--panel); }
+.unit.play .slots { background: color-mix(in srgb, var(--panel) 70%, transparent); }
+.unit.play .tl, .unit.play .choice { background: var(--panel); }
+.unit.play .choice.ok { background: color-mix(in srgb, var(--accent-soft) 100%, var(--panel)); }
+.unit.play .choice.ng { background: color-mix(in srgb, var(--warm-soft) 100%, var(--panel)); }
+.unit.play .hud, .unit.play .hud2 { background: color-mix(in srgb, var(--panel) 88%, transparent); border-radius: 10px; padding: 4px 6px; -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px); }
+.unit.play .hud2 { margin-top: 0; }
+.unit.play .cin { gap: clamp(6px, 1.6cqh, 14px); }
 /* 高さの低い画面の 結果：細かい行を省く */
 @container (max-height: 640px) {
   .result:has(.arrive) { gap: 6px; }
@@ -943,6 +959,7 @@ dialog::backdrop { background: rgba(0, 0, 0, .35); }
 <script src="js/fig.js"></script>
 <script src="js/config.js"></script>
 <script src="js/fx.js"></script>
+<script src="js/scene.js"></script>
 <script src="js/game.js"></script>
 <script src="js/app.js"></script>
 </body>
