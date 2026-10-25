@@ -194,7 +194,7 @@ window.LX.courses.push({
         {
           en: "I [have never seen] snow.",
           ja: "私は一度も雪を見たことがない。",
-          alt: ["never saw", "have never see", "have seen never"],
+          alt: ["have never saw", "have never see", "have seen never"],
           tip: "never は have と過去分詞の間"
         },
         {
@@ -352,7 +352,7 @@ window.LX.courses.push({
         {
           en: "I [am interested in] Japanese history.",
           ja: "私は日本の歴史に興味がある。",
-          alt: ["am interesting in", "am interested by", "interest in"],
+          alt: ["am interesting in", "am interested at", "interest in"],
           tip: "be interested in 〜「〜に興味がある」"
         },
         {
@@ -419,7 +419,7 @@ window.LX.courses.push({
         {
           en: "I went to the library [to study].",
           ja: "私は勉強するために図書館へ行った。",
-          alt: ["for study", "studying", "to studying"],
+          alt: ["for studied", "studying", "to studying"],
           tip: "to ＋ 原形「〜するために」（目的）"
         },
         {
@@ -766,7 +766,7 @@ window.LX.courses.push({
         {
           en: "[I think] students should read more books.",
           ja: "生徒はもっと本を読むべきだと思う。",
-          alt: ["I'm thinking", "I think about", "I thought of"],
+          alt: ["I'm think", "I think about", "I thought of"],
           tip: "I think (that) ＋ 文 で意見を言う"
         },
         {

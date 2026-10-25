@@ -77,7 +77,7 @@ window.LX.more["c1-u03"] = [
   { en: "I [haven't finished] my report for English class yet.", ja: "私はまだ英語の授業のレポートを終えていない。",
     alt: ["didn't finished", "haven't finish", "hasn't finished"], tip: "否定文の yet ＝まだ〜ない", why: "まだ終わっていないので haven't ＋ 過去分詞。finish は原形。I に hasn't は×。", p: 2 },
   { en: "Has your brother found a part-time job near the station [yet]?", ja: "あなたのお兄さんはもう駅の近くでアルバイトを見つけましたか。",
-    alt: ["ago", "since", "for"], tip: "疑問文の「もう」は yet", why: "完了の疑問文の「もう〜した？」は文末に yet。ago は現在完了と使えず、since・for は後ろに語が必要。", p: 2 }
+    alt: ["ago", "since", "for"], tip: "疑問文の「もう」は yet", why: "疑問文の「もう〜した？」は文末に yet。ago は現在完了と使えず、since・for は「もう」の意味でない。", p: 2 }
 ];
 window.LX.more["c1-u04"] = [
   { en: "My younger brother [can ride] a bicycle without any help now.", ja: "弟は今では手助けなしで自転車に乗れる。",
@@ -155,5 +155,5 @@ window.LX.more["c1-u06"] = [
   { en: "[It is] dangerous to use your smartphone while riding a bike.", ja: "自転車に乗りながらスマホを使うのは危険だ。",
     alt: ["There is", "It has", "Its"], tip: "It is 〜 to …＝…するのは〜だ", why: "It が後ろの to use 〜 を指す。There is は「〜がある」、has・Its ではつながらない。", p: 2 },
   { en: "Many people use social media [to share] news with their friends.", ja: "多くの人は友だちとニュースを共有するためにSNSを使う。",
-    alt: ["share", "sharing", "to sharing"], tip: "目的「〜するために」＝to ＋ 原形", why: "SNSを使う目的なので to share。share・sharing ではつながらない。to の後は原形。", p: 2 }
+    alt: ["share", "for share", "to sharing"], tip: "目的「〜するために」＝to ＋ 原形", why: "SNSを使う目的なので to share。share・for share ではつながらない。to の後は原形。", p: 2 }
 ];

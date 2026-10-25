@@ -343,7 +343,7 @@ window.LX.plus["c2-u12"] = {
   ], [
     [0, "said が過去なので is を was に。be は原形、were は he に合わず、being は動詞にならない。"],
     [0, "thought が過去なので will を would に。is／does は「今」の形で、過去の舞台とずれる。"],
-    [1, "なくしたのは話すより前なので had lost。has／have lost は今が基準、had lose は原形で×。"],
+    [1, "なくしたのは話すより前なので had lost。have lost は今が基準、has／had lose は原形で×。"],
     [2, "命令は tell 人 to 〜 で伝える。clean や cleaning は told me に続かない。"],
     [2, "疑問詞のあとはふつうの文の順で where I lived。where did／where do は疑問文の順で×。"],
     [2, "地球が太陽のまわりを回るのは いつも本当のことなので現在形 goes のまま。go は主語に合わない。"]
@@ -463,7 +463,7 @@ window.LX.plus["c2-u12"] = {
     [0, "「〜のおかげで」は Thanks to。Thank to は s が必要、Thanks for は「〜をありがとう」。"],
     [0, "後ろが主語＋動詞の文なので because。because of／due to は後ろが名詞のとき。"],
     [1, "As a result,「その結果」の決まった形。a を落とさず、in ではなく as を使う。"],
-    [1, "前の文の結果を言うので Therefore,。Because・Although は後ろに文が要る語で、ここでは×。"],
+    [1, "前の文の結果を言うので Therefore,。Because は理由、Although は逆の内容をつなぐ語で×。"],
     [1, "「だから」と結果を文でつなぐ so。because・since は逆に原因をつなぐ語になる。"],
     [2, "can のあとは原形 lead、さらに to が必要。leads は can のあとに来られない。"],
     [2, "cause は後ろにすぐ名詞（引き起こすもの）。causes to は to が余分、is caused は受け身。"],

@@ -122,7 +122,7 @@ LX.courses.push({
       sentences: [
         { en: "He said that he [was] tired.", ja: "彼は疲れていると言った。", alt: ["be", "were", "being"], tip: "said（過去）に合わせて was" },
         { en: "I thought she [would] come to the party.", ja: "彼女はパーティーに来ると思っていた。", alt: ["will", "is", "does"], tip: "will → would にずらす" },
-        { en: "She told me that she [had lost] her key.", ja: "彼女はかぎをなくしたと私に言った。", alt: ["has lost", "have lost", "had lose"], tip: "言ったより前→過去完了" },
+        { en: "She told me that she [had lost] her key.", ja: "彼女はかぎをなくしたと私に言った。", alt: ["has lose", "have lost", "had lose"], tip: "言ったより前→過去完了" },
         { en: "My mother told me [to clean] my room.", ja: "母は私に部屋をそうじするように言った。", alt: ["clean", "cleaning", "that clean"], tip: "命令文→ tell 人 to ～" },
         { en: "He asked me [where] I lived.", ja: "彼は私にどこに住んでいるか尋ねた。", alt: ["where did", "where do", "that where"], tip: "疑問詞の後ろは S V の語順" },
         { en: "The teacher said that the earth [goes] around the sun.", ja: "先生は地球は太陽のまわりを回っていると言った。", alt: ["go", "going", "is go"], tip: "変わらない事実は現在形のまま" }

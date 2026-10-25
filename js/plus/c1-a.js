@@ -193,7 +193,7 @@ window.LX.plus["c1-u01"] = {
         "buy me for"
       ],
       "tip": "buy ＋ 人 ＋ 物",
-      "why": "buy＋人＋物の順。buy の前に to は置かない。物を先に言うなら for を使う形になる。",
+      "why": "buy＋人＋物の順。人の前に to は置かない。物を先に言うなら for を使う形になる。",
       "p": 1
     },
     {
@@ -732,7 +732,7 @@ window.LX.plus["c1-u03"] = {
       "en": "She [has never been] abroad.",
       "ja": "彼女は一度も海外に行ったことがない。",
       "alt": [
-        "never has been",
+        "is never been",
         "has never be",
         "has been never"
       ],
@@ -1655,7 +1655,7 @@ window.LX.plus["c1-u06"] = {
       "p": 1
     },
     {
-      "why": "行った目的＝to＋原形 study。for study・to studying は「〜するために」にならない。",
+      "why": "行った目的＝to＋原形 study。for studied・to studying は「〜するために」にならない。",
       "p": 2
     },
     {
@@ -1757,7 +1757,7 @@ window.LX.plus["c1-u06"] = {
     D("I came here [to see] you.", "あなたに会うためにここに来た。", ["for see", "seeing", "to seeing"], "目的の to 不定詞", "来た目的「会うために」で to see。for see は×。seeing・to seeing では目的を表せない。", 2),
     D("I was happy [to meet] you.", "あなたに会えてうれしかった。", ["for meet", "to meeting", "met"], "感情 ＋ to 不定詞「〜して」", "うれしい原因「会えて」は感情＋to＋原形。for meet・to meeting・met は×。", 2),
     D("[It is] easy to make this dish.", "この料理を作るのはかんたんだ。", ["That is", "There is", "This is"], "It is 〜 to …「…するのは〜だ」", "It が後ろの to make this dish を指す仮の主語。That・There・This では指せない。", 2),
-    D("It is important [to listen] to others.", "人の話を聞くことは大切だ。", ["listen", "listening", "to listening"], "It is 〜 to ＋ 原形", "It is important の後の「〜すること」は to＋原形。listen・listening などは×。", 2)
+    D("It is important [to listen] to others.", "人の話を聞くことは大切だ。", ["listen", "listened", "to listening"], "It is 〜 to ＋ 原形", "It is important の後の「〜すること」は to＋原形。listen・listened などは×。", 2)
   ]);
 
   /* 絵の図：イメージで覚えると効く所だけ */

@@ -447,7 +447,7 @@ window.LX.plus["c2-u06"] = {
     { en: "We visited Nara, [which] has many old temples.", ja: "私たちは奈良を訪れたが、そこには古い寺がたくさんある。", alt: ["that", "who", "where"], tip: "主語の役 → which", why: "奈良（物・場所）の付け足し → , which。that はコンマの後に使えず、who は人用。", p: 2 },
     { en: "He passed the exam, [which] surprised everyone.", ja: "彼は試験に合格し、そのことはみんなを驚かせた。", alt: ["that", "what", "who"], tip: ", which ＝ 前の文全体", why: "合格したこと（前の文全体）を指す → , which。that・what はコンマの後で×。", p: 2 },
     { en: "I called Mika, [who] was in the hospital.", ja: "ミカに電話したが、彼女は入院していた。", alt: ["that", "which", "whose"], tip: "コンマのあとに that は ✕", why: "ミカ（人）の付け足し → , who。that はコンマの後で×、which は物用。", p: 2 },
-    { en: "This is the school [where] my mother teaches.", ja: "ここは母が教えている学校です。", alt: ["which", "when", "what"], tip: "場所の説明 → where", why: "teaches のあとに目的語がない場所の説明 → where。which だと in が必要。", p: 0 },
+    { en: "This is the school [where] my mother teaches.", ja: "ここは母が教えている学校です。", alt: ["which", "when", "what"], tip: "場所の説明 → where", why: "my mother teaches で文が完成 → 場所の where。which だと at が必要。", p: 0 },
     { en: "I'll never forget the day [when] I won the race.", ja: "レースに勝った日を、私は決して忘れない。", alt: ["where", "which", "what"], tip: "時の説明 → when", why: "the day（時）を説明 → when。where は場所、what は先行詞がいらない語。", p: 0 },
     { en: "Spring is the season [when] flowers bloom.", ja: "春は花がさく季節だ。", alt: ["where", "which", "what"], tip: "季節（時）→ when", why: "the season（時）のあとに完全な文 → when。which だと in が必要。", p: 0 },
     { en: "Hawaii is a place [where] people enjoy surfing.", ja: "ハワイは人々がサーフィンを楽しむ場所だ。", alt: ["which", "when", "what"], tip: "場所の説明 → where", why: "a place（場所）＋完全な文 → where。surfing まで文が完成しているので which は×。", p: 0 },
