@@ -1099,6 +1099,7 @@ button.chipn { font-family: inherit; cursor: pointer; }
 button.chipn:hover { text-decoration: line-through; }
 .kicknote { flex: none; text-align: center; margin: 4px 0 0; }
 body[data-room] .tools, body[data-room] .cnav { visibility: hidden; pointer-events: none; }
+body[data-room] .brand { pointer-events: none; }
 /* 横向きスマホなど：入りきらない ダイアログは 中だけ スクロール（ほかの 画面は スクロールなし） */
 .dlg-body { overflow-y: auto; overscroll-behavior: contain; }
 @media (max-width: 420px) { .checks { grid-template-columns: 1fr; } }
@@ -1111,6 +1112,7 @@ body[data-room] .tools, body[data-room] .cnav { visibility: hidden; pointer-even
 .firstrun { margin: 0; font-size: 12.5px; font-weight: 700; color: var(--accent); background: var(--accent-soft); border-radius: 6px; padding: 4px 8px; line-height: 1.4; }
 @media (min-width: 721px) { .firstrun { display: none; } } /* 広い 画面は 下の「おぼえ方」が 出る */
 body.offline::after { content: "📶 つながりを 確認中…（Wi-Fi を たしかめてね）"; position: fixed; left: 50%; bottom: 10px; transform: translateX(-50%); z-index: 140; background: #b8432a; color: #fff; font-weight: 700; font-size: 13px; padding: 6px 14px; border-radius: 18px; box-shadow: 0 2px 8px rgba(0,0,0,.3); pointer-events: none; white-space: nowrap; }
+@media (max-width: 340px) { .tools .tx { display: none; } .tools .ibtn { min-width: 32px; padding: 2px 5px; } } /* とても 小さい スマホ */
 </style>
 </head>
 <body>

@@ -1136,7 +1136,7 @@
   function route(h) {
     var m;
     // 生徒が 対戦中は 上の ボタンを かくす（うっかり 押して 部屋から ぬけないように。ぬけるのは「◀ ぬける」）
-    if (/^battle\//.test(h)) document.body.setAttribute('data-room', '1'); else document.body.removeAttribute('data-room');
+    if (/^battle\//.test(h) && base()) document.body.setAttribute('data-room', '1'); else document.body.removeAttribute('data-room');
     if (h === 'game') { leaveBattle(); renderHub(); return true; }
     if (h === 'ta') { startSolo(); return true; }
     if ((m = h.match(/^join(?:=(\d*))?(?:&db=(.+))?$/))) { leaveBattle(); openJoin(m[1] || '', m[2] || ''); return true; }
@@ -1467,7 +1467,7 @@
         case 'join': join(); break;
         case 'mkroom': makeRoom(d.ga.split(':')[1]); break;
         case 'qreset': if (B) { B.qzSeq = []; document.querySelectorAll('.qb.picked').forEach(function (x) { x.classList.remove('picked'); x.removeAttribute('data-n'); }); var lb = $('#qzsq'); if (lb) lb.textContent = 'タップした 順： '; } break;
-        case 'qsay': { var rq = H && H.room, qq = rq && quizQs(rq.cfg, rq.seed)[rq.qi]; if (qq) A().speak(qq.s.plain); break; }
+        case 'qsay': { b.blur(); var rq = H && H.room, qq = rq && quizQs(rq.cfg, rq.seed)[rq.qi]; if (qq) A().speak(qq.s.plain); break; }
         case 'hstart': hostStart(); break;
         case 'qnext': quizNext(); break;
         case 'qstat': quizStat(); break;
@@ -1493,7 +1493,8 @@
       if (e.key === 'Enter' && (e.target.id === 'jName' || e.target.id === 'jCode')) join();
     });
     document.addEventListener('keydown', function (e) { // 先生：プレゼン用 リモコン（PageDown）・→・スペースで クイズを 次へ
-      if (!H || !H.room || !isQuiz(H.room.cfg) || gdlg.open || $('#show') || /INPUT|TEXTAREA|SELECT|BUTTON/.test(e.target.tagName || '')) return;
+      if (!H || !H.room || !isQuiz(H.room.cfg) || gdlg.open || $('#show') || /INPUT|TEXTAREA|SELECT/.test(e.target.tagName || '')) return;
+      if (e.target.tagName === 'BUTTON' && (e.key === ' ' || e.key === 'Enter')) return; // ボタンの 上の スペース・Enter は その ボタン
       if (/^(q|reveal|board)$/.test(H.room.state) && (e.key === 'PageDown' || e.key === 'ArrowRight' || e.key === ' ' || e.key === 'Enter')) {
         if (H.room.state === 'q' && now() < H.room.qAt) return; // 問題を 読む 時間は とばさない
         e.preventDefault(); quizNext();

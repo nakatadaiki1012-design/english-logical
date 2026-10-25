@@ -65,6 +65,7 @@
   /* ---------- 小さな道具 ---------- */
   var $ = function (s, r) { return (r || document).querySelector(s); };
   function esc(t) { return String(t).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function first(a) { return !!(a && a.ok && !a.retry); } // 1 回目で 正解（やり直しは 数えない）
   function shuffle(a) { a = a.slice(); for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
   /* 並べかえの カード：最初から 正しい 順に ならんで いたら まぜ直す（同じ 語が 2 枚 あっても 見た目で くらべる） */
   function scramble(tiles) {
@@ -172,7 +173,7 @@
   function go(h) { if (location.hash === h) route(); else location.hash = h; }
   function route() {
     if (hasTTS) speechSynthesis.cancel();
-    ['dlg', 'gdlg'].forEach(function (id) { var d = document.getElementById(id); if (d && d.open && !d.querySelector('#hsetdlg')) d.close(); }); // 画面が 変わったら ダイアログは とじる
+    ['dlg', 'gdlg'].forEach(function (id) { var d = document.getElementById(id); if (d && d.open && !(d.querySelector('#hsetdlg') && /^#host\//.test(location.hash))) d.close(); }); // 画面が 変わったら ダイアログは とじる
     if (window.LXG) LXG.leave();
     var h = decodeURIComponent(location.hash.slice(1));
     if (h.indexOf('task=') === 0) { takeTask(h.slice(5)); return; }
@@ -328,7 +329,7 @@
     var u = V.u, c = u.course, pr = prog(u.id), n = pagesOf();
     var dots = '';
     for (var i = 0; i < n; i++) {
-      var a = V.a[i] || {}, cls = i === V.page ? 'on' : (a.ok === true ? 'ok' : a.ok === false ? 'ng' : '');
+      var a = V.a[i] || {}, cls = i === V.page ? 'on' : (a.ok === true && !a.retry ? 'ok' : a.ok === false || a.retry ? 'ng' : '');
       dots += '<i class="' + cls + '"></i>';
     }
     var last = V.page === n - 1, isRes = V.step === 'test' && V.page >= TEST_N;
@@ -406,7 +407,7 @@
       var q = V.dr[V.page], lab = '💪 演習 ' + (V.page + 1) + '/' + n;
       return q.type === 'cloze' ? clozeHTML(q.s, ans(), lab, false) : orderHTML(q.s, ans(), lab, false);
     }
-    var ok = 0; for (var i = 0; i < n; i++) if ((V.a[i] || {}).ok) ok++;
+    var ok = 0; for (var i = 0; i < n; i++) if (first(V.a[i])) ok++;
     var pr = prog(V.u.id), great = ok >= n - 1;
     return '<div class="result">' +
       (great ? '<div class="bigstamp">よくできた</div>' : '<p class="h">' + (ok >= n / 2 ? 'いい調子！' : 'くり返すほど 体に入る！') + '</p>') +
@@ -417,7 +418,7 @@
   }
   function finishDrill() {
     var pr = prog(V.u.id), ok = 0;
-    for (var i = 0; i < V.dr.length; i++) if ((V.a[i] || {}).ok) ok++;
+    for (var i = 0; i < V.dr.length; i++) if (first(V.a[i])) ok++;
     pr.dr = (pr.dr || 0) + ok; pr.st.drill = 1; save();
   }
 
