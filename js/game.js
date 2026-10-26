@@ -242,6 +242,17 @@
     });
     return out;
   }
+  /* 💬 英問英答（長距離便だけ）：えらんだ 範囲の 単元の 質問と 答え（js/qa） */
+  function qaPool(cfg) {
+    var QA = window.LX && window.LX.qa || {}, us = usOf(cfg), ids = us.length ? us : [];
+    if (!us.length) A().COURSES.forEach(function (c) {
+      if (cfg.c !== 'all' && c.id !== cfg.c) return;
+      c.units.forEach(function (u) { if (u.no <= (cfg.u || 99) && !(cfg.p && !A().prog(u.id).pass)) ids.push(u.id); });
+    });
+    var out = []; ids.forEach(function (id) { (QA[id] || []).forEach(function (x) { out.push({ x: x, unit: A().UNITS[id] }); }); });
+    return out;
+  }
+  var QA_RATE = 0.3; // 長距離便で 英問英答が 出る 割合
   function cfgName(cfg) {
     return lvName(cfg) + '・' + rangeName(cfg) + '・' + tName(cfg.t) +
       (cfg.src === 'core' ? '・例文だけ' : cfg.src === 'drill' ? '・演習文だけ' : '');
@@ -295,7 +306,8 @@
   function newGame(cfg, seed, mode, startAt) {
     if (G) clearInterval(G.timer);
     var R = rng(seed), p = pool(cfg);
-    G = { cfg: cfg, R: R, list: rshuffle(p, R), sorted: p.slice().sort(function (a, b) { return words(a) - words(b); }), recent: [], queue: [], qi: 0,
+    var qp = lvOf(cfg).k === 'long' ? qaPool(cfg) : [];
+    G = { cfg: cfg, R: R, list: rshuffle(p, R), qa: rshuffle(qp, R), qai: 0, sorted: p.slice().sort(function (a, b) { return words(a) - words(b); }), recent: [], queue: [], qi: 0,
       score: 0, combo: 0, maxCombo: 0, ok: 0, miss: 0, words: 0, alt: 0, meter: 0, feverUntil: 0, feverN: 0, maxSpeed: 1,
       mode: mode, startAt: startAt, endAt: startAt + cfg.t * 1000, left: (mode === 'solo' ? RULE.start : cfg.t) * 1000, tl: 0,
       q: null, lock: false, over: false, timer: null };
@@ -320,6 +332,12 @@
   }
   function fillQueue() { while (G.queue.length < 3) G.queue.push(pickS()); }
   function nextQ() {
+    // 💬 長距離便：ときどき 英語の 質問に 英語で 答える 問題（対戦でも 全員 同じ 順に 出る）
+    if (G.qa.length && G.R() < QA_RATE) {
+      var it = G.qa[G.qai++ % G.qa.length], x = it.x;
+      G.q = { type: 'qa', x: x, s: { plain: x.a, unit: it.unit }, ans: x.a, ch: rshuffle([x.a].concat(x.alt), G.R), pick: -1, fuel: { pts: 400, k: 3 }, fresh: true };
+      G.lock = false; return;
+    }
     var s = G.queue.shift(); fillQueue();
     var type = G.R() < 0.5 ? 'order' : 'cloze'; // 並べかえ・穴うめは いつも ミックス
     if (type === 'order') {
@@ -379,7 +397,7 @@
       setTimeout(function () { LXFX.pop(now2.here[2] + ' ' + now2.here[3] + ' 突破！', m[0], m[1] + 40, 'big'); FX('lead'); }, 250);
     }
     if (G.mode === 'solo') { // 時間ボーナス（コンボが のびているほど 多い）
-      var tier = G.combo >= 25 ? 2 : G.combo >= 10 ? 1 : 0, b = (q.type === 'order' ? [1, 2, 3] : [0.4, 0.8, 1.2])[tier];
+      var tier = G.combo >= 25 ? 2 : G.combo >= 10 ? 1 : 0, b = (q.type === 'cloze' ? [0.4, 0.8, 1.2] : [1, 2, 3])[tier]; // 並べかえ・英問英答は 時間が かかるので 多め
       G.left += b * 1000; timePop('+' + b + '秒', 'tplus');
     }
     FX('ok'); flash('ok');
@@ -398,12 +416,12 @@
   function pickChoice(i, el) {
     var q = G.q; if (G.lock || q.pick >= 0) return;
     q.pick = i; el = el || document.querySelectorAll('.choice')[i];
-    if (q.ch[i] === q.s.key) {
+    if (q.ch[i] === (q.type === 'qa' ? q.ans : q.s.key)) {
       hit(el); var p = pts(10); if (window.LXFX) LXFX.popAt(el, '+' + p);
       drawQ(); solved();
     } else {
       miss(); G.lock = true; drawQ();
-      setTimeout(function () { if (G && !G.over) { nextQ(); drawQ(); } }, 900);
+      setTimeout(function () { if (G && !G.over) { nextQ(); drawQ(); } }, q.type === 'qa' ? 1600 : 900); // 英問英答は 正しい 答えを 読む 時間
     }
   }
 
@@ -493,6 +511,15 @@
         '<div class="pool">' + q.ord.map(function (i) {
           return '<button type="button" class="tl' + (q.placed.indexOf(i) >= 0 ? ' used' : '') + (q.bad === i ? ' shake' : '') + '" data-gt="' + i + '">' + esc(q.tiles[i]) + '</button>';
         }).join('') + '</div></div>';
+    } else if (q.type === 'qa') {
+      var qok = q.pick >= 0 && q.ch[q.pick] === q.ans;
+      h = belt +
+        '<div class="mid' + (fresh ? ' slidein' : '') + '"><p class="lab qalab">💬 英語の 質問に、英語で 答えよう</p><p class="en qq">Q. ' + esc(q.x.q) + '</p>' +
+        (q.pick >= 0 ? '<p class="ja">' + esc(q.x.qja) + (q.x.why ? '　💡 ' + esc(q.x.why) : '') + '</p>' : '') + '</div>' +
+        '<div class="choices qa">' + q.ch.map(function (w, i) {
+          var c = q.pick < 0 ? '' : (w === q.ans ? ' ok' : (i === q.pick && !qok ? ' ng' : ''));
+          return '<button type="button" class="choice' + c + '" data-gp="' + i + '"><span class="kb">' + (i + 1) + '</span>' + esc(w) + '</button>';
+        }).join('') + '</div>';
     } else {
       var ok = q.pick >= 0 && q.ch[q.pick] === s.key;
       h = belt +
@@ -1505,7 +1532,7 @@
     document.addEventListener('keydown', function (e) {
       if (!G && B && B.qz && /^[1-4]$/.test(e.key) && $('.qb:not([disabled])')) { quizAnswer(+e.key - 1); return; }
       if (!G || G.over || /INPUT|TEXTAREA|SELECT/.test(e.target.tagName || '')) return;
-      if (G.q && G.q.type === 'cloze' && /^[1-4]$/.test(e.key) && now() >= G.startAt) pickChoice(+e.key - 1);
+      if (G.q && (G.q.type === 'cloze' || G.q.type === 'qa') && /^[1-4]$/.test(e.key) && now() >= G.startAt) pickChoice(+e.key - 1);
     });
     chip();
   }
