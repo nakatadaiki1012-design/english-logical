@@ -7,7 +7,7 @@ window.LX.plus["c2-u07"] = {
     ico: "📼",
     catch: "言ったことは「録画」で伝える→時制が1つ過去へ",
     say: "said（過去）の中で話すと、中の動詞も過去にずれる。カメラを「言った時」に置いて見るイメージ。",
-    fig: { t: "time", marks: [{ at: -2, label: "「忙しい」と言った" }, { at: 0, label: "今それを伝える" }] }
+    fig: { t: "time", marks: [{ at: -2, label: "「I'm busy.」" }, { at: 0, label: "→ was で伝える" }] }
   },
   points: [
     {
@@ -25,7 +25,7 @@ window.LX.plus["c2-u07"] = {
       form: "said that S had ＋ 過去分詞",
       ex: "She told me that she [had lost] her key.",
       exja: "彼女は鍵をなくしたと私に言った。",
-      fig: { t: "time", marks: [{ at: -3, label: "鍵をなくした" }, { at: -1, label: "そう言った" }, { at: 0, label: "今" }] },
+      fig: { t: "time", marks: [{ at: -3, label: "鍵をなくした" }, { at: -1, label: "そう言った" }, { from: -1, to: -3, label: "さらに前へ" }] },
       ng: { bad: "She told me she has lost her key.", good: "She told me she had lost her key.", why: "言った時より前のことなので had＋過去分詞" }
     },
     {
@@ -59,7 +59,7 @@ window.LX.plus["c2-u08"] = {
     ico: "🔦",
     catch: "強調はスポットライト、倒置はドラムロール",
     say: "It is ～ that で一部にライトを当てる。否定語を先頭に出すと、語順がひっくり返って強く響く。",
-    fig: { t: "slots", parts: [["It was", "枠"], ["Tom", "主役"], ["that", "枠"], ["broke the window", "残り"]] }
+    fig: { t: "vs", a: ["It was Tom that broke it.", "強調：ライトを当てる"], b: ["Never have I seen it.", "倒置：順番が逆"] }
   },
   points: [
     {
@@ -77,6 +77,7 @@ window.LX.plus["c2-u08"] = {
       form: "S ＋ do／does／did ＋ 原形",
       ex: "I [did] call you yesterday.",
       exja: "昨日 本当に電話したんだよ。",
+      fig: { t: "vs", a: ["I called you yesterday.", "ふつうの文"], b: ["I did call you yesterday.", "did＋原形で「本当に」"] },
       ng: { bad: "She does loves her dog.", good: "She does love her dog.", why: "does の後ろは原形。s はつけない" }
     },
     {
@@ -85,7 +86,7 @@ window.LX.plus["c2-u08"] = {
       form: "Never ＋ have／did ＋ S ＋ V",
       ex: "Never [have I] seen such a beautiful view.",
       exja: "こんなに美しい景色は見たことがない。",
-      fig: { t: "slots", parts: [["Never", "否定"], ["have", "V"], ["I", "S"], ["seen", "V"]] },
+      fig: { t: "vs", a: ["I have never seen it.", "ふつうの語順"], b: ["Never have I seen it.", "have と I が逆になる"] },
       ng: { bad: "Never I have seen such a view.", good: "Never have I seen such a view.", why: "否定語が先頭なら have と I を入れかえる" }
     }
   ],
@@ -120,6 +121,7 @@ window.LX.plus["c2-u09"] = {
       form: "I believe that ～.",
       ex: "[I believe that] school uniforms are useful.",
       exja: "制服は役に立つと私は思う。",
+      fig: { t: "vs", a: ["I believe that ~. First, ~.", "○ 主張が先"], b: ["First, ~. So, I believe ~.", "△ 最後まで主張が不明"] },
       ng: { bad: "I am believe that uniforms are useful.", good: "I believe that uniforms are useful.", why: "believe は動詞。am はいらない" }
     },
     {
@@ -137,6 +139,7 @@ window.LX.plus["c2-u09"] = {
       form: "For these reasons, ～.",
       ex: "[For these reasons], I support school uniforms.",
       exja: "これらの理由から、私は制服に賛成だ。",
+      fig: { t: "flow", steps: ["主張", "理由・例", "主張を言いかえ"] },
       ng: { bad: "For this reasons, I support it.", good: "For these reasons, I support it.", why: "reasons は複数なので these" }
     }
   ],
@@ -180,6 +183,7 @@ window.LX.plus["c2-u10"] = {
       form: "～. This is because S V.",
       ex: "[This is because] it saves energy.",
       exja: "なぜならエネルギーの節約になるからだ。",
+      fig: { t: "slots", parts: [["This is because", "理由"], ["it", "S"], ["saves", "V"], ["energy", "O"]] },
       ng: { bad: "This is because of it saves energy.", good: "This is because it saves energy.", why: "後ろが文（S＋V）なら of はいらない" }
     },
     {
@@ -232,6 +236,7 @@ window.LX.plus["c2-u11"] = {
       form: "～. On the other hand, ～.",
       ex: "Trains are fast. [On the other hand], buses are cheap.",
       exja: "電車は速い。一方、バスは安い。",
+      fig: { t: "slots", parts: [["Trains are fast.", "A"], ["On the other hand,", "対比"], ["buses are cheap.", "B"]] },
       ng: { bad: "In the other hand, buses are cheap.", good: "On the other hand, buses are cheap.", why: "手の「上」に乗せるイメージで on" }
     },
     {
@@ -284,7 +289,7 @@ window.LX.plus["c2-u12"] = {
       form: "原因. As a result, 結果.",
       ex: "He practiced hard. [As a result], he won.",
       exja: "彼は一生懸命練習した。その結果、勝った。",
-      fig: { t: "flow", steps: ["原因", "その結果", "結果"] },
+      fig: { t: "flow", steps: ["猛練習した", "その結果", "勝った"] },
       ng: { bad: "As result, he won the game.", good: "As a result, he won the game.", why: "a を忘れずに：As a result" }
     },
     {
@@ -588,10 +593,10 @@ window.LX.plus["c2-u12"] = {
     items: [{ e: "🙂", x: 16, y: 64, l: "相手", b: "～すべき！" }, { e: "🤝", x: 50, y: 60, l: "認める", s: 0.9 }, { e: "🙋", x: 85, y: 62, l: "but 反論" }],
     arrows: [[0, 1, ""], [1, 2, ""]], cap: "受け止めてから 自分の意見を返す" };
   P["c2-u11"].points[2].fig = { t: "bars",
-    items: [["last year", 40], ["this year", 75]], cap: "Compared with で 基準とくらべる" };
+    items: [["基準：last year", 40], ["this year", 75]], cap: "去年を基準にすると 今年は暖かい" };
   P["c2-u12"].core.fig = { t: "pic",
     items: [{ e: "🌨️", x: 12, y: 58, l: "大雪" }, { e: "🚃", x: 50, y: 58, l: "電車が遅れる" }, { e: "😓", x: 88, y: 58, l: "遅刻" }],
-    arrows: [[0, 1, "because of"], [1, 2, "as a result"]], cap: "原因から結果へ ドミノのように つなぐ" };
+    arrows: [[0, 1, "lead to"], [1, 2, "as a result"]], cap: "原因から結果へ ドミノのように つなぐ" };
   P["c2-u12"].points[2].fig = { t: "pic",
     items: [{ e: "😴", x: 18, y: 60, l: "寝不足" }, { e: "🤒", x: 80, y: 60, l: "体調不良" }],
     arrows: [[0, 1, "lead to"]], cap: "原因 → lead to → 結果" };

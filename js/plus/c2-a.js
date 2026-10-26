@@ -16,7 +16,7 @@ window.LX.plus["c2-u01"] = {
       form: "had ＋ 過去分詞",
       ex: "When I arrived, the train [had left].",
       exja: "私が着いたとき、電車は出てしまっていた。",
-      fig: { t: "time", marks: [{ at: -3, label: "電車が出た" }, { at: -1, label: "私が着いた" }] },
+      fig: { t: "time", marks: [{ at: -3, label: "①出た had left" }, { at: -1, label: "②着いた（基準）" }] },
       ng: { bad: "When I arrived, the train has left.", good: "When I arrived, the train had left.", why: "基準が過去なので have ではなく had" },
       why: "英語は時間の前後をはっきり言う言葉。過去の基準より前だと示すために、had で1段古い時を表す。",
       easy: "①先に起きたことと後のことを並べる。②後のほうはふつうの過去形。③先のほうに had をつける。古いほうが had！"
@@ -38,7 +38,7 @@ window.LX.plus["c2-u01"] = {
       form: "will have ＋ 過去分詞 ＋ by ～",
       ex: "I [will have finished] the report by noon.",
       exja: "正午までにはレポートを書き終えているだろう。",
-      fig: { t: "time", marks: [{ from: 0, to: 2, label: "書いている" }, { at: 2, label: "正午" }] },
+      fig: { t: "time", marks: [{ from: 0, to: 2, label: "書いている" }, { at: 2, label: "正午（基準）" }] },
       ng: { bad: "I will finish the report until noon.", good: "I will have finished the report by noon.", why: "「までに」は by。until は「までずっと」" },
       why: "未来のある時点を基準に、それまでに完了・継続していることを言う。未来の will と完了の have を合体させた形。",
       easy: "①未来に「しめきり」を立てる。②その時には もう終わっているよね。③だから will＋have＋過去分詞。by〜が目印。"
@@ -92,7 +92,7 @@ window.LX.plus["c2-u02"] = {
       h: "must have＝したにちがいない",
       body: "過去のことを「ぜったいそうだった」と推理する。名探偵が証拠から言い切るイメージ。何か根拠があるときに使う。",
       form: "must have ＋ 過去分詞",
-      fig: { t: "pic", items: [{ e: "🌂", x: 20, y: 62, l: "ぬれた傘", s: 0.9 }, { e: "🕵️", x: 76, y: 62, l: "推理する", b: "雨だったはず！" }], arrows: [[0, 1, "証拠", "dash"]], cap: "証拠から過去を言い切る＝must have" },
+      fig: { t: "pic", items: [{ e: "😴", x: 20, y: 62, l: "彼は爆睡", s: 0.9 }, { e: "🕵️", x: 76, y: 62, l: "推理する", b: "疲れてたはず！" }], arrows: [[0, 1, "証拠", "dash"]], cap: "証拠から過去を言い切る＝must have" },
       ex: "He [must have been] tired.",
       exja: "彼は疲れていたにちがいない。",
       ng: { bad: "He must be tired yesterday.", good: "He must have been tired yesterday.", why: "過去の推理は must have＋過去分詞" },
@@ -172,7 +172,7 @@ window.LX.plus["c2-u03"] = {
       form: "If ＋ 過去形, would ＋ 原形",
       ex: "If I [were] you, I would accept the offer.",
       exja: "もし私があなたなら、その申し出を受けるだろう。",
-      fig: { t: "slots", parts: [["If I were you", "過去形"], ["I would accept", "助動詞"]] },
+      fig: { t: "vs", a: ["I am not you.", "今の事実"], b: ["If I were you, ...", "今の反対→過去形"] },
       ng: { bad: "If I am you, I would accept the offer.", good: "If I were you, I would accept the offer.", why: "今の反対の想像は were（過去形）" },
       why: "過去形は「時間の遠さ」だけでなく「現実からの遠さ」も表す。だから今の反対の想像は過去形にずらす。",
       easy: "①現実：私は鳥じゃない。②想像するときは1段うしろ（過去形）にずらす。③If I were a bird, I could fly. と覚えよう。"
@@ -194,7 +194,7 @@ window.LX.plus["c2-u03"] = {
       form: "If had done, would 原形 now",
       ex: "If I had taken the medicine, I [would be] fine now.",
       exja: "あのとき薬を飲んでいたら、今ごろ元気なのに。",
-      fig: { t: "time", marks: [{ at: -2, label: "薬を飲まず" }, { at: 0, label: "今ぐあい悪い" }] },
+      fig: { t: "time", marks: [{ at: -2, label: "過去：飲んでいたら" }, { at: 0, label: "今：元気なのに" }] },
       ng: { bad: "If I had taken the medicine, I would have been fine now.", good: "If I had taken the medicine, I would be fine now.", why: "now の話なので would be（今の反対）" },
       why: "if 側の時（過去）と結論側の時（今）がちがうから。それぞれの時の反対を、それぞれの形で言う。",
       easy: "①if の中は「あのとき」→ had＋過去分詞。②結論は「今」→ would＋原形。③now が見えたら結論は would be の形。"
@@ -250,7 +250,7 @@ window.LX.plus["c2-u04"] = {
       form: "I wish ＋ 過去形／had 過去分詞",
       ex: "I wish I [could] speak French.",
       exja: "フランス語が話せたらなあ。",
-      fig: { t: "vs", a: ["I wish I could swim.", "実現はむずかしい"], b: ["I hope I can swim.", "実現しそう"] },
+      fig: { t: "vs", a: ["I wish I could speak French.", "実現はむずかしい"], b: ["I hope I can speak French.", "実現しそう"] },
       ng: { bad: "I wish I can speak French.", good: "I wish I could speak French.", why: "wish のあとは1段過去。can → could" },
       why: "I wish は「実際はそうじゃない」願い。現実から距離をとるため、仮定法と同じく1段過去にずらす。",
       easy: "①今の願い → 過去形（I wish I had…）。②過去への後悔 → had＋過去分詞。③かないそうな願いなら hope を使う。"
@@ -319,7 +319,7 @@ window.LX.plus["c2-u05"] = {
     ico: "✂️",
     catch: "分詞構文は「接続詞をカットした文」",
     say: "When I walked… の接続詞と主語をカットし、動詞を -ing に。文がスッキリして、映画の場面説明のようになる。",
-    fig: { t: "slots", parts: [["Walking home", "分詞"], ["I", "S"], ["met Ken", "V O"]], arc: [0, 1, "I がする"] }
+    fig: { t: "vs", a: ["When I walked home, I met Ken.", "ふつうの文"], b: ["Walking home, I met Ken.", "When と I をカット"] }
   },
   points: [
     {
@@ -350,7 +350,7 @@ window.LX.plus["c2-u05"] = {
       form: "Not ～ing／Having ＋ 過去分詞",
       ex: "[Not knowing] what to say, I kept silent.",
       exja: "何と言えばいいかわからず、私は黙っていた。",
-      fig: { t: "time", marks: [{ at: -2, label: "①宿題を終える" }, { at: -1, label: "②テレビを見る" }] },
+      fig: { t: "slots", parts: [["Not", "否定"], ["knowing", "分詞"], ["what to say,", "O"], ["I kept silent", "S V"]], arc: [0, 1, "前から打ち消す"] },
       ng: { bad: "Knowing not what to say, I kept silent.", good: "Not knowing what to say, I kept silent.", why: "not は分詞の前に置く" },
       why: "not は打ち消す語の前に置くのがきまり。Having＋過去分詞は、主節より前に起きたことをはっきり示す。",
       easy: "①否定したいなら先頭に Not。②「〜し終えてから」なら Having＋過去分詞。2つのパーツを先頭に置くだけ。"
@@ -417,7 +417,7 @@ window.LX.plus["c2-u06"] = {
       form: "the reason why ～／how ～",
       ex: "Tell me the reason [why] you were late.",
       exja: "遅れた理由を教えて。",
-      fig: { t: "vs", a: ["This is how I did it.", "○ how だけ"], b: ["This is the way how...", "✕ 両方はダメ"] },
+      fig: { t: "slots", parts: [["the reason", "理由"], ["why", "関係副詞"], ["you were late", "S V"]], arc: [2, 0, "理由の説明"] },
       ng: { bad: "This is the way how I solved it.", good: "This is how I solved it.", why: "the way と how は いっしょに使わない" },
       why: "why は reason、how は way と同じ意味を持つ。意味がかぶるので the way how のように並べない。",
       easy: "「理由」なら why、「やり方」なら how。the way how は「やり方やり方」と同じことを2回言うのでダメ。"
@@ -428,7 +428,7 @@ window.LX.plus["c2-u06"] = {
       form: "名詞, who／which ～",
       ex: "I have a brother, [who] lives in Kyoto.",
       exja: "私には兄が一人いて、京都に住んでいる。",
-      fig: { t: "slots", parts: [["He said nothing,", "文"], ["which", "関係詞"], ["made her angry", "VOC"]], arc: [1, 0, "前の文全体"] },
+      fig: { t: "vs", a: ["a brother who lives in Kyoto", "コンマなし：兄は他にも？"], b: ["a brother, who lives in Kyoto", "コンマあり：兄は1人"] },
       ng: { bad: "I met Ken, that told me the news.", good: "I met Ken, who told me the news.", why: "コンマのあとに that は使えない" },
       why: "コンマは「ここで一度切る」記号。前の名詞をしぼりこまず付け足すだけなので、しぼりこみ専用の that は使えない。",
       easy: "コンマの後は「ちなみに〜」と読もう。人なら who、物や前の文なら which。that はコンマの後に来られない。"

@@ -120,7 +120,7 @@ window.LX.plus["c3-u03"] = {
       form: "Although S V ／ Despite ＋ 名詞",
       ex: "[Although] it was raining, we played soccer.",
       exja: "雨が降っていたが、私たちはサッカーをした。",
-      fig: { t: "slots", parts: [["Despite", "前置詞"], ["the rain", "名詞"], ["we", "S"], ["played", "V"]], arc: [0, 1, "名詞だけ"] },
+      fig: { t: "slots", parts: [["Although", "接続詞"], ["it", "S"], ["was raining", "V"], ["we played", "主節"]], arc: [0, 1, "後ろは主語＋動詞"] },
       ng: { bad: "Despite it was raining, we played.", good: "Although it was raining, we played.", why: "後ろが 主語＋動詞 なら although" }
     },
     {
@@ -231,7 +231,7 @@ window.LX.plus["c3-u05"] = {
       form: "It is true that 〜, but …",
       ex: "[It is true that] cars are convenient, but they pollute the air.",
       exja: "たしかに車は便利だが、空気を汚す。",
-      fig: { t: "vs", a: ["It is true that A,", "認める（受け）"], b: ["but B.", "主張へ（返し）"] },
+      fig: { t: "vs", a: ["It is true that cars …", "便利と認める（受け）"], b: ["but they pollute the air.", "でも汚す（返し）"] },
       ng: { bad: "It is truth that cars are useful.", good: "It is true that cars are useful.", why: "true は形容詞。truth は名詞" }
     },
     {
@@ -292,7 +292,7 @@ window.LX.plus["c3-u06"] = {
       form: "The graph shows 〜 from A to B.",
       ex: "[The graph shows] changes in the population.",
       exja: "そのグラフは人口の変化を示している。",
-      fig: { t: "time", marks: [{ from: -4, to: 0, label: "from A to B" }, { at: -4, label: "A（始まり）" }] },
+      fig: { t: "time", marks: [{ at: -3, label: "A＝始まり" }, { from: -3, to: 0, label: "from A to B" }, { at: 0, label: "B＝終わり" }] },
       ng: { bad: "The graph is showing about the population.", good: "The graph shows the population.", why: "show は他動詞。about はいらない" }
     }
   ],
@@ -612,27 +612,22 @@ window.LX.plus["c3-u06"] = {
   if ((u = P["c3-u01"])) {
     u.core.fig = { t: "pic", items: [{ e: "🌧️", x: 20, y: 50, l: "The rain", s: 1.2 }, { e: "🧑", x: 58, y: 62, l: "us" }, { e: "🏠", x: 86, y: 58, l: "at home", s: 0.9 }],
       arrows: [[0, 1, "kept"], [1, 2, "", "dash"]], cap: "物（雨）が 人を 動かして 家にとどめる" };
-    u.points[0].fig = { t: "pic", items: [{ e: "🚃", x: 16, y: 55, l: "This train", s: 1.1 }, { e: "🧑", x: 52, y: 62, l: "you" }, { e: "🏯", x: 86, y: 55, l: "to Kyoto" }],
-      arrows: [[0, 1, "takes"], [1, 2, "", "dash"]], cap: "電車が あなたを 京都へ 連れていく" };
-  }
-  if ((u = P["c3-u02"])) {
-    u.points[2].fig = { t: "pic", items: [{ e: "👩", x: 16, y: 62, l: "She", b: "料理が得意！" }, { e: "🍳", x: 50, y: 60, l: "cooks well" }, { e: "🏅", x: 84, y: 58, l: "a good cook" }],
-      arrows: [[0, 1, ""], [1, 2, "名詞で言う", "dash"]], cap: "cooks well＝a good cook" };
+    u.points[0].fig = { t: "pic", items: [{ e: "🚌", x: 16, y: 55, l: "This bus", s: 1.1 }, { e: "🧑", x: 52, y: 62, l: "you" }, { e: "🚉", x: 86, y: 55, l: "the station" }],
+      arrows: [[0, 1, "takes"], [1, 2, "", "dash"]], cap: "バスが あなたを 駅へ 連れていく" };
   }
   if ((u = P["c3-u03"])) {
-    u.points[2].fig = { t: "pic", items: [{ e: "🧑", x: 16, y: 62, l: "you" }, { e: "🎫", x: 50, y: 60, l: "ticket", s: 0.9 }, { e: "🚪", x: 84, y: 58, l: "enter" }],
-      arrows: [[0, 1, "ある？", "dash"], [1, 2, "あれば入れる"]], cap: "unless ＝ チケットが ない限り 入れない" };
+    u.points[2].fig = { t: "pic", items: [{ e: "🧑", x: 16, y: 55, l: "you" }, { e: "🏫", x: 84, y: 28, l: "間に合う" }, { e: "⏰", x: 84, y: 80, l: "late" }],
+      arrows: [[0, 1, "hurry"], [0, 2, "急がないと", "dash"]], cap: "unless you hurry＝急がない限り遅刻" };
   }
   if ((u = P["c3-u04"])) {
-    u.points[2].fig = { t: "pic", items: [{ e: "💬", x: 14, y: 55, l: "主張" }, { e: "📝", x: 50, y: 55, l: "理由＋例" }, { e: "🎯", x: 86, y: 55, l: "結論" }],
-      arrows: [[0, 1, ""], [1, 2, ""], [2, 0, "主張を言いかえ", "dash"]], cap: "結論は 最初の主張を 言いかえて 締める" };
+    u.points[2].fig = { t: "vs", a: ["Students should wear uniforms.", "序論の主張"], b: ["I support school uniforms.", "結論で言いかえ"] };
   }
   if ((u = P["c3-u05"])) {
-    u.points[0].fig = { t: "pic", items: [{ e: "🧑", x: 22, y: 62, l: "Some people", b: "学校は遅く！" }, { e: "🙋", x: 78, y: 62, l: "I" }],
-      arrows: [[1, 0, "argue that…", "dash"]], cap: "まず 相手の意見を 正しく 紹介する" };
+    u.points[0].fig = { t: "pic", items: [{ e: "🧑", x: 22, y: 62, l: "Some people", b: "スマホは有害！" }, { e: "🙋", x: 78, y: 62, l: "I" }],
+      arrows: [[1, 0, "紹介する", "dash"]], cap: "まず 相手の意見を 正しく 紹介する" };
   }
   if ((u = P["c3-u06"])) {
     u.points[0].fig = { t: "bars", items: [["2021", 30], ["2022", 36], ["2023", 85]], cap: "2023年に sharply（急に）増えた" };
-    u.points[1].fig = { t: "bars", items: [["young people", 50], ["adults", 35], ["seniors", 15]], cap: "account for half ＝ 半分を占める" };
+    u.points[1].fig = { t: "bars", items: [["rice", 40], ["bread", 30], ["noodles", 20], ["others", 10]], cap: "rice が 全体の 40% を占める" };
   }
 })(window.LX.plus);

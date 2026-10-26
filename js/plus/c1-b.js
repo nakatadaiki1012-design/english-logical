@@ -118,15 +118,15 @@ window.LX.plus["c1-u07"] = {
         "t": "slots",
         "parts": [
           [
-            "She is good",
+            "Thank you",
             "文"
           ],
           [
-            "at",
+            "for",
             "前置詞"
           ],
           [
-            "playing tennis",
+            "inviting me",
             "名詞"
           ]
         ],
@@ -545,24 +545,23 @@ window.LX.plus["c1-u08"] = {
             "b": "えーん"
           },
           {
-            "e": "⚾",
-            "x": 52,
-            "y": 40,
-            "l": "ボール",
-            "s": 0.8
+            "e": "👷",
+            "x": 50,
+            "y": 62,
+            "l": "in Japan"
           },
           {
-            "e": "🏺",
+            "e": "🚗",
             "x": 84,
             "y": 62,
-            "l": "broken vase"
+            "l": "a car made"
           }
         ],
         "arrows": [
           [
             1,
             2,
-            "割った",
+            "作った",
             "dash"
           ]
         ],
@@ -1856,6 +1855,17 @@ window.LX.plus["c1-u11"] = {
       "form": "I think (that) S ＋ V",
       "ex": "[I think] students should read more books.",
       "exja": "生徒はもっと本を読むべきだと思う。",
+      "fig": {
+        "t": "vs",
+        "a": [
+          "I don't think it's hard.",
+          "○ think に not"
+        ],
+        "b": [
+          "I think it isn't hard.",
+          "△ 不自然"
+        ]
+      },
       "ng": {
         "bad": "I'm agree with the idea.",
         "good": "I agree with the idea.",
@@ -2252,24 +2262,14 @@ window.LX.plus["c1-u12"] = {
       "ex": "This bike is light. [In addition], it is cheap.",
       "exja": "この自転車は軽い。そのうえ安い。",
       "fig": {
-        "t": "slots",
-        "parts": [
-          [
-            "This bike",
-            "S"
-          ],
-          [
-            "is",
-            "V"
-          ],
-          [
-            "also",
-            "M"
-          ],
-          [
-            "cheap",
-            "C"
-          ]
+        "t": "vs",
+        "a": [
+          "In addition, it is cheap.",
+          "文の頭に置く"
+        ],
+        "b": [
+          "It is also cheap.",
+          "文の中に置く"
         ]
       },
       "ng": {
