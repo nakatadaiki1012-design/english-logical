@@ -117,7 +117,7 @@ window.LX.plus["c3-u08"] = {
       form: "I'd like to point out that 〜.",
       ex: "I'd like to [point out] that the data is old.",
       exja: "そのデータは古いと指摘したい。",
-      fig: { t: "flow", steps: ["相手の主張", "弱点", "根拠", "こちらの結論"] },
+      fig: { t: "flow", steps: ["相手の主張", "弱点を指摘", "根拠", "結論"] },
       ng: { bad: "I'd like to pointing out that the data is old.", good: "I'd like to point out that the data is old.", why: "would like to のあとは動詞の原形" },
       why: "would like to は want to のていねい版。point out は「指をさして見せる」で、that 以下に問題点をはっきり示せる。",
       easy: "① I'd like to＝「〜したいです」。② point out＝「指さす」。③ that の後に 気になる点を言う。人ではなく 意見を指さすのがコツ。"
@@ -165,7 +165,7 @@ window.LX.plus["c3-u09"] = {
     ico: "🍊",
     catch: "要約は「果汁しぼり」",
     say: "長い文章から皮（具体例・くわしい説明）をすてて、果汁（主張と理由）だけをしぼり出す。",
-    fig: {"t": "pic", "items": [{"e": "🍊", "x": 15, "y": 55, "l": "本文"}, {"e": "🥤", "x": 85, "y": 55, "l": "主張・理由"}, {"e": "🗑️", "x": 50, "y": 28, "l": "具体例", "s": 0.8}], "arrows": [[0, 1, "しぼる"], [0, 2, "皮はすてる", "dash"]], "cap": "果汁（主張と理由）だけを残す"}
+    fig: {"t": "pic", "items": [{"e": "🍊", "x": 15, "y": 42, "l": "本文"}, {"e": "🥤", "x": 85, "y": 42, "l": "主張・理由"}, {"e": "🗑️", "x": 50, "y": 78, "l": "具体例", "s": 0.8}], "arrows": [[0, 1, "しぼる"], [0, 2, "皮はすてる", "dash"]], "cap": "果汁（主張と理由）だけを残す"}
   },
   points: [
     {
@@ -196,6 +196,7 @@ window.LX.plus["c3-u09"] = {
       form: "In short, 〜.（ひとことで言うと）",
       ex: "[In short], we need more sleep.",
       exja: "要するに、私たちはもっと睡眠が必要だ。",
+      fig: { t: "flow", steps: ["主張", "理由", "In short", "まとめ1文"] },
       ng: { bad: "In another words, money is not everything.", good: "In other words, money is not everything.", why: "「言いかえると」は In other words（複数形）" },
       why: "In short・In other words は「ここからまとめます」という合図。読む人は次の一文が結論だとわかるので、短く言い切れる。",
       easy: "① 長い話をしたあと、② In short,（要するに）と言って、③ いちばん言いたいことを一文で言う。会話の「つまり〜ってこと」と同じ。"
@@ -252,7 +253,7 @@ window.LX.plus["c3-u10"] = {
       form: "Dear 〜, I am writing to ＋ 原形.",
       ex: "[I am writing to] ask about your summer program.",
       exja: "夏のプログラムについてお聞きしたく、メールしています。",
-      fig: {"t": "pic", "items": [{"e": "🧑", "x": 18, "y": 62, "l": "I", "b": "聞きたいこと"}, {"e": "✉️", "x": 50, "y": 55, "l": "Dear 〜,"}, {"e": "🧑‍💼", "x": 84, "y": 62, "l": "相手"}], "arrows": [[0, 1, "writing to"], [1, 2, ""]], "cap": "最初の1文で 用件を伝える"},
+      fig: {"t": "pic", "items": [{"e": "🧑", "x": 14, "y": 62, "l": "I"}, {"e": "✉️", "x": 50, "y": 58, "l": "Dear 〜,", "b": "用件：質問です"}, {"e": "🧑‍💼", "x": 86, "y": 62, "l": "相手"}], "arrows": [[0, 1, "writing to"], [1, 2, "ask about 〜"]], "cap": "最初の1文で 用件を伝える"},
       ng: { bad: "I am writing for ask about the program.", good: "I am writing to ask about the program.", why: "目的は to ＋ 動詞の原形" },
       why: "メールを開いた人がまず知りたいのは「何の用？」。I am writing to ＋ 原形 で目的を最初に言えば、あとの文がすべてわかりやすくなる。",
       easy: "① Dear 〜, であいさつ。② すぐに I am writing to ＋ やりたいこと。③「〜のためにメールしました」で用件ズバリ。"
@@ -322,7 +323,7 @@ window.LX.plus["c3-u11"] = {
     ico: "🌫️",
     catch: "ひかえめ表現は「言葉のクッション」",
     say: "言い切ると反論されやすい。seem・tend to・may で角を丸めると、正確で大人な英語になる。",
-    fig: { t: "scale", left: "たぶん", right: "ほぼ確実", items: [["might", 25], ["may", 40], ["probably", 70], ["is likely to", 78], ["will", 92]] }
+    fig: { t: "scale", left: "ひかえめ", right: "言い切りに近い", items: [["might", 25], ["may", 40], ["probably", 70], ["is likely to", 78], ["will", 92]] }
   },
   points: [
     {
@@ -401,7 +402,7 @@ window.LX.plus["c3-u12"] = {
     ico: "🔍",
     catch: "定義は「ラベル」、具体例は「中身を見せる」",
     say: "まず、ことばにラベルをはる（refers to）。次に中身を見せる（such as / for example）。抽象→具体。",
-    fig: {"t": "pic", "items": [{"e": "🏷️", "x": 15, "y": 55, "l": "定義"}, {"e": "📦", "x": 50, "y": 55, "l": "ことば"}, {"e": "🍎", "x": 85, "y": 55, "l": "具体例"}], "arrows": [[0, 1, "refers to"], [1, 2, "such as"]], "cap": "定義＝ラベル、具体例＝中身を見せる"}
+    fig: {"t": "pic", "items": [{"e": "🏷️", "x": 15, "y": 55, "l": "定義"}, {"e": "📦", "x": 50, "y": 55, "l": "ことば"}, {"e": "🍎", "x": 85, "y": 55, "l": "具体例"}], "arrows": [[1, 0, "refers to"], [1, 2, "such as"]], "cap": "定義＝ラベル、具体例＝中身を見せる"}
   },
   points: [
     {
