@@ -45,22 +45,22 @@ window.LX.plus["c1-u01"] = {
         "t": "slots",
         "parts": [
           [
-            "She",
+            "My sister",
             "S"
           ],
           [
-            "looks",
+            "became",
             "V"
           ],
           [
-            "tired",
+            "a nurse",
             "C"
           ]
         ],
         "arc": [
           2,
           0,
-          "She の様子"
+          "姉＝看護師"
         ]
       },
       "ng": {
@@ -320,9 +320,16 @@ window.LX.plus["c1-u02"] = {
         "t": "time",
         "marks": [
           {
-            "from": -4,
-            "to": 4,
-            "label": "毎日くり返す"
+            "at": -3,
+            "label": "昨日も歩く"
+          },
+          {
+            "at": 0,
+            "label": "今日も歩く"
+          },
+          {
+            "at": 3,
+            "label": "明日も歩く"
           }
         ]
       },
@@ -613,11 +620,7 @@ window.LX.plus["c1-u03"] = {
           {
             "from": -4,
             "to": 0,
-            "label": "生まれてから今まで"
-          },
-          {
-            "at": -2,
-            "label": "1回目"
+            "label": "今まで一度も見ていない"
           }
         ]
       },

@@ -652,7 +652,7 @@ dialog::backdrop { background: rgba(0, 0, 0, .35); }
   .cin.pt .body { line-height: 1.55; }
   .fig { --fs: calc(clamp(11px, min(2.7cqw, 3.6cqh), 16px) * var(--k)); }
   .fscale { padding-top: calc(var(--fs) * 1.6); }
-  .tmk { height: calc(var(--fs) * 2.3); }
+  .ftime { --rowh: calc(var(--fs) * 2.3); }
   .cin.pt .mid { gap: 3px; }
   .cin.pt .h { font-size: calc(clamp(16px, min(4.6cqw, 6cqh), 26px) * var(--k)); }
   .cin.pt .exb .ja { display: none; }
@@ -678,20 +678,21 @@ dialog::backdrop { background: rgba(0, 0, 0, .35); }
 .fslots svg.arcs { position: absolute; left: 0; top: 0; pointer-events: none; color: var(--warm); overflow: visible; }
 .arcl { position: absolute; transform: translateX(-50%); font-size: .8em; font-weight: 700; color: var(--warm); padding: 0 4px; white-space: nowrap; line-height: 1.4; }
 /* time */
-.ftime { padding: 0 1.5em; }
+.ftime { padding: 0 1.5em; --rowh: calc(var(--fs) * 2.6); }
 .tmarks { display: flex; flex-direction: column; gap: 2px; }
-.tmk { position: relative; height: calc(var(--fs) * 2.6); }
+.tmk { position: relative; height: var(--rowh); }
 .tmk .band { position: absolute; bottom: 3px; height: 9px; border-radius: 5px; background: var(--tc); min-width: 8px; }
 .tmk .band.r::after, .tmk .band.l::before { content: ""; position: absolute; top: -5px; border: 9px solid transparent; }
 .tmk .band.r::after { right: -14px; border-left-color: var(--tc); }
 .tmk .band.l::before { left: -14px; border-right-color: var(--tc); }
-.tmk .dot { position: absolute; bottom: 0; width: 15px; height: 15px; border-radius: 50%; background: var(--tc); transform: translateX(-50%); border: 2px solid var(--panel); }
+.tmk .dot { position: absolute; z-index: 2; bottom: calc(-1 * (var(--rowh) + 2px) * var(--k) - 4px - 8.5px); width: 15px; height: 15px; border-radius: 50%; background: var(--tc); transform: translateX(-50%); border: 2px solid var(--panel); } /* 点は 時間の線の 上 */
+.tmk .stem { position: absolute; top: 1.3em; bottom: calc(-1 * (var(--rowh) + 2px) * var(--k) - 4px); border-left: 2px dashed var(--tc); transform: translateX(-1px); opacity: .7; }
 .tmk .tl0 { position: absolute; top: 0; transform: translateX(-50%); white-space: nowrap; font-weight: 700; color: var(--tc); font-size: .9em; }
 .tm0 { --tc: var(--warm); } .tm1 { --tc: var(--blue); } .tm2 { --tc: var(--accent); }
-.taxis { position: relative; height: calc(var(--fs) * 1.7); border-top: 2px solid var(--ink); margin-top: 4px; display: flex; justify-content: space-between; font-size: .82em; color: var(--muted); }
+.taxis { position: relative; height: calc(var(--fs) * 2); border-top: 2px solid var(--ink); margin-top: 4px; display: flex; justify-content: space-between; font-size: .82em; color: var(--muted); }
 .taxis::after { content: ""; position: absolute; right: -10px; top: -7px; border: 6px solid transparent; border-left: 9px solid var(--ink); }
-.taxis .now { position: absolute; left: 50%; transform: translateX(-50%); color: var(--ink); font-weight: 700; }
-.taxis .now::before { content: ""; position: absolute; left: 50%; top: -9px; width: 2px; height: 14px; background: var(--ink); }
+.taxis .now { position: absolute; left: 50%; top: 7px; transform: translateX(-50%); color: var(--panel); background: var(--ink); font-weight: 700; padding: 0 .45em; border-radius: 4px; line-height: 1.35; } /* 「今」は 目立つ 札。線とは 重ならない */
+.taxis .now::before { content: ""; position: absolute; left: 50%; top: -16px; width: 2px; height: 16px; margin-left: -1px; background: var(--ink); }
 /* scale */
 .fscale { padding: calc(var(--fs) * 1.9) 1.2em calc(var(--fs) * 0.2); }
 .sbar { position: relative; height: 12px; border-radius: 6px; background: linear-gradient(90deg, var(--blue-soft), var(--accent), var(--warm)); margin-bottom: calc(var(--fs) * 1.8); }

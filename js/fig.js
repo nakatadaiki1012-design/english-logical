@@ -20,11 +20,13 @@
   }
   function pos(v) { return ((Math.max(-4, Math.min(4, +v)) + 4) / 8 * 100).toFixed(2); }
   function time(f) {
+    var n = f.marks.length;
     return '<div class="fig ftime"><div class="tmarks">' + f.marks.map(function (m, i) {
-      var c = 'tm' + (i % 3);
-      if (m.at != null) return '<div class="tmk ' + c + '"><span class="dot" style="left:' + pos(m.at) + '%"></span><span class="tl0" style="left:' + pos(m.at) + '%">' + esc(m.label) + '</span></div>';
+      var c = 'tm' + (i % 3), k = n - 1 - i; // k：時間の線まで あと 何段
+      // 点（できごと）は 時間の線の 上に 打ち、ことばから 点線で つなぐ（どの 時点か ひと目で わかる）
+      if (m.at != null) return '<div class="tmk ' + c + '" style="--k:' + k + '"><span class="stem" style="left:' + pos(m.at) + '%"></span><span class="dot" style="left:' + pos(m.at) + '%"></span><span class="tl0" style="left:' + pos(m.at) + '%">' + esc(m.label) + '</span></div>';
       var a = Math.min(m.from, m.to), b = Math.max(m.from, m.to), dir = m.to > m.from ? 'r' : 'l';
-      return '<div class="tmk ' + c + '"><span class="band ' + dir + '" style="left:' + pos(a) + '%;width:' + (pos(b) - pos(a)).toFixed(2) + '%"></span><span class="tl0" style="left:' + ((+pos(a) + +pos(b)) / 2).toFixed(2) + '%">' + esc(m.label) + '</span></div>';
+      return '<div class="tmk ' + c + '" style="--k:' + k + '"><span class="band ' + dir + '" style="left:' + pos(a) + '%;width:' + (pos(b) - pos(a)).toFixed(2) + '%"></span><span class="tl0" style="left:' + ((+pos(a) + +pos(b)) / 2).toFixed(2) + '%">' + esc(m.label) + '</span></div>';
     }).join('') + '</div>' +
       '<div class="taxis"><span class="tp">過去</span><span class="now">今</span><span class="tf">未来</span></div></div>';
   }
