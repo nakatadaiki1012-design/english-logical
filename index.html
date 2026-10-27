@@ -1125,6 +1125,33 @@ body.offline::after { content: "📶 つながりを 確認中…（Wi-Fi を �
 .choices.qa .choice { text-align: left; white-space: normal; line-height: 1.3; font-family: var(--font-en); }
 .unit.play .qq { font-weight: 600; }
 .qalab { justify-content: center; color: var(--accent); font-weight: 700; }
+/* 📝 ふりかえり */
+.rf { gap: 8px; }
+.rf .rf-kind { align-self: flex-start; }
+.rf p { margin: 0; line-height: 1.5; }
+.rf .en { font-family: var(--font-en); }
+.rf-ja { font-weight: 700; font-size: 16px; }
+.rf-ja small { display: block; font-weight: 400; color: var(--muted); font-size: 12.5px; }
+.rf-ng { color: var(--warm); font-size: 14px; }
+.rf-ng .en { text-decoration: line-through; text-decoration-thickness: 1.5px; }
+.rf-ok { font-size: 17px; padding: 6px 10px; border-radius: 8px; background: var(--accent-soft); }
+.rf-ok mark { background: transparent; color: var(--accent); font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
+.rf-why { font-size: 13.5px; padding: 6px 10px; border-left: 3px solid var(--gold); background: var(--bg); }
+.rf-pt { font-size: 12px; color: var(--muted); }
+.rf-nav { justify-content: center; }
+.btn.reflect { border-color: var(--warm); color: var(--warm); font-weight: 700; }
+.nomiss { align-self: center; font-weight: 700; color: var(--accent); }
+.qmiss .btn { align-self: center; margin-top: 4px; padding: 4px 12px; font-size: 13px; }
+/* 小さい 画面の 結果：ふりかえりボタンの ぶん 細かい 行を はぶく */
+@container (max-height: 560px) {
+  .result:has(.btn.reflect) .phrase, .result:has(.btn.reflect) .ladder { display: none; }
+  .result:has(.btn.reflect) .row .btn { padding: 4px 10px; }
+}
+@media (max-height: 500px) and (orientation: landscape) {
+  .rf .rf-pt, .rf .pkfoot .note { display: none; }
+  .rf { gap: 5px; }
+  .rf-ok { font-size: 15px; padding: 4px 8px; }
+}
 </style>
 </head>
 <body>

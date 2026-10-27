@@ -5,7 +5,7 @@
 
   /* ---------- 教材の準備 ---------- */
   var COURSES = (window.LX && window.LX.courses || []).slice().sort(function (a, b) { return a.id < b.id ? -1 : 1; });
-  var UNITS = {}, SENTS = {}, PLUS = window.LX && window.LX.plus || {}, MORE = window.LX && window.LX.more || {};
+  var UNITS = {}, SENTS = {}, DRILLS = {}, PLUS = window.LX && window.LX.plus || {}, MORE = window.LX && window.LX.more || {};
   function prep(s, u, id) {
     s.id = id; s.unit = u;
     s.plain = s.en.replace(/[\[\]]/g, '');
@@ -22,7 +22,7 @@
         prep(s, u, u.id + '-' + (j + 1)); SENTS[s.id] = s;
         var w = px && px.swhy && px.swhy[j]; if (w) { s.why = w.why; s.p = w.p; }
       });
-      u.drills.forEach(function (s, j) { prep(s, u, u.id + '-d' + (j + 1)); });
+      u.drills.forEach(function (s, j) { prep(s, u, u.id + '-d' + (j + 1)); DRILLS[s.id] = s; });
     });
   });
 
@@ -49,7 +49,8 @@
   function prog(uid) { return S.prog[uid] || (S.prog[uid] = { st: {}, best: 0, pass: 0, at: '', sec: 0, tries: 0 }); }
   function dayNo() { var d = new Date(); return Math.floor((d.getTime() - d.getTimezoneOffset() * 60000) / 864e5); }
   function today() { var d = new Date(); return d.getFullYear() + '/' + (d.getMonth() + 1) + '/' + d.getDate(); }
-  function dueIds() { var t = dayNo(); return Object.keys(S.srs).filter(function (id) { return SENTS[id] && S.srs[id].due <= t; }); }
+  function sentOf(id) { return SENTS[id] || DRILLS[id]; } // 復習には ゲームで まちがえた 演習文も 入る
+  function dueIds() { var t = dayNo(); return Object.keys(S.srs).filter(function (id) { return sentOf(id) && S.srs[id].due <= t; }); }
   function learned(cid) { return Object.keys(S.srs).filter(function (id) { return SENTS[id] && (!cid || SENTS[id].unit.course.id === cid) && S.srs[id].b >= 3; }).length; }
   function grade(id, g) { // 0 まだ / 1 あやしい / 2 言えた
     var c = S.srs[id] || { b: 0, due: 0, n: 0 }, t = dayNo();
@@ -541,7 +542,7 @@
         '<button type="button" class="btn' + (due ? '' : ' main') + '" data-act="free">🎲 ランダムに 10 文 練習</button>' +
         '<button type="button" class="btn ghost" data-act="home">一覧へ</button></div></div>';
     } else {
-      var s = SENTS[V.q[V.i]], a = V.a[V.i] || (V.a[V.i] = {});
+      var s = sentOf(V.q[V.i]), a = V.a[V.i] || (V.a[V.i] = {});
       var lab = (V.mode === 'free' ? '🎲 練習 ' : '🔁 復習 ') + (V.i + 1) + '/' + V.q.length;
       body = recallHTML(s, a, lab).replace('</span><span>', '</span><span>' + esc(s.unit.course.short + '-' + two(s.unit.no) + ' ' + s.unit.title) + '　');
     }
@@ -608,7 +609,7 @@
   });
   /* ---------- 🤔 なぜ？（カードの上に 1 枚かぶせる。2 段目は「それでもわからない人へ」） ---------- */
   function whyCtx() {
-    if (V.view === 'review') { var rs = SENTS[V.q[V.i]]; return { s: rs, pt: rs.unit.points[rs.p || 0] }; }
+    if (V.view === 'review') { var rs = sentOf(V.q[V.i]); return { s: rs, pt: rs.unit.points[rs.p || 0] }; }
     if (V.view !== 'unit') return null;
     if (V.step === 'point') { var pg = pointPages(V.u)[V.page]; return typeof pg === 'number' ? { s: null, pt: V.u.points[pg] } : null; }
     var s = curS(); return { s: s, pt: s.unit.points[s.p || 0] };
@@ -636,7 +637,7 @@
   function rerender() { if (V.view === 'review') renderReview(); else if (V.view === 'unit') renderUnit(); }
   function revealRecall() {
     var a, s;
-    if (V.view === 'review') { a = V.a[V.i]; s = SENTS[V.q[V.i]]; } else { a = ans(); s = V.u.sentences[V.page]; }
+    if (V.view === 'review') { a = V.a[V.i]; s = sentOf(V.q[V.i]); } else { a = ans(); s = V.u.sentences[V.page]; }
     if (!a || a.shown) return;
     a.shown = 1; rerender(); speak(s.en);
   }
@@ -760,7 +761,9 @@
   window.LXAPP = {
     S: function () { return S; }, save: save, esc: esc, toast: toast, view: view, applyLook: applyLook,
     COURSES: COURSES, UNITS: UNITS, SENTS: SENTS, prog: prog, dayNo: dayNo, today: today,
-    tilesOf: tilesOf, blankEn: blankEn, speak: speak
+    tilesOf: tilesOf, blankEn: blankEn, speak: speak,
+    // ゲームの ふりかえりから「今日の 復習」に 入れる
+    remember: function (id) { if (!sentOf(id)) return false; var t = dayNo(); enroll(id, t); S.srs[id].due = t; S.srs[id].b = 0; save(); badge(); return true; }
   };
   if (window.LXG) LXG.init();
   route();

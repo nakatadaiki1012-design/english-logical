@@ -307,7 +307,7 @@
     if (G) clearInterval(G.timer);
     var R = rng(seed), p = pool(cfg);
     var qp = lvOf(cfg).k === 'long' ? qaPool(cfg) : [];
-    G = { cfg: cfg, R: R, list: rshuffle(p, R), qa: rshuffle(qp, R), qai: 0, sorted: p.slice().sort(function (a, b) { return words(a) - words(b); }), recent: [], queue: [], qi: 0,
+    G = { cfg: cfg, R: R, list: rshuffle(p, R), qa: rshuffle(qp, R), qai: 0, missed: [], sorted: p.slice().sort(function (a, b) { return words(a) - words(b); }), recent: [], queue: [], qi: 0,
       score: 0, combo: 0, maxCombo: 0, ok: 0, miss: 0, words: 0, alt: 0, meter: 0, feverUntil: 0, feverN: 0, maxSpeed: 1,
       mode: mode, startAt: startAt, endAt: startAt + cfg.t * 1000, left: (mode === 'solo' ? RULE.start : cfg.t) * 1000, tl: 0,
       q: null, lock: false, over: false, timer: null };
@@ -410,8 +410,15 @@
       q.placed.push(i); q.ptr++; hit(el); var p = pts(10); q.bad = -1;
       FX('tap', G.combo); if (el && window.LXFX) LXFX.popAt(el, '+' + p);
       if (q.ptr === q.tiles.length) { q.done = 1; solved(); }
-    } else { miss(); q.bad = i; }
+    } else { noteMiss(q, q.placed.map(function (k) { return q.tiles[k]; }).concat('［' + q.tiles[i] + '］').join(' ') + ' …'); miss(); q.bad = i; }
     drawQ();
+  }
+  /* 📝 ふりかえり用に まちがえた 問題を 覚えておく（同じ 問題は 1 回だけ） */
+  function noteMiss(q, mine) {
+    if (q.noted) return; q.noted = 1;
+    var key = q.type === 'qa' ? q.x.q : q.s.id;
+    if (G.missed.some(function (m) { return m.key === key; })) return;
+    G.missed.push(q.type === 'qa' ? { key: key, kind: 'qa', x: q.x, mine: mine } : { key: key, kind: q.type, s: q.s, mine: mine });
   }
   function pickChoice(i, el) {
     var q = G.q; if (G.lock || q.pick >= 0) return;
@@ -420,7 +427,7 @@
       hit(el); var p = pts(10); if (window.LXFX) LXFX.popAt(el, '+' + p);
       drawQ(); solved();
     } else {
-      miss(); G.lock = true; drawQ();
+      noteMiss(q, q.ch[i]); miss(); G.lock = true; drawQ();
       setTimeout(function () { if (G && !G.over) { nextQ(); drawQ(); } }, q.type === 'qa' ? 1600 : 900); // 英問英答は 正しい 答えを 読む 時間
     }
   }
@@ -584,11 +591,71 @@
       '<p class="phrase">🧩 <b>' + G.words + '</b> 語を組み立てた ≒ <b>' + esc(ruler(G.words)) + '</b></p>' +
       '<p class="tstats">⚡ 最大 ' + G.maxCombo + ' コンボ　⏩ 燃料の減り 最高 ×' + G.maxSpeed.toFixed(1) + '　✕ ミス ' + G.miss + '　🪙 +' + coins + '</p>' +
       '<p class="note">' + esc(soloName(G.cfg)) + ' のベスト：' + fmt(Math.max(prev, G.score)) + ' 点</p>' +
-      '<div class="row" style="justify-content:center"><button type="button" class="btn main" data-ga="again">↺ もう一度</button>' +
+      '<div class="row" style="justify-content:center">' + reflectBtn() + '<button type="button" class="btn main" data-ga="again">↺ もう一度</button>' +
       '<button type="button" class="btn warm" data-ga="brag">📣 自慢する</button>' +
       '<button type="button" class="btn ghost" data-go="game">◀ もどる</button></div></div>';
     $('#hcombo').innerHTML = '';
   }
+  /* =========================================================
+     📝 ふりかえり：まちがえた 問題を 1 問ずつ「あなたの 答え ✕ → 正しい 英文 ○ → 💡 なぜ」
+     ========================================================= */
+  var RF = null;
+  function reflectBtn() {
+    var n = G && G.missed ? G.missed.length : 0;
+    return n ? '<button type="button" class="btn reflect" data-ga="reflect:game">📝 ふりかえり（まちがえた ' + n + ' 問）</button>' : '<span class="nomiss">🎉 ノーミス！</span>';
+  }
+  function quizItems() {
+    var room = B && B.room; if (!room || !B.qz) return [];
+    var qs = quizQs(room.cfg, room.seed);
+    return Object.keys(B.qz.got).filter(function (i) { return !B.qz.got[i].ok && qs[i]; }).map(function (i) {
+      var q = qs[i], c = B.qz.got[i].c, mine = c === -1 || c == null ? '（時間切れ）' : typeof c === 'string' ? c.split('').map(function (k) { return q.opts[+k]; }).join(' → ') : q.opts[c];
+      return { kind: q.type === 'order' ? 'order' : q.type === 'pick' ? 'pick' : 'cloze', s: q.s, mine: mine };
+    });
+  }
+  function openReflect(src) {
+    var items = src === 'quiz' ? quizItems() : (G && G.missed || []).slice();
+    if (!items.length) { toast('まちがえた 問題は ありません'); return; }
+    RF = { items: items, k: 0 }; drawReflect();
+  }
+  var KIND = { order: '🧩 並べかえ', cloze: '✏️ 穴うめ', pick: '📝 正しい英文は どれ？', qa: '💬 英問英答' };
+  function drawReflect() {
+    var it = RF.items[RF.k], n = RF.items.length, body;
+    if (it.kind === 'qa') {
+      var x = it.x;
+      body = '<p class="rf-ja">Q. <b class="en">' + esc(x.q) + '</b><small>' + esc(x.qja) + '</small></p>' +
+        '<p class="rf-ng">✕ あなた：<span class="en">' + esc(it.mine) + '</span></p>' +
+        '<p class="rf-ok">○ 正しい 答え：<span class="en">' + esc(x.a) + '</span></p>' +
+        (x.why ? '<p class="rf-why">💡 ' + esc(x.why) + '</p>' : '');
+    } else {
+      var s = it.s, pt = s.unit && s.unit.points && s.unit.points[s.p || 0];
+      body = '<p class="rf-ja">' + esc(s.ja) + '</p>' +
+        '<p class="rf-ng">✕ あなた：<span class="en">' + esc(it.mine) + '</span></p>' +
+        '<p class="rf-ok">○ 正しい 英文：<span class="en">' + esc(s.en).replace(/\[([^\]]+)\]/, '<mark>$1</mark>') + '</span></p>' +
+        (s.why ? '<p class="rf-why">💡 ' + esc(s.why) + '</p>' : s.tip ? '<p class="rf-why">💡 ' + esc(s.tip) + '</p>' : '') +
+        (pt ? '<p class="rf-pt">📘 ' + esc(s.unit.course.short + '-' + (s.unit.no < 10 ? '0' : '') + s.unit.no + ' ' + s.unit.title) + '：' + esc(pt.h) + '</p>' : '');
+    }
+    var ids = RF.items.filter(function (m) { return m.s && m.s.id; }).length;
+    dlgOpen('<div class="dlg-head"><h2>📝 ふりかえり <small>' + (RF.k + 1) + ' / ' + n + '</small></h2><button type="button" class="ibtn x" data-x>✕ とじる</button></div>' +
+      '<div class="dlg-body rf"><span class="pill rf-kind">' + KIND[it.kind] + '</span>' + body +
+      '<div class="row rf-nav"><button type="button" class="btn ghost" data-rf="prev"' + (RF.k ? '' : ' disabled') + '>◀ 前</button>' +
+      '<button type="button" class="btn ghost" data-rf="say">🔊 聞く</button>' +
+      '<button type="button" class="btn ' + (RF.k < n - 1 ? 'main' : 'ghost') + '" data-rf="next"' + (RF.k < n - 1 ? '' : ' disabled') + '>次 ▶</button></div>' +
+      (ids ? '<div class="pkfoot"><span class="note">まちがえた 文を 日を あけて 思い出すと 忘れにくい</span><button type="button" class="btn" data-rf="keep">🔁 復習に 入れる（' + ids + ' 文）</button></div>' : '') +
+      '</div>');
+  }
+  function reflectClick(v) {
+    if (!RF) return;
+    var it = RF.items[RF.k];
+    if (v === 'prev' && RF.k > 0) RF.k--;
+    else if (v === 'next' && RF.k < RF.items.length - 1) RF.k++;
+    else if (v === 'say') { A().speak(it.kind === 'qa' ? it.x.q + ' ' + it.x.a : it.s.plain); return; }
+    else if (v === 'keep') {
+      var n = 0; RF.items.forEach(function (m) { if (m.s && m.s.id && A().remember && A().remember(m.s.id)) n++; });
+      toast(n ? n + ' 文を「🔁 今日の 復習」に 入れました' : '入れられる 文が ありません'); return;
+    }
+    drawReflect();
+  }
+
   /* 到達した場所と、通りすぎた めじるし */
   function arrival(al) {
     // 「あと少しで 次へ」が 見えると もう一度 やりたくなる
@@ -1145,7 +1212,7 @@
         (win ? '<div class="winner"><span class="crown">👑</span><b>優勝！</b></div>' : med ? '<div class="winner m' + rk + '"><span class="crown">' + ['', '🥇', '🥈', '🥉'][rk] + '</span><b>' + (rk === 2 ? '準優勝！' : 'メダル獲得！') + '</b></div>' : fin ? '<p class="h">おつかれさま！</p>' : '') +
         '<div class="score' + (win ? ' gold' : '') + '">' + rk + '<small> 位 / ' + lst.length + ' 人</small></div>' +
         '<p class="tstats">' + fmt(meP.s || 0) + ' 点　' + (isQuiz(room.cfg) ? '⭕ ' + (meP.w || 0) + ' 問 正解' : '🧩 ' + (meP.w || 0) + ' 語') + (G && G.coins ? '　🪙 +' + G.coins : '') + '</p>' +
-        rows(show, 'now') + mine + (fin ? quizMissed(room) : '') +
+        rows(show, 'now') + mine + (fin ? quizMissed(room) : '') + (G && G.mode === 'battle' && G.over ? '<div class="row" style="justify-content:center">' + reflectBtn() + '</div>' : '') +
         '<p class="note">' + (fin ? '先生が 次のスタートをおすと 始まります' : '') + '</p>';
     } else mid = '<div class="bigstamp wait">参加中</div><p class="h">' + esc(S().nick || '') + ' さん、ようこそ！</p><p class="body">' + (isQuiz(room.cfg) ? '🎯 クイズ大会：先生の 大画面に 問題が 出たら、手元の 4 色の ボタンで 答えよう。早く 正解するほど 高得点！' : '先生が スタートをおすと 3・2・1 で 全員いっせいに始まります') + '</p>' +
       '<div class="chips small">' + playersOf(room).slice(0, 40).map(function (p) { return '<span class="chipn' + (p.id === pid() ? ' me' : '') + '">' + esc(p.n) + '</span>'; }).join('') + '</div>';
@@ -1422,7 +1489,7 @@
     if (!miss.length) return B.qz.ok >= qN(room.cfg) ? '<p class="qmiss ok">🎉 全問 正解！</p>' : '';
     return '<div class="qmiss"><b>📝 まちがえた 問題（' + miss.length + '）</b>' + miss.slice(0, 3).map(function (i) {
       var s = qs[i].s; return '<p><span>' + esc(s.ja) + '</span>' + esc(s.en.split('[')[0]) + '<em>' + esc(s.key) + '</em>' + esc(s.en.split(']')[1] || '') + '</p>';
-    }).join('') + (miss.length > 3 ? '<small>ほか ' + (miss.length - 3) + ' 問</small>' : '') + '</div>';
+    }).join('') + (miss.length > 3 ? '<small>ほか ' + (miss.length - 3) + ' 問</small>' : '') + '<button type="button" class="btn" data-ga="reflect:quiz">📝 解説を 見る</button></div>';
   }
   /* 答えなかった（時間切れ）：連続正解を 0 に して 記録にも のこす */
   function qMiss(room) {
@@ -1469,6 +1536,7 @@
       else if (b.dataset.set) settingsClick(b.dataset.set);
       else if (b.dataset.pk) pickerClick(b.dataset.pk);
       else if (b.dataset.hs) hostSetClick(b.dataset.hs);
+      else if (b.dataset.rf) reflectClick(b.dataset.rf);
     });
     gdlg.addEventListener('click', function (e) { var bd = e.target.closest('.bd[data-how]'); if (bd) toast(bd.dataset.how); }); // バッジを タップで 取り方（スマホは title が 見えない）
     A().view.addEventListener('click', function (e) {
@@ -1499,6 +1567,7 @@
         case 'qsay': { b.blur(); var rq = H && H.room, qq = rq && quizQs(rq.cfg, rq.seed)[rq.qi]; if (qq) A().speak(qq.s.plain); break; }
         case 'hstart': hostStart(); break;
         case 'qnext': quizNext(); break;
+        case 'reflect': openReflect(d.ga.split(':')[1]); break;
         case 'qstat': quizStat(); break;
         case 'hcsv': copyResult(); break;
         case 'hcopy': {
