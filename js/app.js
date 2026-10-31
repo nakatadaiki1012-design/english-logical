@@ -286,10 +286,12 @@
   }
   /* 演習：同じ型の例文（12 文）を 並べかえ・穴うめ 交互に */
   function drillPool(u) { return u.drills.length ? u.drills : u.sentences; }
+  /* 演習の 形式：並べかえ・穴うめに 加えて いろいろ（同じ文でも ちがう 頭の 使い方で 練習） */
+  var DRILL_TYPES = ['order', 'cloze', 'pick', 'judge', 'mean', 'type', 'listen'];
   function newDrill() {
-    var flip = Math.random() < 0.5;
-    // 演習文（36 文）から 毎回 ちがう 12 問
-    V.dr = shuffle(drillPool(V.u)).slice(0, 12).map(function (s, i) { return { s: s, type: (i % 2 === 0) === flip ? 'order' : 'cloze' }; });
+    // 演習文（36 文）から 毎回 ちがう 12 問。形式は 7 種類を まんべんなく（並べかえ・穴うめは 少し 多め）
+    var ty = shuffle(DRILL_TYPES).concat(shuffle(['order', 'cloze', 'pick', 'judge', 'type'])).slice(0, 12);
+    V.dr = shuffle(drillPool(V.u)).slice(0, 12).map(function (s, i) { return { s: s, type: ty[i] }; });
     V.a = {}; V.page = 0;
   }
   function curS() {
@@ -406,7 +408,8 @@
     var n = V.dr.length;
     if (V.page < n) {
       var q = V.dr[V.page], lab = '💪 演習 ' + (V.page + 1) + '/' + n;
-      return q.type === 'cloze' ? clozeHTML(q.s, ans(), lab, false) : orderHTML(q.s, ans(), lab, false);
+      return q.type === 'cloze' ? clozeHTML(q.s, ans(), lab, false) : q.type === 'order' ? orderHTML(q.s, ans(), lab, false)
+        : q.type === 'listen' ? orderHTML(q.s, ans(), lab, false, true) : q.type === 'type' ? typeHTML(q.s, ans(), lab) : choiceHTML(q, ans(), lab);
     }
     var ok = 0; for (var i = 0; i < n; i++) if (first(V.a[i])) ok++;
     var pr = prog(V.u.id), great = ok >= n - 1;
@@ -423,7 +426,7 @@
     pr.dr = (pr.dr || 0) + ok; pr.st.drill = 1; save();
   }
 
-  function orderHTML(s, a, lab, strict) {
+  function orderHTML(s, a, lab, strict, listen) {
     if (!a.t) { a.t = tilesOf(s); a.ord = scramble(a.t.tiles); a.b = []; }
     var tl = a.t.tiles, built = a.b.map(function (i) { return tl[i]; });
     var state = a.done ? (a.ok ? 'ok' : 'ng') : '';
@@ -440,8 +443,9 @@
       fb = a.ok ? '<p class="tip">⭕ 正解！ ' + esc(s.tip) + wb + '</p>'
         : '<p class="en sm">' + hl(s.en) + '</p><p class="tip ng">✕ 正しい順は上のとおり。' + esc(s.tip) + wb + '</p>';
     }
-    return '<div class="lab"><span class="pill">' + lab + '</span><span>日本語に合うように カードをタップして ならべる</span></div>' +
-      '<div class="mid"><p class="ja big">' + esc(s.ja) + '</p>' +
+    if (listen && !a.spoke) { a.spoke = 1; setTimeout(function () { speak(s.plain); }, 250); }
+    return '<div class="lab"><span class="pill">' + lab + '</span><span>' + (listen ? '🎧 英語を 聞いて、聞こえた 順に カードを ならべる（日本語は あとで）' : '日本語に合うように カードをタップして ならべる') + '</span></div>' +
+      '<div class="mid">' + (listen && !a.done ? '<p class="ja big"><button type="button" class="btn listenbtn" data-say="' + esc(s.plain) + '">🎧 もう一度 聞く</button></p>' : '<p class="ja big">' + esc(s.ja) + '</p>') +
       '<div class="slots ' + state + '">' + slots + (a.b.length ? '<span class="end">' + esc(a.t.end) + '</span>' : '<span class="note">ここに ならぶ</span>') + '</div>' +
       (a.done ? fb : '<div class="pool">' + pool + '</div>') + '</div>' +
       '<div class="row">' + (a.done && !a.ok && !strict ? '<button type="button" class="btn" data-act="oretry">↺ もう一度 ならべる</button>' : '') +
@@ -460,6 +464,48 @@
       (a.done ? '<p class="tip' + (a.ok ? '' : ' ng') + '">' + (a.ok ? '⭕ 正解！ ' : '✕ 正解は「' + esc(s.key) + '」。') + esc(s.tip) + (strict ? '' : whyB(hasWhy(s))) + '</p>' : '') + '</div>' +
       '<div class="choices">' + btns + '</div>' +
       (a.done && !strict ? '<div class="row"><button type="button" class="say" data-say="' + esc(s.en) + '">🔊 聞く</button></div>' : '');
+  }
+  /* ⭕❌ 正誤判定 ・ 📝 正しい英文は どれ？ ・ 🇯🇵 意味は どれ？ */
+  function choiceHTML(q, a, lab) {
+    var s = q.s, t = q.type;
+    if (!a.ch) {
+      if (t === 'judge') { a.right = Math.random() < 0.5; a.jtxt = a.right ? s.plain : subAlt(s, s.alt[Math.floor(Math.random() * s.alt.length)]); a.ch = ['⭕ 正しい', '❌ まちがい']; a.ansv = a.right ? a.ch[0] : a.ch[1]; }
+      else if (t === 'pick') { a.ch = shuffle([s.plain].concat(s.alt.map(function (x) { return subAlt(s, x); }))); a.ansv = s.plain; }
+      else { // mean：同じ 単元の ほかの 文の 日本語を まぜる
+        var others = shuffle(s.unit.sentences.concat(s.unit.drills).filter(function (x) { return x.ja !== s.ja; }).map(function (x) { return x.ja; }));
+        var uniq = []; others.forEach(function (j) { if (uniq.indexOf(j) < 0) uniq.push(j); });
+        a.ch = shuffle([s.ja].concat(uniq.slice(0, 3))); a.ansv = s.ja;
+      }
+    }
+    var how = { judge: '⭕❌ この 英文は 正しい？ まちがい？', pick: '📝 日本語に 合う 正しい 英文を えらぶ', mean: '🇯🇵 英文の 意味を えらぶ' }[t];
+    var top = t === 'judge' ? '<p class="en big' + (a.done ? (a.right ? ' okx' : ' ngx') : '') + '">' + esc(a.jtxt) + '</p>'
+      : t === 'pick' ? '<p class="ja big">' + esc(s.ja) + '</p>' : '<p class="en big">' + esc(s.plain) + '</p>';
+    var btns = a.ch.map(function (w, i) {
+      var cls = a.done ? (w === a.ansv ? ' ok' : (w === a.pick ? ' ng' : '')) : '';
+      return '<button type="button" class="choice' + cls + '" data-pick="' + i + '"' + (a.done ? ' disabled' : '') + '><span class="kb">' + (i + 1) + '</span>' + esc(w) + '</button>';
+    }).join('');
+    return '<div class="lab"><span class="pill">' + lab + '</span><span>' + how + '</span></div>' +
+      '<div class="mid">' + top +
+      (a.done ? (t === 'mean' ? '' : '<p class="en sm">' + hl(s.en) + '</p>') + (t === 'pick' ? '' : '<p class="ja">' + esc(s.ja) + '</p>') +
+        '<p class="tip' + (a.ok ? '' : ' ng') + '">' + (a.ok ? '⭕ 正解！ ' : '✕ ') + (t === 'judge' && !a.right ? '「' + esc(s.key) + '」が 正しい。' : '') + esc(s.tip) + whyB(hasWhy(s)) + '</p>' : '') + '</div>' +
+      '<div class="choices' + (t === 'judge' ? ' two' : ' one') + '">' + btns + '</div>' +
+      (a.done ? '<div class="row"><button type="button" class="say" data-say="' + esc(s.en) + '">🔊 聞く</button></div>' : '');
+  }
+  function subAlt(s, x) { return s.en.replace(/\[[^\]]+\]/, x).replace(/[\[\]]/g, ''); }
+  /* ⌨️ 書いて 答える（（　）の 語を 打つ。大文字・小文字は 気にしない） */
+  function typeHTML(s, a, lab) {
+    return '<div class="lab"><span class="pill">' + lab + '</span><span>⌨️（　）に 入る 語を 書いて 答える（ヒント：' + s.key.split(' ').length + ' 語）</span></div>' +
+      '<div class="mid"><p class="en">' + blankEn(s, a.done ? s.key : '', a.done) + '</p><p class="ja">' + esc(s.ja) + '</p>' +
+      (a.done ? '<p class="tip' + (a.ok ? '' : ' ng') + '">' + (a.ok ? '⭕ 正解！ ' : '✕ あなた：「' + esc(a.typed || '') + '」→ 正解は「' + esc(s.key) + '」。') + esc(s.tip) + whyB(hasWhy(s)) + '</p>'
+        : '<form class="typein" data-type="1"><input type="text" id="typeIn" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="ここに 英語で"><button type="submit" class="btn main">答える ▶</button></form>') + '</div>' +
+      (a.done ? '<div class="row"><button type="button" class="say" data-say="' + esc(s.en) + '">🔊 聞く</button></div>' : '<div class="row"><button type="button" class="btn ghost" data-act="tyhint">💡 最初の 文字</button></div>');
+  }
+  function norm(x) { return String(x || '').toLowerCase().replace(/[’]/g, "'").replace(/[.,!?]/g, '').replace(/\s+/g, ' ').trim(); }
+  function typed(v) {
+    var a = ans(); if (a.done) return; var s = curS();
+    a.typed = v; a.done = 1; a.ok = norm(v) === norm(s.key);
+    if (a.ok && !a.hinted) earn(10);
+    speak(s.en); renderUnit();
   }
   function recallHTML(s, a, lab) {
     var first = s.plain.split(' ').map(function (w) { return w.charAt(0) + (w.length > 1 ? '…' : ''); }).join(' ');
@@ -592,6 +638,7 @@
         renderUnit(); break;
       }
       case 'clear': ans().b = []; renderUnit(); break;
+      case 'tyhint': { var a5 = ans(), k5 = curS().key; a5.hinted = 1; var inp = $('#typeIn'); if (inp) { inp.value = k5.charAt(0); inp.focus(); } break; }
       case 'oretry': { var a4 = ans(); a4.b = []; a4.done = 0; a4.ok = false; a4.retry = 1; renderUnit(); break; }
       case 'ohint': {
         var a3 = ans(); a3.b = []; if (!a3.t) break;
@@ -652,13 +699,16 @@
   function pick(i) {
     var a = ans(); if (a.done) return;
     var s = curS();
-    a.pick = a.ch[i]; a.done = 1; a.ok = a.pick === s.key;
+    if (!a.ch || i >= a.ch.length) return;
+    a.pick = a.ch[i]; a.done = 1; a.ok = a.pick === (a.ansv != null ? a.ansv : s.key);
     if (a.ok) earn(10);
     if (V.step !== 'test') speak(s.en);
     if (V.step === 'test' && V.page === TEST_N - 1) finishTest();
     renderUnit();
   }
 
+  // ⌨️ 書いて 答える：Enter か「答える」
+  view.addEventListener('submit', function (e) { if (e.target.getAttribute('data-type')) { e.preventDefault(); var i = $('#typeIn'); if (i && i.value.trim()) typed(i.value); } });
   document.addEventListener('keydown', function (e) {
     if ($('#dlg').open || /INPUT|TEXTAREA|SELECT/.test((e.target.tagName || ''))) return;
     if ($('#card .sheet')) { if (e.key === 'Escape') closeWhy(); return; }
@@ -666,7 +716,7 @@
       if (e.key === 'ArrowRight') { e.preventDefault(); nextPage(); }
       else if (e.key === 'ArrowLeft') { e.preventDefault(); prevPage(); }
       else if (e.key === ' ' && V.step === 'recall') { e.preventDefault(); if (!ans().shown) revealRecall(); }
-      else if (/^[1-4]$/.test(e.key) && (V.step === 'cloze' || (V.step === 'test' && V.test[V.page] && V.test[V.page].type === 'cloze') || (V.step === 'drill' && V.dr[V.page] && V.dr[V.page].type === 'cloze'))) { pick(+e.key - 1); }
+      else if (/^[1-4]$/.test(e.key) && (V.step === 'cloze' || (V.step === 'test' && V.test[V.page] && V.test[V.page].type === 'cloze') || (V.step === 'drill' && V.dr[V.page] && /^(cloze|pick|judge|mean)$/.test(V.dr[V.page].type)))) { pick(+e.key - 1); }
       else if (/^[1-3]$/.test(e.key) && V.step === 'recall' && ans().shown) { var b = view.querySelector('[data-g="' + ({ 1: 0, 2: 1, 3: 2 })[e.key] + '"]'); if (b) b.click(); }
     } else if (V.view === 'review' && V.i < V.q.length) {
       var a = V.a[V.i] || {};

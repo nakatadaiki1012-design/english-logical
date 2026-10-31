@@ -253,6 +253,12 @@
     return out;
   }
   var QA_RATE = 0.3; // 長距離便で 英問英答が 出る 割合
+  /* コースごとの 形式の まぜ方（割合）：ショート便は 速く 判断する 形式、長距離便は 読んで 考える 形式を 多めに */
+  var MIX = {
+    easy: [['order', 0.35], ['cloze', 0.3], ['judge', 0.2], ['mean', 0.15]],
+    std: [['order', 0.35], ['cloze', 0.25], ['judge', 0.15], ['pick', 0.15], ['mean', 0.1]],
+    long: [['order', 0.25], ['trap', 0.25], ['cloze', 0.2], ['pick', 0.3]]
+  };
   function cfgName(cfg) {
     return lvName(cfg) + '・' + rangeName(cfg) + '・' + tName(cfg.t) +
       (cfg.src === 'core' ? '・例文だけ' : cfg.src === 'drill' ? '・演習文だけ' : '');
@@ -339,16 +345,32 @@
       G.lock = false; return;
     }
     var s = G.queue.shift(); fillQueue();
-    var type = G.R() < 0.5 ? 'order' : 'cloze'; // 並べかえ・穴うめは いつも ミックス
-    if (type === 'order') {
-      var t = A().tilesOf(s), idx = t.tiles.map(function (_, i) { return i; });
+    // 形式は コースごとに いろいろ まぜる（対戦でも 全員 同じ 順）
+    var mix = MIX[lvOf(G.cfg).k] || MIX.std, x = G.R(), type = mix[mix.length - 1][0];
+    for (var mi = 0, acc = 0; mi < mix.length; mi++) { acc += mix[mi][1]; if (x < acc) { type = mix[mi][0]; break; } }
+    var fu = fuelOf(s);
+    if (type === 'order' || type === 'trap') {
+      var t = A().tilesOf(s), n = t.tiles.length, idx = t.tiles.map(function (_, i) { return i; });
+      var trapW = null; // 🧩 ワナ入り：使わない カードが 1 枚（まちがいの 選択肢から）
+      if (type === 'trap') { var tw = s.alt.filter(function (a) { return t.tiles.indexOf(a) < 0; }); if (tw.length) { trapW = tw[Math.floor(G.R() * tw.length)]; idx = idx.concat(n); } }
       var ord = idx, k = 0; // 最初から 正しい 順に ならんで いたら まぜ直す
-      do { ord = rshuffle(idx, G.R); k++; } while (k < 20 && t.tiles.length > 1 && ord.every(function (i, pos) { return t.tiles[i] === t.tiles[pos]; }));
-      G.q = { s: s, type: type, tiles: t.tiles, end: t.end, ord: ord, placed: [], ptr: 0, bad: -1 };
+      do { ord = rshuffle(idx, G.R); k++; } while (k < 20 && n > 1 && ord.slice(0, n).every(function (i, pos) { return t.tiles[i] === t.tiles[pos]; }));
+      G.q = { s: s, type: 'order', trapW: trapW, tiles: t.tiles, end: t.end, ord: ord, placed: [], ptr: 0, bad: -1 };
+    } else if (type === 'judge') { // ⭕❌ 正しい？ まちがい？
+      var right = G.R() < 0.5, sub = s.alt[Math.floor(G.R() * s.alt.length)];
+      G.q = { s: s, type: 'judge', text: right ? s.plain : s.en.replace(/\[[^\]]+\]/, sub).replace(/[\[\]]/g, ''), ch: ['⭕ 正しい', '❌ まちがい'], ans: right ? '⭕ 正しい' : '❌ まちがい', pick: -1 };
+      fu = { pts: Math.round(fu.pts * 0.5), k: fu.k };
+    } else if (type === 'pick') { // 📝 正しい 英文は どれ？
+      G.q = { s: s, type: 'pick', ch: rshuffle([s.plain].concat(s.alt.map(function (a) { return s.en.replace(/\[[^\]]+\]/, a).replace(/[\[\]]/g, ''); })), G.R), ans: s.plain, pick: -1 };
+    } else if (type === 'mean') { // 🇯🇵 意味は どれ？
+      var js = [], pl = G.sorted;
+      for (var tries = 0; js.length < 3 && tries < 40; tries++) { var o = pl[Math.floor(G.R() * pl.length)]; if (o.ja !== s.ja && js.indexOf(o.ja) < 0) js.push(o.ja); }
+      G.q = { s: s, type: 'mean', ch: rshuffle([s.ja].concat(js), G.R), ans: s.ja, pick: -1 };
+      fu = { pts: Math.round(fu.pts * 0.7), k: fu.k };
     } else {
-      G.q = { s: s, type: type, ch: rshuffle([s.key].concat(s.alt), G.R), pick: -1 };
+      G.q = { s: s, type: 'cloze', ch: rshuffle([s.key].concat(s.alt), G.R), ans: s.key, pick: -1 };
     }
-    G.q.fuel = fuelOf(s); G.q.fresh = true;
+    G.q.fuel = fu; G.q.fresh = true;
     G.lock = false;
   }
   function pts(base) {
@@ -397,7 +419,7 @@
       setTimeout(function () { LXFX.pop(now2.here[2] + ' ' + now2.here[3] + ' 突破！', m[0], m[1] + 40, 'big'); FX('lead'); }, 250);
     }
     if (G.mode === 'solo') { // 時間ボーナス（コンボが のびているほど 多い）
-      var tier = G.combo >= 25 ? 2 : G.combo >= 10 ? 1 : 0, b = (q.type === 'cloze' ? [0.4, 0.8, 1.2] : [1, 2, 3])[tier]; // 並べかえ・英問英答は 時間が かかるので 多め
+      var tier = G.combo >= 25 ? 2 : G.combo >= 10 ? 1 : 0, b = (/^(cloze|judge|mean)$/.test(q.type) ? [0.4, 0.8, 1.2] : [1, 2, 3])[tier]; // 並べかえ・英問英答は 時間が かかるので 多め
       G.left += b * 1000; timePop('+' + b + '秒', 'tplus');
     }
     FX('ok'); flash('ok');
@@ -406,11 +428,11 @@
   }
   function tapTile(i, el) {
     var q = G.q; if (G.lock || q.placed.indexOf(i) >= 0) return;
-    if (q.tiles[i] === q.tiles[q.ptr]) {
+    if (i < q.tiles.length && q.tiles[i] === q.tiles[q.ptr]) {
       q.placed.push(i); q.ptr++; hit(el); var p = pts(10); q.bad = -1;
       FX('tap', G.combo); if (el && window.LXFX) LXFX.popAt(el, '+' + p);
       if (q.ptr === q.tiles.length) { q.done = 1; solved(); }
-    } else { noteMiss(q, q.placed.map(function (k) { return q.tiles[k]; }).concat('［' + q.tiles[i] + '］').join(' ') + ' …'); miss(); q.bad = i; }
+    } else { noteMiss(q, q.placed.map(function (k) { return q.tiles[k]; }).concat('［' + (i < q.tiles.length ? q.tiles[i] : q.trapW) + '］').join(' ') + ' …'); miss(); q.bad = i; }
     drawQ();
   }
   /* 📝 ふりかえり用に まちがえた 問題を 覚えておく（同じ 問題は 1 回だけ） */
@@ -423,12 +445,12 @@
   function pickChoice(i, el) {
     var q = G.q; if (G.lock || q.pick >= 0) return;
     q.pick = i; el = el || document.querySelectorAll('.choice')[i];
-    if (q.ch[i] === (q.type === 'qa' ? q.ans : q.s.key)) {
+    if (q.ch[i] === (q.ans != null ? q.ans : q.s.key)) {
       hit(el); var p = pts(10); if (window.LXFX) LXFX.popAt(el, '+' + p);
       drawQ(); solved();
     } else {
       noteMiss(q, q.ch[i]); miss(); G.lock = true; drawQ();
-      setTimeout(function () { if (G && !G.over) { nextQ(); drawQ(); } }, q.type === 'qa' ? 1600 : 900); // 英問英答は 正しい 答えを 読む 時間
+      setTimeout(function () { if (G && !G.over) { nextQ(); drawQ(); } }, q.type === 'qa' || q.type === 'pick' || q.type === 'judge' ? 1600 : 900); // 正しい 文を 読む 時間 // 英問英答は 正しい 答えを 読む 時間
     }
   }
 
@@ -512,12 +534,25 @@
     var fresh = q.fresh; q.fresh = false;
     if (q.type === 'order') {
       h = belt +
-        '<div class="mid' + (fresh ? ' slidein' : '') + '"><p class="ja big">' + esc(s.ja) + '</p>' +
+        '<div class="mid' + (fresh ? ' slidein' : '') + '">' + (q.trapW ? '<p class="lab qalab">🧩 ワナが 1 枚！ 使わない カードが まざっている</p>' : '') + '<p class="ja big">' + esc(s.ja) + '</p>' +
         '<div class="slots' + (q.done ? ' ok' : '') + '">' + q.placed.map(function (i) { return '<span class="tl">' + esc(q.tiles[i]) + '</span>'; }).join('') +
         (q.done ? '<span class="end">' + esc(q.end) + '</span>' : '') + '</div>' +
         '<div class="pool">' + q.ord.map(function (i) {
-          return '<button type="button" class="tl' + (q.placed.indexOf(i) >= 0 ? ' used' : '') + (q.bad === i ? ' shake' : '') + '" data-gt="' + i + '">' + esc(q.tiles[i]) + '</button>';
+          var w = i < q.tiles.length ? q.tiles[i] : q.trapW; // 最後の 番号は ワナ
+          return '<button type="button" class="tl' + (q.placed.indexOf(i) >= 0 ? ' used' : '') + (q.bad === i ? ' shake' : '') + (q.done && i >= q.tiles.length ? ' trapx' : '') + '" data-gt="' + i + '">' + esc(w) + '</button>';
         }).join('') + '</div></div>';
+    } else if (/^(judge|pick|mean)$/.test(q.type)) { // ⭕❌・正しい英文・意味
+      var vok = q.pick >= 0 && q.ch[q.pick] === q.ans, done = q.pick >= 0;
+      var head2 = { judge: '⭕❌ この 英文は 正しい？', pick: '📝 正しい 英文は どれ？', mean: '🇯🇵 意味は どれ？' }[q.type];
+      var top2 = q.type === 'judge' ? '<p class="en big' + (done ? (q.ans === q.ch[0] ? ' okx' : ' ngx') : '') + '">' + esc(q.text) + '</p>'
+        : q.type === 'pick' ? '<p class="ja big">' + esc(s.ja) + '</p>' : '<p class="en big">' + esc(s.plain) + '</p>';
+      h = belt +
+        '<div class="mid' + (fresh ? ' slidein' : '') + '"><p class="lab qalab">' + head2 + '</p>' + top2 +
+        (done && q.type !== 'pick' ? '<p class="ja">' + (q.type === 'judge' ? '○ ' + esc(s.plain) + '　' : '') + esc(q.type === 'mean' ? '' : s.ja) + '</p>' : '') + '</div>' +
+        '<div class="choices ' + (q.type === 'judge' ? 'two' : 'qa') + '">' + q.ch.map(function (w, i) {
+          var c = !done ? '' : (w === q.ans ? ' ok' : (i === q.pick && !vok ? ' ng' : ''));
+          return '<button type="button" class="choice' + c + '" data-gp="' + i + '"><span class="kb">' + (i + 1) + '</span>' + esc(w) + '</button>';
+        }).join('') + '</div>';
     } else if (q.type === 'qa') {
       var qok = q.pick >= 0 && q.ch[q.pick] === q.ans;
       h = belt +
@@ -617,7 +652,7 @@
     if (!items.length) { toast('まちがえた 問題は ありません'); return; }
     RF = { items: items, k: 0 }; drawReflect();
   }
-  var KIND = { order: '🧩 並べかえ', cloze: '✏️ 穴うめ', pick: '📝 正しい英文は どれ？', qa: '💬 英問英答' };
+  var KIND = { order: '🧩 並べかえ', cloze: '✏️ 穴うめ', pick: '📝 正しい英文は どれ？', qa: '💬 英問英答', judge: '⭕❌ 正誤判定', mean: '🇯🇵 意味は どれ？' };
   function drawReflect() {
     var it = RF.items[RF.k], n = RF.items.length, body;
     if (it.kind === 'qa') {
@@ -1601,7 +1636,7 @@
     document.addEventListener('keydown', function (e) {
       if (!G && B && B.qz && /^[1-4]$/.test(e.key) && $('.qb:not([disabled])')) { quizAnswer(+e.key - 1); return; }
       if (!G || G.over || /INPUT|TEXTAREA|SELECT/.test(e.target.tagName || '')) return;
-      if (G.q && (G.q.type === 'cloze' || G.q.type === 'qa') && /^[1-4]$/.test(e.key) && now() >= G.startAt) pickChoice(+e.key - 1);
+      if (G.q && /^(cloze|qa|judge|pick|mean)$/.test(G.q.type) && /^[1-4]$/.test(e.key) && +e.key <= G.q.ch.length && now() >= G.startAt) pickChoice(+e.key - 1);
     });
     chip();
   }
