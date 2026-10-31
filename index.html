@@ -1162,11 +1162,12 @@ body.offline::after { content: "📶 つながりを 確認中…（Wi-Fi を �
 .typein { display: flex; gap: 8px; }
 .typein input { flex: 1; min-width: 0; font-family: var(--font-en); font-size: 18px; padding: 8px 10px; border: 2px solid var(--ink); border-radius: 6px; background: var(--panel); color: var(--ink); }
 .listenbtn { font-size: 16px; padding: 8px 18px; }
-@container (max-height: 600px) { .choices.one:has(.ok) .choice:not(.ok):not(.ng) { display: none; } } /* 小さい 画面：答えたら 正解と 自分の 答えだけ */
+@container (max-height: 820px) { .choices.one:has(.ok) .choice:not(.ok):not(.ng) { display: none; } } /* 小さい 画面：答えたら 正解と 自分の 答えだけ */
 .tl.trapx { text-decoration: line-through; opacity: .5; }
 .unit.play .en.big { font-size: calc(clamp(17px, min(4.4cqw, 5.4cqh), 28px) * var(--k)); }
 .unit.play .mid .qalab { width: fit-content; margin-inline: auto; background: var(--panel); border: 1.5px solid var(--line); border-radius: 14px; padding: 2px 12px; box-shadow: 0 2px 6px rgba(0,0,0,.12); } /* 問題の 形式も 台紙に */
 @container (max-height: 600px) { .choices.one .choice { font-size: .86em; padding: 4px 8px; line-height: 1.25; } .choices.one { gap: 4px; } } /* 長い 選択肢 4 つでも 問題文が かくれない */
+.choices.one .choice, .choices.qa .choice { font-size: calc(clamp(13px, min(2.9cqw, 3.2cqh), 19px) * var(--k)); padding: 6px 10px; } /* 文まるごとの 選択肢は 小さめ */
 </style>
 </head>
 <body>
