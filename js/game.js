@@ -400,8 +400,13 @@
     if (m && window.LXFX) { LXFX.pop('🚀 BOOST!! ×2', m[0], m[1], 'go boost'); LXFX.boost(RULE.feverSec); }
   }
   function timePop(text, cls) { var t = $('.play .tbar'); if (t && window.LXFX) LXFX.popAt(t, text, cls); }
+  /* でたらめ連打 対策：まちがえると ① 少し 手が 止まる ② 点が へる ③ その 文の 点が 小さくなる */
+  var MISS_LOCK = 800, MISS_PTS = 30;
   function miss() {
     G.combo = 0; G.miss++; G.meter = Math.max(0, G.meter - 2); // ミスで メーターは 少し へるだけ（ブーストを 見られる人を ふやす）
+    if (G.q) G.q.misses = (G.q.misses || 0) + 1;
+    var lose = Math.min(G.score, MISS_PTS); G.score -= lose;
+    var m0 = cardMid(0.45); if (lose && m0 && window.LXFX) LXFX.pop('−' + lose, m0[0], m0[1], 'minus');
     if (G.mode === 'solo') { var ms = lvOf(G.cfg).miss; G.left -= ms; timePop('−' + ms / 1000 + '秒', 'tminus'); }
     FX('miss'); flash('ng');
   }
@@ -412,7 +417,7 @@
   function solved() {
     var q = G.q, fu = q.fuel, before = altOf(G.score).i;
     G.ok++; G.words += words(q.s); G.lock = true;
-    var p = pts(fu.pts / 2 + (q.type === 'cloze' ? 10 : 0));
+    var p = pts((fu.pts / 2 + (q.type === 'cloze' ? 10 : 0)) / (1 + (q.misses || 0))); // ミスが 多い 文ほど 小さく
     var m = cardMid(0.25); if (m && window.LXFX) LXFX.pop('🚀 +' + fmt(p), m[0], m[1], 'up');
     var now2 = altOf(G.score); G.alt = Math.max(G.alt, now2.i);
     if (now2.i > before && m && window.LXFX) { // めじるしを こえた
@@ -429,10 +434,14 @@
   function tapTile(i, el) {
     var q = G.q; if (G.lock || q.placed.indexOf(i) >= 0) return;
     if (i < q.tiles.length && q.tiles[i] === q.tiles[q.ptr]) {
-      q.placed.push(i); q.ptr++; hit(el); var p = pts(10); q.bad = -1;
-      FX('tap', G.combo); if (el && window.LXFX) LXFX.popAt(el, '+' + p);
+      q.placed.push(i); q.ptr++; hit(el); var p = q.misses ? 0 : pts(10); q.bad = -1; // ミスした 文は カードの 点なし
+      FX('tap', G.combo); if (el && window.LXFX && p) LXFX.popAt(el, '+' + p);
       if (q.ptr === q.tiles.length) { q.done = 1; solved(); }
-    } else { noteMiss(q, q.placed.map(function (k) { return q.tiles[k]; }).concat('［' + (i < q.tiles.length ? q.tiles[i] : q.trapW) + '］').join(' ') + ' …'); miss(); q.bad = i; }
+    } else {
+      noteMiss(q, q.placed.map(function (k) { return q.tiles[k]; }).concat('［' + (i < q.tiles.length ? q.tiles[i] : q.trapW) + '］').join(' ') + ' …'); miss(); q.bad = i;
+      G.lock = true; q.stun = 1; // 少し 手が 止まる（でたらめに 押すほど 遅くなる）
+      setTimeout(function () { if (G && G.q === q && !G.over) { G.lock = false; q.stun = 0; drawQ(); } }, MISS_LOCK);
+    }
     drawQ();
   }
   /* 📝 ふりかえり用に まちがえた 問題を 覚えておく（同じ 問題は 1 回だけ） */
@@ -537,7 +546,7 @@
         '<div class="mid' + (fresh ? ' slidein' : '') + '">' + (q.trapW ? '<p class="lab qalab">🧩 ワナが 1 枚！ 使わない カードが まざっている</p>' : '') + '<p class="ja big">' + esc(s.ja) + '</p>' +
         '<div class="slots' + (q.done ? ' ok' : '') + '">' + q.placed.map(function (i) { return '<span class="tl">' + esc(q.tiles[i]) + '</span>'; }).join('') +
         (q.done ? '<span class="end">' + esc(q.end) + '</span>' : '') + '</div>' +
-        '<div class="pool">' + q.ord.map(function (i) {
+        '<div class="pool' + (q.stun ? ' stun' : '') + '">' + q.ord.map(function (i) {
           var w = i < q.tiles.length ? q.tiles[i] : q.trapW; // 最後の 番号は ワナ
           return '<button type="button" class="tl' + (q.placed.indexOf(i) >= 0 ? ' used' : '') + (q.bad === i ? ' shake' : '') + (q.done && i >= q.tiles.length ? ' trapx' : '') + '" data-gt="' + i + '">' + esc(w) + '</button>';
         }).join('') + '</div></div>';
